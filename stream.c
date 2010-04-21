@@ -65,3 +65,15 @@ void glk_put_buffer(char *buf, glui32 len) {
     glk_put_char(buf[i]);
   }
 }
+
+
+/* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.2 */
+glsi32 glk_get_char_stream(strid_t str) {
+  glsi32 uni_char = glk_get_char_stream_uni(str);
+
+  if (uni_char > 0xFF) {
+    return '?';
+  }
+
+  return uni_char;
+}
