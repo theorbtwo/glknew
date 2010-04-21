@@ -1,6 +1,19 @@
 #include "glknew.h"
 
+
+/* There's a concept of the "current stream" in glk.  I don't like it,
+   it's an unneccessary global.  The ills of implementing somebody
+   else's API. */
+/* http://www.eblong.com/zarf/glk/glk-spec-070_5.html */
 strid_t current_stream = NULL;
+
+void glk_stream_set_current(strid_t str) {
+  current_stream = str;
+}
+
+strid_t glk_stream_get_current(void) {
+  return current_stream;
+}
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html section 5.2.
  * The prototype in the spec disagrees with the prototype in the
