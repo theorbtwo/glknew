@@ -26,6 +26,7 @@ union glk_stream_struct_u {
 struct glk_stream_struct_vtable {
   void (*set_position)(strid_t str, glsi32 pos, glui32 seekmode);
   glui32 (*get_position)(strid_t str);
+  void (*put_char_uni)(strid_t str, glui32 ch);
 };
 
 /* Finally, an individual stream. */

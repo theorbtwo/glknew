@@ -15,7 +15,7 @@ strid_t glk_stream_get_current(void) {
   return current_stream;
 }
 
-/* http://www.eblong.com/zarf/glk/glk-spec-070_5.html section 5.4 */
+/* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.4 */
 void glk_stream_set_position(strid_t str, glsi32 pos, glui32 seekmode) {
   (*str->vtable->set_position)(str, pos, seekmode);
 }
@@ -23,6 +23,11 @@ void glk_stream_set_position(strid_t str, glsi32 pos, glui32 seekmode) {
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.4 */
 glui32 glk_stream_get_position(strid_t str) {
   return ((*str->vtable->get_position)(str));
+}
+
+
+void glk_put_char_stream_uni(strid_t str, glui32 ch) {
+  return ((*str->vtable->put_char_uni)(str, ch));
 }
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.1 */
