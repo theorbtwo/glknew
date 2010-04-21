@@ -35,20 +35,33 @@ glui32 glk_stream_get_position(strid_t str) {
 }
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.1 */
+/* There are lots of versions of putting data to a stream:
+ * glk_put_(char|string|buffer)(|_stream)(|_uni).
+ * We define:
+ * !stream -> stream
+ * !uni -> uni
+ * (buffer|string) -> char
+ * ...in order of preference.  Maybe.
+ */
+void glk_put_char_stream(strid_t str, unsigned char ch) {
+  glui32 ch_uni = ch;
+  glk_put_char_stream_uni(current_stream, ch_uni);
+}
+
 void glk_put_char_uni(glui32 ch) {
   glk_put_char_stream_uni(current_stream, ch);
 }
 
 void glk_put_char(unsigned char ch) {
-  glui32 ch_uni = ch;
-  glk_put_char_uni(ch_uni);
-}
-
-void glk_put_char_stream(strid_t str, unsigned char ch) {
-  glui32 ch_uni = ch;
-  glk_put_char_stream_uni(current_stream, ch);
+  glk_put_char_stream(current_stream, ch);
 }
 
 void glk_put_string(char *s) {
   glk_put_string_stream(current_stream, s);
+}
+
+void glk_put_buffer(char *buf, glui32 len) {
+  for (int i=0; i<len; i++) {
+    glk_put_char(buf[i]);
+  }
 }

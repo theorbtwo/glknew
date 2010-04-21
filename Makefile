@@ -1,5 +1,5 @@
 CC = gcc
-OPTIONS = -Wall -g3 -O0
+OPTIONS = -std=c99 -Wall -g3 -O0
 CFLAGS = $(OPTIONS) $(INCLUDEDIRS)
 GLKLIB = libglknew.a
 
