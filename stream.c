@@ -39,6 +39,12 @@ void glk_put_char_stream(strid_t str, unsigned char ch) {
   glk_put_char_stream_uni(current_stream, ch_uni);
 }
 
+void glk_put_string_stream(strid_t str, char *s) {
+  for (; *s; s++) {
+    glk_put_char_stream(str, (unsigned char)*s);
+  }
+}
+
 void glk_put_char_uni(glui32 ch) {
   glk_put_char_stream_uni(current_stream, ch);
 }
