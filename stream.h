@@ -35,7 +35,7 @@ struct glk_stream_struct {
   glui32 fmode;
   glui32 type;
 
-  struct glk_stream_struct_vtable vtable;
+  struct glk_stream_struct_vtable *vtable;
 
   union glk_stream_struct_u u;
 };
