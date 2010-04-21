@@ -14,9 +14,22 @@ void gidispatch_set_object_registry(
   dispatch_unregister = unregi;
 }
 
-/*
-extern gidispatch_rock_t gidispatch_get_objrock(void *obj, glui32 objclass);
-*/
+gidispatch_rock_t gidispatch_get_objrock(void *obj, glui32 objclass) {
+  switch(objclass) {
+
+  case gidisp_Class_Stream:
+    {
+      struct glk_stream_struct *stream = obj;
+      return stream->dispatch_rock;
+    }
+    break;
+
+  default:
+    printf("gidspatch_get_objrock");
+    exit(~0);
+
+  }
+}
 
 void gidispatch_set_retained_registry(
                                       gidispatch_rock_t (*regi)(void *array, glui32 len, char *typecode), 
