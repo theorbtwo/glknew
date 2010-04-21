@@ -3,7 +3,10 @@ OPTIONS = -Wall -g3 -O0
 CFLAGS = $(OPTIONS) $(INCLUDEDIRS)
 GLKLIB = libglknew.a
 
-OBJS = dispatch.o blorb.o blorb_local.o stream_memory.o
+OBJS = dispatch.o dispatch_local.o \
+	blorb.o blorb_local.o \
+	stream.o stream_memory.o \
+	start.o
 HEADERS = glk.h glknew.h glkstart.h blorb.h dispatch.h
 
 all: $(GLKLIB) Make.glknew
