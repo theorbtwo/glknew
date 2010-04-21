@@ -68,6 +68,9 @@ void glk_put_buffer(char *buf, glui32 len) {
 
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.2 */
+/* There are several ways to read from a stream:
+ * glk_get_(char|buffer|line)_stream(|_uni).
+ */
 glsi32 glk_get_char_stream(strid_t str) {
   glsi32 uni_char = glk_get_char_stream_uni(str);
 
