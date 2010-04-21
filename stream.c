@@ -1,19 +1,9 @@
 #include "glknew.h"
 
-
-/* There's a concept of the "current stream" in glk.  I don't like it,
-   it's an unneccessary global.  The ills of implementing somebody
-   else's API. */
-/* http://www.eblong.com/zarf/glk/glk-spec-070_5.html */
-strid_t current_stream = NULL;
-
-void glk_stream_set_current(strid_t str) {
-  current_stream = str;
-}
-
-strid_t glk_stream_get_current(void) {
-  return current_stream;
-}
+/* A bunch of functions that simply dispatch depending on the stream
+   type they refer to (or, rather, depending on the vtable of the
+   stream).
+*/
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.4 */
 void glk_stream_set_position(strid_t str, glsi32 pos, glui32 seekmode) {
@@ -28,6 +18,24 @@ glui32 glk_stream_get_position(strid_t str) {
 
 void glk_put_char_stream_uni(strid_t str, glui32 ch) {
   return ((*str->vtable->put_char_uni)(str, ch));
+}
+
+glsi32 glk_get_char_stream_uni(strid_t str) {
+  return ((*str->vtable->get_char_uni)(str));
+}
+
+/* There's a concept of the "current stream" in glk.  I don't like it,
+   it's an unneccessary global.  The ills of implementing somebody
+   else's API. */
+/* http://www.eblong.com/zarf/glk/glk-spec-070_5.html */
+strid_t current_stream = NULL;
+
+void glk_stream_set_current(strid_t str) {
+  current_stream = str;
+}
+
+strid_t glk_stream_get_current(void) {
+  return current_stream;
 }
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.1 */
