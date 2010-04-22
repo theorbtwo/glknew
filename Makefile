@@ -5,7 +5,7 @@ GLKLIB = libglknew.a
 
 OBJS = dispatch.o dispatch_local.o \
 	blorb.o blorb_local.o \
-	stream.o stream_memory.o \
+	stream.o stream_memory.o stream_file.o \
 	start.o char.o
 HEADERS = glk.h glknew.h glkstart.h blorb.h dispatch.h
 

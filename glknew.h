@@ -1,5 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <errno.h>
+#include <unistd.h>
 
 #include "glk.h"
 #include "blorb.h"
@@ -20,4 +25,8 @@ void (*dispatch_unregister)(void *obj, glui32 objclass, gidispatch_rock_t objroc
  */
 gidispatch_rock_t (*dispatch_adopt)(void *array, glui32 len, char *typecode);
 void (*dispatch_disown)(void *array, glui32 len, char *typecode, gidispatch_rock_t objrock);
+
+/* From cheapglk/cheapglk.h, called in start.c */
+extern strid_t gli_stream_open_pathname(char *pathname, int textmode,
+                                        glui32 rock);
 

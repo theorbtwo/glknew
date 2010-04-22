@@ -1,6 +1,28 @@
 #include "glknew.h"
 
+void set_position(strid_t str, glsi32 pos, glui32 seekmode) {
+  int fd = str->u.file.fd;
+  int whence;
+
+  if (seekmode == seekmode_Start) {
+    whence = SEEK_SET;
+  } else if (seekmode == seekmode_Current) {
+    whence = SEEK_CUR;
+  } else if (seekmode == seekmode_End) {
+    whence = SEEK_END;
+  } else {
+    printf("Can't happen: seekmode %d out of range\n", seekmode);
+    exit(~0);
+  }
+
+  if (lseek(fd, pos, whence) == -1) {
+    printf("Seek of fd %d to pos %d, whence=%d failed with errno=%d", fd, pos, whence, errno);
+    exit(~0);
+  }
+}
+
 struct glk_stream_struct_vtable stream_file_vtable = {
+  .set_position = &set_position
 };
 
 /* Not part of the glk API proper, but required by the glkunix API. */
@@ -32,3 +54,4 @@ strid_t gli_stream_open_pathname(char *pathname, int textmode,
   
   return stream;
 }
+

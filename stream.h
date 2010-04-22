@@ -8,6 +8,7 @@ typedef strid_t stream_t;
 
 /* Types of stream */
 #define STREAM_TYPE_MEMORY 1;
+#define STREAM_TYPE_FILE   2;
 
 /* We name all our temporary types --
  * first, the private data for each stream type. */
@@ -16,9 +17,14 @@ struct glk_stream_struct_u_mem {
   glui32 buflen;
 };
 
+struct glk_stream_struct_u_file {
+  int fd;
+};
+
 /* The union of all private data for stream types. */
 union glk_stream_struct_u {
   struct glk_stream_struct_u_mem mem;
+  struct glk_stream_struct_u_file file;
 };
 
 /* We make a vtable for simple dispatching downward to stream-type
