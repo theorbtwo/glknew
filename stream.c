@@ -7,7 +7,12 @@
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.4 */
 void glk_stream_set_position(strid_t str, glsi32 pos, glui32 seekmode) {
-  (*str->vtable->set_position)(str, pos, seekmode);
+  if (str->vtable->set_position) {
+    (*str->vtable->set_position)(str, pos, seekmode);
+  } else {
+    printf("Attempt to set_position, but vtable entry not defined for type=%d", str->type);
+    exit(~0);
+  }
 }
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.4 */

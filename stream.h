@@ -15,6 +15,7 @@ typedef strid_t stream_t;
 struct glk_stream_struct_u_mem {
   char *buf;
   glui32 buflen;
+  glsi32 pos;
 };
 
 struct glk_stream_struct_u_file {

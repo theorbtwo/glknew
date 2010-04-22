@@ -1,8 +1,22 @@
 #include "glknew.h"
 
+void set_position(strid_t str, glsi32 pos, glui32 seekmode) {
+  if (seekmode == seekmode_Start) {
+    str->u.mem.pos = pos;
+  } else if (seekmode == seekmode_Current) {
+    str->u.mem.pos += pos;
+  } else if (seekmode == seekmode_End) {
+    str->u.mem.pos = str->u.mem.buflen - pos;
+  }
+
+  if (str->u.mem.pos > str->u.mem.buflen || str->u.mem.pos < 0) {
+    printf("Memory stream seeked to illegal position %d, but has length %d\n", str->u.mem.pos, str->u.mem.buflen);
+    exit(~0);
+  }
+}
+
 struct glk_stream_struct_vtable stream_memory_vtable = {
-  /* &glk_stream_memory_set_position, */
-  /* &glk_stream_memory_get_position  */
+  .set_position = set_position
 };
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html section 5.6.2 */
