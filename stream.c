@@ -26,7 +26,12 @@ void glk_put_char_stream_uni(strid_t str, glui32 ch) {
 }
 
 glsi32 glk_get_char_stream_uni(strid_t str) {
-  return ((*str->vtable->get_char_uni)(str));
+  if (str->vtable->get_char_uni) {
+    return ((*str->vtable->get_char_uni)(str));
+  } else {
+    printf("Attempt to get_char_uni, but vtable entry not defined for type=%d", str->type);
+    exit(~0);
+  }
 }
 
 /* There's a concept of the "current stream" in glk.  I don't like it,

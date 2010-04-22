@@ -1,6 +1,6 @@
 #include "glknew.h"
 
-void set_position(strid_t str, glsi32 pos, glui32 seekmode) {
+static void set_position(strid_t str, glsi32 pos, glui32 seekmode) {
   if (seekmode == seekmode_Start) {
     str->u.mem.pos = pos;
   } else if (seekmode == seekmode_Current) {
@@ -15,8 +15,22 @@ void set_position(strid_t str, glsi32 pos, glui32 seekmode) {
   }
 }
 
+static glsi32 get_char_uni(strid_t str) {
+  /* FIXME: do I need wide and narrow memory streams?
+   * git is creating a memory stream of a mmapped .gblorb file, and
+   * expecting it to work, which implies that that stream is
+   * byte-sized.
+   */
+  if (str->u.mem.pos > str->u.mem.buflen) {
+    return -1;
+  }
+
+  return str->u.mem.buf[str->u.mem.pos++];
+}
+
 struct glk_stream_struct_vtable stream_memory_vtable = {
-  .set_position = set_position
+  .set_position = set_position,
+  .get_char_uni = get_char_uni
 };
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html section 5.6.2 */

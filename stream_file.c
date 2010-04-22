@@ -1,6 +1,6 @@
 #include "glknew.h"
 
-void set_position(strid_t str, glsi32 pos, glui32 seekmode) {
+static void set_position(strid_t str, glsi32 pos, glui32 seekmode) {
   int fd = str->u.file.fd;
   int whence;
 
