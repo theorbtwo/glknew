@@ -60,5 +60,15 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
 
   printf(">>>at %p\n", newwin);
 
+  newwin->stream = glk_stream_open_window(newwin, filemode_ReadWrite, 0);
+
   return newwin;
+}
+
+void glk_set_window(winid_t win) {
+  glk_stream_set_current(glk_window_get_stream(win));
+}
+
+strid_t glk_window_get_stream(winid_t win) {
+  
 }

@@ -7,7 +7,7 @@ OBJS = dispatch.o dispatch_local.o \
 	blorb.o blorb_local.o \
 	stream.o stream_memory.o stream_file.o \
 	start.o char.o gestalt.o \
-	window.o
+	window.o stream_window.o
 HEADERS = glk.h glknew.h glkstart.h blorb.h dispatch.h
 
 all: $(GLKLIB) Make.glknew
