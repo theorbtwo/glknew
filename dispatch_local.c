@@ -24,8 +24,15 @@ gidispatch_rock_t gidispatch_get_objrock(void *obj, glui32 objclass) {
     }
     break;
 
+  case gidisp_Class_Window:
+    {
+      struct glk_window_struct *win = obj;
+      return win->dispatch_rock;
+    }
+    break;
+
   default:
-    printf("gidspatch_get_objrock");
+    printf("gidspatch_get_objrock on objclass=%d", objclass);
     exit(~0);
 
   }
