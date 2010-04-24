@@ -745,6 +745,22 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
   case 0x002F: /* set_window */
     glk_set_window(arglist[0].opaqueref);
     break;
+    
+  case 0x00C0: /* select */
+    printf("Time for select, suicideing.\n");
+    exit(2);
+    if (arglist[0].ptrflag) {
+      event_t dat;
+      glk_select(&dat);
+      arglist[1].uint = dat.type;
+      arglist[2].opaqueref = dat.win;
+      arglist[3].uint = dat.val1;
+      arglist[4].uint = dat.val2;
+    }
+    else {
+      glk_select(NULL);
+    }
+    break;
 
   default:
     printf(">>>Unhandled\n");
@@ -1020,19 +1036,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             else
                 arglist[5].uint = glk_style_measure(arglist[0].opaqueref, arglist[1].uint,
                     arglist[2].uint, NULL);
-            break;
-        case 0x00C0: /* select */
-            if (arglist[0].ptrflag) {
-                event_t dat;
-                glk_select(&dat);
-                arglist[1].uint = dat.type;
-                arglist[2].opaqueref = dat.win;
-                arglist[3].uint = dat.val1;
-                arglist[4].uint = dat.val2;
-            }
-            else {
-                glk_select(NULL);
-            }
             break;
         case 0x00C1: /* select_poll */
             if (arglist[0].ptrflag) {

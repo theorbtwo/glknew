@@ -1,6 +1,16 @@
 #include "glknew.h"
 
+static void put_char_uni(struct glk_stream_struct *str, glui32 ch) {
+  printf(">>>put_char_uni for window %p, character U+%x", str->u.win.win, ch);
+  if (ch > ' ' && ch < '~') {
+    printf(", '%c'\n", ch);
+  } else {
+    printf("\n");
+  }
+}
+
 struct glk_stream_struct_vtable stream_window_vtable = {
+  .put_char_uni = put_char_uni
 };
 
 strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui32 rock) {
@@ -15,6 +25,7 @@ strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui
   stream->fmode = fmode;
   stream->type  = STREAM_TYPE_WINDOW;
   stream->vtable = &stream_window_vtable;
+  stream->u.win.win = win;
   
   /* FIXME: 1: There should be a better way.
      FIXME: 2: The spec suggests that we should save this up, and call
