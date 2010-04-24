@@ -677,24 +677,77 @@ char *gidispatch_prototype(glui32 funcnum)
 
 void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
 {
-    switch (funcnum) {
-    case 0x0004: /* gestalt */
-      arglist[3].uint = glk_gestalt(arglist[0].uint, arglist[1].uint);
-      break;
-    case 0x0005: /* gestalt_ext */
-      if (arglist[2].ptrflag) {
-        arglist[6].uint = glk_gestalt_ext(arglist[0].uint, arglist[1].uint,
-                                          arglist[3].array, arglist[4].uint);
-      }
-      else {
-        arglist[4].uint = glk_gestalt_ext(arglist[0].uint, arglist[1].uint,
-                                          NULL, 0);
-      }
-      break;
-    case 0x0023: /* window_open */
-      arglist[6].opaqueref = glk_window_open(arglist[0].opaqueref, arglist[1].uint, 
-                                             arglist[2].uint, arglist[3].uint, arglist[4].uint);
-      break;
+  {
+    gidispatch_function_t *gidispatch_function;
+    char *prototype;
+    int argument = 0;
+    int slot = 0;
+    
+    gidispatch_function = gidispatch_get_function_by_id(funcnum);
+    prototype = gidispatch_prototype(funcnum);
+    printf("dispatch call name=%s, prototype=%s, numargs=%ul\n", gidispatch_function->name, prototype, (unsigned int)numargs);
+    if (0) {
+    } else if (strcmp(prototype, "4IuIuIuIs") == 0) {
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("%d, ", arglist[slot].sint); slot++; argument++;
+      printf("\n");
+    }else if (strcmp(prototype, "3IuIu:Iu") == 0) {
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("return %u, ", arglist[slot].uint); slot++; argument++;
+      printf("\n");
+    }else if (strcmp(prototype, "3Qa<Iu:Qa") == 0) {
+      printf("window, "); slot++; argument++;
+      printf("out ref %u, ", arglist[slot].uint); slot++; argument++;
+      printf("return window, "); slot++; argument++;
+      printf("\n");
+    }else if (strcmp(prototype, "3Qc<Iu:Qc") == 0) {
+      printf("fileref, "); slot++; argument++;
+      printf("out ref %u, ", arglist[slot].uint); slot++; argument++;
+      printf("return fileref, "); slot++; argument++;
+      printf("\n");
+    }else if (strcmp(prototype, "1Qa:") == 0) {
+      printf("window, "); slot++; argument++;
+      printf("\n");
+    }else if (strcmp(prototype, "6QaIuIuIuIu:Qa") == 0) {
+      printf("window, "); slot++; argument++;
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("return window, "); slot++; argument++;
+      printf("\n");
+    } else {
+      printf("prototype %s unhandled\n", prototype);
+    }
+  }
+  
+  switch (funcnum) {
+  case 0x0004: /* gestalt */
+    arglist[3].uint = glk_gestalt(arglist[0].uint, arglist[1].uint);
+    break;
+  case 0x0005: /* gestalt_ext */
+    if (arglist[2].ptrflag) {
+      arglist[6].uint = glk_gestalt_ext(arglist[0].uint, arglist[1].uint,
+                                        arglist[3].array, arglist[4].uint);
+    }
+    else {
+      arglist[4].uint = glk_gestalt_ext(arglist[0].uint, arglist[1].uint,
+                                        NULL, 0);
+    }
+    break;
+  case 0x0023: /* window_open */
+    arglist[6].opaqueref = glk_window_open(arglist[0].opaqueref, arglist[1].uint, 
+                                           arglist[2].uint, arglist[3].uint, arglist[4].uint);
+    break;
+  case 0x002F: /* set_window */
+    glk_set_window(arglist[0].opaqueref);
+    break;
+
+  default:
+    printf(">>>Unhandled\n");
 #if 0
         case 0x0001: /* exit */
             glk_exit();
@@ -808,9 +861,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             break;
         case 0x002E: /* window_get_echo_stream */
             arglist[2].opaqueref = glk_window_get_echo_stream(arglist[0].opaqueref);
-            break;
-        case 0x002F: /* set_window */
-            glk_set_window(arglist[0].opaqueref);
             break;
         case 0x0030: /* window_get_sibling */
             arglist[2].opaqueref = glk_window_get_sibling(arglist[0].opaqueref);
@@ -1226,55 +1276,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             break;
 #endif /* GLK_MODULE_UNICODE */
 #endif /* 0 */
-        default:
-          {
-            gidispatch_function_t *gidispatch_function;
-            char *prototype;
-            int argument = 0;
-            int slot = 0;
-            
-            gidispatch_function = gidispatch_get_function_by_id(funcnum);
-            prototype = gidispatch_prototype(funcnum);
-            printf("dispatch call name=%s, prototype=%s, numargs=%ul\n", gidispatch_function->name, prototype, (unsigned int)numargs);
-            if (0) {
-            } else if (strcmp(prototype, "4IuIuIuIs") == 0) {
-              printf("%u, ", arglist[slot].uint); slot++; argument++;
-              printf("%u, ", arglist[slot].uint); slot++; argument++;
-              printf("%u, ", arglist[slot].uint); slot++; argument++;
-              printf("%d, ", arglist[slot].sint); slot++; argument++;
-              printf("\n");
-            }else if (strcmp(prototype, "3IuIu:Iu") == 0) {
-              printf("%u, ", arglist[slot].uint); slot++; argument++;
-              printf("%u, ", arglist[slot].uint); slot++; argument++;
-              printf("return %u, ", arglist[slot].uint); slot++; argument++;
-              printf("\n");
-            }else if (strcmp(prototype, "3Qa<Iu:Qa") == 0) {
-              printf("window, "); slot++; argument++;
-              printf("out ref %u, ", arglist[slot].uint); slot++; argument++;
-              printf("return window, "); slot++; argument++;
-              printf("\n");
-            }else if (strcmp(prototype, "3Qc<Iu:Qc") == 0) {
-              printf("fileref, "); slot++; argument++;
-              printf("out ref %u, ", arglist[slot].uint); slot++; argument++;
-              printf("return fileref, "); slot++; argument++;
-              printf("\n");
-            }else if (strcmp(prototype, "1Qa:") == 0) {
-              printf("window, "); slot++; argument++;
-              printf("\n");
-            }else if (strcmp(prototype, "6QaIuIuIuIu:Qa") == 0) {
-              printf("window, "); slot++; argument++;
-              printf("%u, ", arglist[slot].uint); slot++; argument++;
-              printf("%u, ", arglist[slot].uint); slot++; argument++;
-              printf("%u, ", arglist[slot].uint); slot++; argument++;
-              printf("%u, ", arglist[slot].uint); slot++; argument++;
-              printf("return window, "); slot++; argument++;
-              printf("\n");
-            } else {
-              printf("prototype %s unhandled\n", prototype);
-            }
-          }
-          /* do nothing */
-          break;
-    }
+  }
 }
 

@@ -8,7 +8,7 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
   struct glk_window_struct *newwin;
   
   printf(">>>Opening new window, splitting exsiting window %p\n", split);
-  printf(">>>method");
+  printf(">>>method=");
   if ((method & winmethod_DirMask) == winmethod_Left) {
     printf("left");
   } else if ((method & winmethod_DirMask) == winmethod_Right) {
@@ -20,10 +20,12 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
   }
 
   if ((method & winmethod_DivisionMask) == winmethod_Fixed) {
-    printf(", fixed\n");
+    printf(", fixed");
   } else if ((method & winmethod_DivisionMask) == winmethod_Proportional) {
-    printf(", proportional\n");
+    printf(", proportional");
   }
+
+  printf("\n");
 
   printf(">>>size %d\n", size);
 
@@ -56,6 +58,8 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
   newwin->rock=rock;
   if (dispatch_register) {
     newwin->dispatch_rock = dispatch_register(newwin, gidisp_Class_Window);
+  } else {
+    printf("Making window while dispatch_register unset\n");
   }
 
   printf(">>>at %p\n", newwin);
@@ -66,9 +70,14 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
 }
 
 void glk_set_window(winid_t win) {
+  if (!win) {
+    printf("Ignoring attempt to set to null window, as recommended at http://groups.google.com/group/rec.arts.int-fiction/browse_thread/thread/b7671883f03914cc?pli=1\n");
+    return;
+  }
+  
   glk_stream_set_current(glk_window_get_stream(win));
 }
 
 strid_t glk_window_get_stream(winid_t win) {
-  
+  return win->stream;
 }

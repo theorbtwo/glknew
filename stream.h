@@ -55,4 +55,7 @@ struct glk_stream_struct {
   union glk_stream_struct_u u;
 };
 
+extern strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui32 rock);
+
+
 #endif
