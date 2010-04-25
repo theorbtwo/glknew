@@ -746,6 +746,11 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     glk_set_window(arglist[0].opaqueref);
     break;
     
+  case 0x00B0: /* stylehint_set */
+    glk_stylehint_set(arglist[0].uint, arglist[1].uint,
+                      arglist[2].uint, arglist[3].sint);
+    break;
+    
   case 0x00C0: /* select */
     printf("Time for select, suicideing.\n");
     exit(2);
@@ -1016,10 +1021,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             break;
         case 0x00A1: /* char_to_upper */
             arglist[2].uch = glk_char_to_upper(arglist[0].uch);
-            break;
-        case 0x00B0: /* stylehint_set */
-            glk_stylehint_set(arglist[0].uint, arglist[1].uint,
-                arglist[2].uint, arglist[3].sint);
             break;
         case 0x00B1: /* stylehint_clear */
             glk_stylehint_clear(arglist[0].uint, arglist[1].uint,

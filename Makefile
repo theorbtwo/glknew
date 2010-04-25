@@ -5,9 +5,9 @@ GLKLIB = libglknew.a
 
 OBJS = dispatch.o dispatch_local.o \
 	blorb.o blorb_local.o \
-	stream.o stream_memory.o stream_file.o \
-	start.o char.o gestalt.o \
-	window.o stream_window.o
+	stream.o stream_memory.o stream_file.o stream_window.o \
+	start.o char.o gestalt.o style.o \
+	window.o 
 HEADERS = glk.h glknew.h glkstart.h blorb.h dispatch.h
 
 all: $(GLKLIB) Make.glknew

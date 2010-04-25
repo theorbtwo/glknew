@@ -1,0 +1,12 @@
+#ifndef GLKNEW_STYLE_H
+#define GLKNEW_STYLE_H
+
+struct stylehint {
+  glsi32 val;
+  glsi32 is_set;
+};
+
+/* Each window type has it's own set of styles. */
+extern struct stylehint styles[wintype_Graphics][style_NUMSTYLES][stylehint_NUMHINTS];
+
+#endif

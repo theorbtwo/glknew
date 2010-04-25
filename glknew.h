@@ -12,6 +12,7 @@
 #include "dispatch.h"
 #include "stream.h"
 #include "window.h"
+#include "style.h"
 
 /* Every time the glk library creates an object, we should call this,
  * passing a gidisp_Class_Foo constant from dispatch.h in the second
