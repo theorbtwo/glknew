@@ -746,6 +746,13 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     glk_set_window(arglist[0].opaqueref);
     break;
     
+  case 0x0086: /* set_style */
+    glk_set_style(arglist[0].uint);
+    break;
+  case 0x0087: /* set_style_stream */
+    glk_set_style_stream(arglist[0].opaqueref, arglist[1].uint);
+    break;
+    
   case 0x00B0: /* stylehint_set */
     glk_stylehint_set(arglist[0].uint, arglist[1].uint,
                       arglist[2].uint, arglist[3].sint);
@@ -990,12 +997,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             else
                 glk_put_buffer_stream(arglist[0].opaqueref, 
                     NULL, 0);
-            break;
-        case 0x0086: /* set_style */
-            glk_set_style(arglist[0].uint);
-            break;
-        case 0x0087: /* set_style_stream */
-            glk_set_style_stream(arglist[0].opaqueref, arglist[1].uint);
             break;
         case 0x0090: /* get_char_stream */
             arglist[2].sint = glk_get_char_stream(arglist[0].opaqueref);

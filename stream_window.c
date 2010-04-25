@@ -21,10 +21,11 @@ strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui
     return stream;
   }
 
+  stream->vtable = &stream_window_vtable;
   stream->rock  = rock;
   stream->fmode = fmode;
   stream->type  = STREAM_TYPE_WINDOW;
-  stream->vtable = &stream_window_vtable;
+  stream->current_style = styles[win->wintype][style_Normal];
   stream->u.win.win = win;
   
   /* FIXME: 1: There should be a better way.

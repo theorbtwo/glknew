@@ -14,6 +14,12 @@
 #include "window.h"
 #include "style.h"
 
+/* The current stream; there's a bunch of shortcut functions in the
+   API that use this explicitly.  Used to be local to stream.c, but
+   style.c needs it too. */
+extern strid_t current_stream;
+
+
 /* Every time the glk library creates an object, we should call this,
  * passing a gidisp_Class_Foo constant from dispatch.h in the second
  * thing, and the object just created in the first.  Then we should

@@ -7,9 +7,9 @@
 typedef strid_t stream_t;
 
 /* Types of stream */
-#define STREAM_TYPE_MEMORY 1;
-#define STREAM_TYPE_FILE   2;
-#define STREAM_TYPE_WINDOW 3;
+#define STREAM_TYPE_MEMORY 1
+#define STREAM_TYPE_FILE   2
+#define STREAM_TYPE_WINDOW 3
 
 /* We name all our temporary types --
  * first, the private data for each stream type. */
@@ -45,12 +45,14 @@ struct glk_stream_struct_vtable {
 
 /* Finally, an individual stream. */
 struct glk_stream_struct {
+  struct glk_stream_struct_vtable *vtable;
+  
+  style *current_style;
+  
   glui32 rock;
   gidispatch_rock_t dispatch_rock;
   glui32 fmode;
   glui32 type;
-
-  struct glk_stream_struct_vtable *vtable;
 
   union glk_stream_struct_u u;
 };

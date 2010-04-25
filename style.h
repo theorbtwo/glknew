@@ -6,7 +6,9 @@ struct stylehint {
   glsi32 is_set;
 };
 
+typedef struct stylehint style[stylehint_NUMHINTS];
+
 /* Each window type has it's own set of styles. */
-extern struct stylehint styles[wintype_Graphics][style_NUMSTYLES][stylehint_NUMHINTS];
+extern style styles[wintype_Graphics][style_NUMSTYLES];
 
 #endif

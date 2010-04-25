@@ -119,8 +119,12 @@ sub handle_stdout {
       $self->{windows}{$1} = delete $self->{win_in_progress};
     }
 
-    when (/^>>>put_char_uni for window (0x[0-9a-f-A-F]+), character U\+([0-9A-Fa-f]+)(, '.')?$/) {
+    when (/^>>>put_char_uni for window (0x[0-9a-fA-F]+), character U\+([0-9A-Fa-f]+)(, '.')?$/) {
       push @{$self->{windows}{$1}{text}}, [$self->{windows}{$1}{current_style}, chr hex $2];
+    }
+
+    when (/^>>>glk_set_style_stream Window=(0x[0-9a-fA-F]+) to style=(\d+) \(([A-Za-z0-9]+)\)$/) {
+      $self->{windows}{$1}{current_style} = $self->{styles}{$self->{windows}{$1}{wintype}}{$3};
     }
 
     when (/^Time for select, suiciding\.$/) {
