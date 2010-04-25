@@ -8,7 +8,7 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
   struct glk_window_struct *newwin;
   
   printf(">>>Opening new window, splitting exsiting window %p\n", split);
-  printf(">>>method=");
+  printf(">>>win: method=");
   if ((method & winmethod_DirMask) == winmethod_Left) {
     printf("left");
   } else if ((method & winmethod_DirMask) == winmethod_Right) {
@@ -27,19 +27,19 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
 
   printf("\n");
 
-  printf(">>>size %d\n", size);
+  printf(">>>win: size %d\n", size);
 
-  printf(">>>wintype=%d ", wintype);
+  printf(">>>win: wintype=%d ", wintype);
   if (wintype == wintype_Pair) {
-    printf("pair\n");
+    printf("Pair\n");
   } else if (wintype == wintype_Blank) {
-    printf("blank\n");
+    printf("Blank\n");
   } else if (wintype == wintype_TextBuffer) {
-    printf("textbuffer\n");
+    printf("TextBuffer\n");
   } else if (wintype == wintype_TextGrid) {
-    printf("textgrid\n");
+    printf("TextGrid\n");
   } else if (wintype == wintype_Graphics) {
-    printf("graphics\n");
+    printf("Graphics\n");
   }
 
   if (!root_window) {
@@ -49,7 +49,7 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
       printf("Nonzero split when opening root window.");
       exit(~0);
     }
-    printf(">>>is root\n");
+    printf(">>>win: is root\n");
     root_window = newwin;
   }
 
@@ -62,7 +62,7 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
     printf("Making window while dispatch_register unset\n");
   }
 
-  printf(">>>at %p\n", newwin);
+  printf(">>>win: at %p\n", newwin);
 
   newwin->stream = glk_stream_open_window(newwin, filemode_ReadWrite, 0);
 
@@ -71,7 +71,7 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
 
 void glk_set_window(winid_t win) {
   if (!win) {
-    printf("Ignoring attempt to set to null window, as recommended at http://groups.google.com/group/rec.arts.int-fiction/browse_thread/thread/b7671883f03914cc?pli=1\n");
+    printf("DEBUG: Ignoring attempt to set to null window, as recommended at http://groups.google.com/group/rec.arts.int-fiction/browse_thread/thread/b7671883f03914cc?pli=1\n");
     return;
   }
   

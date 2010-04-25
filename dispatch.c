@@ -685,7 +685,7 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     
     gidispatch_function = gidispatch_get_function_by_id(funcnum);
     prototype = gidispatch_prototype(funcnum);
-    printf("dispatch call name=%s, prototype=%s, numargs=%ul\n", gidispatch_function->name, prototype, (unsigned int)numargs);
+    printf("DEBUG: dispatch call name=%s, prototype=%s, numargs=%u -- ", gidispatch_function->name, prototype, (unsigned int)numargs);
     if (0) {
     } else if (strcmp(prototype, "4IuIuIuIs") == 0) {
       printf("%u, ", arglist[slot].uint); slot++; argument++;
@@ -752,7 +752,7 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     break;
     
   case 0x00C0: /* select */
-    printf("Time for select, suicideing.\n");
+    printf("Time for select, suiciding.\n");
     exit(2);
     if (arglist[0].ptrflag) {
       event_t dat;
@@ -768,7 +768,7 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     break;
 
   default:
-    printf(">>>Unhandled\n");
+    printf("DEBUG: Unhandled call via dispatch\n");
 #if 0
         case 0x0001: /* exit */
             glk_exit();
