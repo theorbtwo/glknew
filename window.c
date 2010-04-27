@@ -81,3 +81,7 @@ void glk_set_window(winid_t win) {
 strid_t glk_window_get_stream(winid_t win) {
   return win->stream;
 }
+
+void glk_window_move_cursor(winid_t win, glui32 xpos, glui32 ypos) {
+  printf(">>>window_move_cursor win=%p, xpos=%d, ypos=%d\n", win, xpos, ypos);
+}
