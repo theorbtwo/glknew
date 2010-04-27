@@ -1,6 +1,6 @@
 #include "glknew.h"
 
-struct glk_window_struct *root_window;
+struct glk_window_struct *root_window = NULL;
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_3.html#s.2 */
 winid_t glk_window_open(winid_t split, glui32 method, glui32 size,

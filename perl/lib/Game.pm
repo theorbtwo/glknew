@@ -4,7 +4,6 @@ use strict;
 use IPC::Run 'harness';
 use 5.10.0;
 use Data::Dump::Streamer;
-$|=1;
 
 sub new {
   my ($class, $blorb_file) = @_;
@@ -130,6 +129,23 @@ sub handle_stdout {
     when (/^Time for select, suiciding\.$/) {
       local $self->{harness} = 'SKIPPING HARNESS';
       Dump $self;
+      
+      for my $win_p (keys %{$self->{windows}}) {
+        my $win = $self->{windows}{$win_p};
+        print "----\n";
+        print "$win_p\n";
+        
+        my $prev_style;
+        for my $e (@{$win->{text}}) {
+          my ($style, $char) = @{$e};
+          if ($prev_style != $style) {
+            print ("<div class='$style->{name}'>");
+          }
+          print $char;
+          $prev_style = $style;
+        }
+      }
+      
       exit;
     }
 

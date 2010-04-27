@@ -11,12 +11,14 @@ glui32 glk_gestalt_ext(glui32 sel, glui32 val, glui32 *arr,
     return 0x00000700;
 
   case gestalt_Unicode:
+    /* This makes more work for me, but if I do not signal unicode
+       support, then the game complains. */
     return 1;
 
+  case gestalt_Sound:
     /* I would like to do this eventually, but not right now.  Blue
        Lacuna doesn't actually have any sounds, anyway -- though if you
        return 1, the init code will try to set them up. */
-  case gestalt_Sound:
     return 0;
 
   default:

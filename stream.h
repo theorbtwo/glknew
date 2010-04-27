@@ -14,7 +14,10 @@ typedef strid_t stream_t;
 /* We name all our temporary types --
  * first, the private data for each stream type. */
 struct glk_stream_struct_u_mem {
-  char *buf;
+  glui32 width;
+  void *buf;
+
+  /* buflen and pos in width-byte units */
   glui32 buflen;
   glsi32 pos;
 };
@@ -59,5 +62,6 @@ struct glk_stream_struct {
 
 extern strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui32 rock);
 
+extern strid_t glk_stream_open_memory_base(void *buf, glui32 buflen, glui32 fmode, glui32 rock, glui32 width);
 
 #endif

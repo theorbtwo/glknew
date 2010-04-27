@@ -746,6 +746,13 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     glk_set_window(arglist[0].opaqueref);
     break;
     
+  case 0x0047: /* stream_set_current */
+    glk_stream_set_current(arglist[0].opaqueref);
+    break;
+  case 0x0048: /* stream_get_current */
+    arglist[1].opaqueref = glk_stream_get_current();
+    break;
+
   case 0x0086: /* set_style */
     glk_set_style(arglist[0].uint);
     break;
@@ -773,7 +780,16 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
       glk_select(NULL);
     }
     break;
-
+    
+  case 0x0139: /* stream_open_memory_uni */
+    if (arglist[0].ptrflag) 
+      arglist[6].opaqueref = glk_stream_open_memory_uni(arglist[1].array, 
+                                                        arglist[2].uint, arglist[3].uint, arglist[4].uint);
+    else
+      arglist[4].opaqueref = glk_stream_open_memory_uni(NULL, 
+                                                        0, arglist[1].uint, arglist[2].uint);
+    break;
+    
   default:
     printf("DEBUG: Unhandled call via dispatch\n");
 #if 0
@@ -931,9 +947,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             break;
         case 0x0046: /* stream_get_position */
             arglist[2].uint = glk_stream_get_position(arglist[0].opaqueref);
-            break;
-        case 0x0047: /* stream_set_current */
-            glk_stream_set_current(arglist[0].opaqueref);
             break;
         case 0x0048: /* stream_get_current */
             arglist[1].opaqueref = glk_stream_get_current();
@@ -1259,14 +1272,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
         case 0x0138: /* stream_open_file_uni */
             arglist[4].opaqueref = glk_stream_open_file_uni(arglist[0].opaqueref, arglist[1].uint, 
                 arglist[2].uint);
-            break;
-        case 0x0139: /* stream_open_memory_uni */
-            if (arglist[0].ptrflag) 
-                arglist[6].opaqueref = glk_stream_open_memory_uni(arglist[1].array, 
-                    arglist[2].uint, arglist[3].uint, arglist[4].uint);
-            else
-                arglist[4].opaqueref = glk_stream_open_memory_uni(NULL, 
-                    0, arglist[1].uint, arglist[2].uint);
             break;
         case 0x0140: /* request_char_event_uni */
             glk_request_char_event_uni(arglist[0].opaqueref);
