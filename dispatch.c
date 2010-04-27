@@ -686,22 +686,22 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     gidispatch_function = gidispatch_get_function_by_id(funcnum);
     prototype = gidispatch_prototype(funcnum);
     printf("DEBUG: dispatch call name=%s, prototype=%s, numargs=%u -- ", gidispatch_function->name, prototype, (unsigned int)numargs);
-    if (0) {
-    } else if (strcmp(prototype, "4IuIuIuIs") == 0) {
+
+    if (strcmp(prototype, "4IuIuIuIs") == 0) {
       printf("%u, ", arglist[slot].uint); slot++; argument++;
       printf("%u, ", arglist[slot].uint); slot++; argument++;
       printf("%u, ", arglist[slot].uint); slot++; argument++;
-      printf("%d, ", arglist[slot].sint); slot++; argument++;
+      printf("%d", arglist[slot].sint); slot++; argument++;
       printf("\n");
     }else if (strcmp(prototype, "3IuIu:Iu") == 0) {
       printf("%u, ", arglist[slot].uint); slot++; argument++;
       printf("%u, ", arglist[slot].uint); slot++; argument++;
-      printf("return %u, ", arglist[slot].uint); slot++; argument++;
+      printf("return %u", arglist[slot].uint); slot++; argument++;
       printf("\n");
     }else if (strcmp(prototype, "3Qa<Iu:Qa") == 0) {
-      printf("window, "); slot++; argument++;
+      printf("window %p, ", arglist[slot].opaqueref); slot++; argument++;
       printf("out ref %u, ", arglist[slot].uint); slot++; argument++;
-      printf("return window, "); slot++; argument++;
+      printf("return window %p, ", arglist[slot].opaqueref); slot++; argument++;
       printf("\n");
     }else if (strcmp(prototype, "3Qc<Iu:Qc") == 0) {
       printf("fileref, "); slot++; argument++;
@@ -709,21 +709,46 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
       printf("return fileref, "); slot++; argument++;
       printf("\n");
     }else if (strcmp(prototype, "1Qa:") == 0) {
-      printf("window, "); slot++; argument++;
+      printf("window %p, ", arglist[slot].opaqueref); slot++; argument++;
       printf("\n");
     }else if (strcmp(prototype, "6QaIuIuIuIu:Qa") == 0) {
-      printf("window, "); slot++; argument++;
+      printf("window %p, ", arglist[slot].opaqueref); slot++; argument++;
       printf("%u, ", arglist[slot].uint); slot++; argument++;
       printf("%u, ", arglist[slot].uint); slot++; argument++;
       printf("%u, ", arglist[slot].uint); slot++; argument++;
       printf("%u, ", arglist[slot].uint); slot++; argument++;
-      printf("return window, "); slot++; argument++;
+      printf("return window %p, ", arglist[slot].opaqueref); slot++; argument++;
+      printf("\n");
+    }else if (strcmp(prototype, "4IuIuIuIs:") == 0) {
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("%d, ", arglist[slot].sint); slot++; argument++;
+      printf("\n");
+    }else if (strcmp(prototype, "1Qb:") == 0) {
+      printf("stream %p type %d, ", arglist[slot].opaqueref, ((struct glk_stream_struct*)(arglist[slot].opaqueref))->type); slot++; argument++;
+      printf("\n");
+    }else if (strcmp(prototype, "1Iu:") == 0) {
+      printf("%u, ", arglist[slot].uint); slot++; argument++;
+      printf("\n");
+    }else if (strcmp(prototype, "2Qb<[2IuIu]:") == 0) {
+      printf("stream %p type %d, ", arglist[slot].opaqueref, ((struct glk_stream_struct*)(arglist[slot].opaqueref))->type); slot++; argument++;
+      if (arglist[slot].ptrflag) {
+        slot++;
+        printf("out ref  {");
+        printf("%u, ", arglist[slot].uint); slot++;
+        printf("%u", arglist[slot].uint); slot++;
+        printf("}, ");
+        argument++;
+      } else {
+        slot++;
+      }
       printf("\n");
     } else {
-      printf("prototype %s unhandled\n", prototype);
+      printf("proto unhandled\n");
     }
   }
-  
+    
   switch (funcnum) {
   case 0x0004: /* gestalt */
     arglist[3].uint = glk_gestalt(arglist[0].uint, arglist[1].uint);
@@ -793,9 +818,9 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
   default:
     printf("DEBUG: Unhandled call via dispatch\n");
 #if 0
-        case 0x0001: /* exit */
-            glk_exit();
-            break;
+  case 0x0001: /* exit */
+    glk_exit();
+    break;
         case 0x0002: /* set_interrupt_handler */
             /* cannot be invoked through dispatch layer */
             break;

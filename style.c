@@ -84,8 +84,18 @@ void glk_set_style_stream(strid_t str, glui32 styl) {
      have a window style! */
   
   if (str->type != STREAM_TYPE_WINDOW) {
-    printf("Attempt to call glk_set_style_stream on a non-window stream (type=%d)\n", str->type);
-    exit(3);
+    printf("Attempt to call glk_set_style_stream on a non-window stream (stream type=%d, style=%d (%s))\n", str->type, styl, style_name(styl));
+    
+    /* Alabaster does this, on a memory stream.  The spec says "For a
+  window stream, the text will appear in that style. For a memory
+  stream, style changes have no effect. For a file stream, if the
+  machine supports styled text files, the styles may be written to the
+  file; more likely the style changes will have no effect. "
+
+    It does not seem to account for the problem of which sort of
+    style to apply to a non-window stream. */
+
+    return;
   }
 
   printf(">>>glk_set_style_stream Window=%p to style=%d (%s)\n", str->u.win.win, styl, style_name(styl));
