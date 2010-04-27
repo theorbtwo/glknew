@@ -791,8 +791,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     break;
     
   case 0x00C0: /* select */
-    printf("Time for select, suiciding.\n");
-    exit(2);
     if (arglist[0].ptrflag) {
       event_t dat;
       glk_select(&dat);
@@ -804,6 +802,10 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     else {
       glk_select(NULL);
     }
+    break;
+  
+  case 0x00D2: /* request_char_event */
+    glk_request_char_event(arglist[0].opaqueref);
     break;
     
   case 0x0139: /* stream_open_memory_uni */
@@ -1110,9 +1112,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             else {
                 glk_cancel_line_event(arglist[0].opaqueref, NULL);
             }
-            break;
-        case 0x00D2: /* request_char_event */
-            glk_request_char_event(arglist[0].opaqueref);
             break;
         case 0x00D3: /* cancel_char_event */
             glk_cancel_char_event(arglist[0].opaqueref);
