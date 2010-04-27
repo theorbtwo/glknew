@@ -50,7 +50,9 @@ strid_t gli_stream_open_pathname(char *pathname, int textmode,
   stream->vtable = &stream_file_vtable;
   stream->u.file.fd = fd;
   
-  stream->dispatch_rock = dispatch_register((void *)stream, gidisp_Class_Stream);
+  if (dispatch_register) {
+    stream->dispatch_rock = dispatch_register((void *)stream, gidisp_Class_Stream);
+  }
   
   return stream;
 }
