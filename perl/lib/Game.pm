@@ -6,15 +6,28 @@ use 5.10.0;
 use Data::Dump::Streamer;
 
 sub new {
-  my ($class, $blorb_file) = @_;
+  my ($class, $blorb_file, $git, $callback) = @_;
   
   die "blorb file is required" unless $blorb_file;
   die "$blorb_file does not exist" unless -e $blorb_file;
 
   my $self = bless {}, $class;
+  $self->{_game_file} = $blorb_file;
+  $self->{_git_binary} = $git if($git);
+  $self->{_callback} = $callback || \&default_callback;
+
   $self->{input_str} = \'';
   # Parser leftovers at end of block.
   $self->{leftovers} = '';
+
+  $self->setup_initial_styles();
+  $self->setup_ipc_harness();
+
+  return $self;
+}
+
+sub setup_initial_styles {
+  my ($self) = @_;
 
   # Only TextBuffer and TextGrid can have text in them, but the spec says they all have styles, so what the hell.
   for my $wt (qw<Pair Blank TextBuffer TextGrid Graphics>) {
@@ -28,7 +41,14 @@ sub new {
     $self->{styles}{$wt}{Preformatted}{Proportional} = 1;
   }
 
-  $self->{harness} = harness(['/mnt/shared/projects/games/flash-if/git-1.2.6/git', $blorb_file],
+}
+
+sub setup_ipc_harness {
+  my ($self) = @_;
+
+  $self->{_git_binary} ||= '/mnt/shared/projects/games/flash-if/git-1.2.6/git';
+  $self->{harness} = harness([$self->{_git_binary},
+                              $self->{_game_file}],
                              '<pty<', $self->{input_str},
                              '>pty>', sub {
                                $self->handle_stdout(@_);
@@ -38,7 +58,7 @@ sub new {
                              }
                             );
 
-  return $self;
+
 }
 
 sub wait_for_select {
@@ -56,7 +76,7 @@ sub wait_for_select {
 sub handle_stdout {
   my ($self, $line) = @_;
 
-  Dump $line;
+#  Dump $line;
 
   # Because IPC::Run doesn't simply split into nice chunks for me, we
   # need to do so ourselves.  Remove any partial chunks at the end of
@@ -126,31 +146,37 @@ sub handle_stdout {
       $self->{windows}{$1}{current_style} = $self->{styles}{$self->{windows}{$1}{wintype}}{$3};
     }
 
-    when (/^Time for select, suiciding\.$/) {
+    when (/^>>> select, want (\w+)$/) {
       local $self->{harness} = 'SKIPPING HARNESS';
       Dump $self;
       
-      for my $win_p (keys %{$self->{windows}}) {
-        my $win = $self->{windows}{$win_p};
-        print "----\n";
-        print "$win_p\n";
-        
-        my $prev_style;
-        for my $e (@{$win->{text}}) {
-          my ($style, $char) = @{$e};
-          if ($prev_style != $style) {
-            print ("<div class='$style->{name}'>");
-          }
-          print $char;
-          $prev_style = $style;
-        }
-      }
+      $self->{_callback}->($self);
       
       exit;
     }
 
     default {
-      die "Don't know how to handle input '$_'";
+#      die "Don't know how to handle input '$_'";
+    }
+  }
+}
+
+sub default_callback {
+  my ($self) = @_;
+
+  for my $win_p (keys %{$self->{windows}}) {
+    my $win = $self->{windows}{$win_p};
+    print "----\n";
+    print "$win_p\n";
+    
+    my $prev_style;
+    for my $e (@{$win->{text}}) {
+      my ($style, $char) = @{$e};
+      if ($prev_style != $style) {
+        print ("<div class='$style->{name}'>");
+      }
+      print $char;
+      $prev_style = $style;
     }
   }
 }
