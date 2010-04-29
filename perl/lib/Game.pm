@@ -16,7 +16,8 @@ sub new {
   $self->{_git_binary} = $git if($git);
   $self->{_callback} = $callback || \&default_callback;
 
-  $self->{input_str} = \'';
+  my $input_str = '';
+  $self->{input_str} = \$input_str;
   # Parser leftovers at end of block.
   $self->{leftovers} = '';
 
@@ -61,6 +62,15 @@ sub setup_ipc_harness {
 
 }
 
+sub send_to_game {
+  my ($self, $value, $type) = @_;
+  $type = $type ? "$type " : '';
+
+  print "Sending: ${type}${value}\n";
+  ${$self->{input_str}} = "${type}${value}";
+  $self->{harness}->pump;
+}
+
 sub wait_for_select {
   my ($self) = @_;
 
@@ -74,27 +84,29 @@ sub wait_for_select {
 }
 
 sub handle_stdout {
-  my ($self, $line) = @_;
+  my ($self, $from_game) = @_;
 
-#  Dump $line;
+  Dump $from_game;
 
   # Because IPC::Run doesn't simply split into nice chunks for me, we
   # need to do so ourselves.  Remove any partial chunks at the end of
   # the input, and put it back at the beginning of the next bit of
   # input
-  $line = "$self->{leftovers}$line";
-  if ($line =~ s/\cJ([^\x{0D}\x{0A}]*)$/\cJ/) {
+  $from_game = "$self->{leftovers}$from_game";
+  if ($from_game =~ s/\cJ([^\x{0D}\x{0A}]*)$/\cJ/) {
     $self->{leftovers} = $1;
   } else {
     # If that didn't match, then there wasn't a newline at all in the block, so the entire thing is leftovers,
     # and I'll get you next time, Gadget!
-    $self->{leftovers} = $line;
+    $self->{leftovers} = $from_game;
     return;
   }
+  print "Leftovers: $self->{leftovers}\n";
 
   # Very funny.  For some reason, I'm getting CRLF line-ends, dispite running this under linux, and having a printf("\n") generating it.
   # I also rather wonder why I am getting multiple lines at once.
-  for (split m/\cM?\cJ/, $line) {
+  for (split m/\cM?\cJ/, $from_game) {
+    print "Line: ##$_##\n";
     when ('GLK new!') {
       # garbage.
     }
@@ -138,6 +150,18 @@ sub handle_stdout {
       $self->{windows}{$1} = delete $self->{win_in_progress};
     }
 
+    when (/^\?\?\?window_get_size win=(0x[0-9a-fA-F]+)/) {
+      my $winid = $1;
+      Dump $self->{windows}{$winid};
+
+      my @size = (80, 25);
+      if(grep /fixed/, @{ $self->{windows}{$winid}{method} }) {
+        $size[1] = 1;
+      }
+
+      $self->send_to_game(join(' ', @size));
+    }
+
     when (/^>>>put_char_uni for window (0x[0-9a-fA-F]+), character U\+([0-9A-Fa-f]+)(, '.')?$/) {
       push @{$self->{windows}{$1}{text}}, [$self->{windows}{$1}{current_style}, chr hex $2];
     }
@@ -149,14 +173,14 @@ sub handle_stdout {
     when (/^>>> select, want (\w+)$/) {
       local $self->{harness} = 'SKIPPING HARNESS';
       Dump $self;
-      
+
       $self->{_callback}->($self);
-      
+
       exit;
     }
 
     default {
-#      die "Don't know how to handle input '$_'";
+      warn "Don't know how to handle input '$_'";
     }
   }
 }
