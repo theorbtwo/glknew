@@ -11,6 +11,7 @@
 #include "blorb.h"
 #include "dispatch.h"
 #include "stream.h"
+#include "event.h"
 #include "window.h"
 #include "style.h"
 

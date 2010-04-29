@@ -767,6 +767,29 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     arglist[6].opaqueref = glk_window_open(arglist[0].opaqueref, arglist[1].uint, 
                                            arglist[2].uint, arglist[3].uint, arglist[4].uint);
     break;
+  case 0x0025: /* window_get_size */
+    {
+      int ix = 1;
+      glui32 *ptr1, *ptr2;
+      if (!arglist[ix].ptrflag) {
+        ptr1 = NULL;
+      }
+      else {
+        ix++;
+        ptr1 = &(arglist[ix].uint);
+      }
+      ix++;
+      if (!arglist[ix].ptrflag) {
+        ptr2 = NULL;
+      }
+      else {
+        ix++;
+        ptr2 = &(arglist[ix].uint);
+      }
+      ix++;
+      glk_window_get_size(arglist[0].opaqueref, ptr1, ptr2);
+    }
+    break;
   case 0x002B: /* window_move_cursor */
     glk_window_move_cursor(arglist[0].opaqueref, arglist[1].uint, 
                            arglist[2].uint);
@@ -808,6 +831,14 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     }
     break;
   
+  case 0x00D0: /* request_line_event */
+    if (arglist[1].ptrflag)
+      glk_request_line_event(arglist[0].opaqueref, arglist[2].array,
+                             arglist[3].uint, arglist[4].uint);
+    else
+      glk_request_line_event(arglist[0].opaqueref, NULL,
+                             0, arglist[2].uint);
+    break;
   case 0x00D2: /* request_char_event */
     glk_request_char_event(arglist[0].opaqueref);
     break;
@@ -854,29 +885,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             }
             else {
                 glk_window_close(arglist[0].opaqueref, NULL);
-            }
-            break;
-        case 0x0025: /* window_get_size */
-            {
-                int ix = 1;
-                glui32 *ptr1, *ptr2;
-                if (!arglist[ix].ptrflag) {
-                    ptr1 = NULL;
-                }
-                else {
-                    ix++;
-                    ptr1 = &(arglist[ix].uint);
-                }
-                ix++;
-                if (!arglist[ix].ptrflag) {
-                    ptr2 = NULL;
-                }
-                else {
-                    ix++;
-                    ptr2 = &(arglist[ix].uint);
-                }
-                ix++;
-                glk_window_get_size(arglist[0].opaqueref, ptr1, ptr2);
             }
             break;
         case 0x0026: /* window_set_arrangement */
@@ -1091,14 +1099,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             else {
                 glk_select_poll(NULL);
             }
-            break;
-        case 0x00D0: /* request_line_event */
-            if (arglist[1].ptrflag)
-                glk_request_line_event(arglist[0].opaqueref, arglist[2].array,
-                    arglist[3].uint, arglist[4].uint);
-            else
-                glk_request_line_event(arglist[0].opaqueref, NULL,
-                    0, arglist[2].uint);
             break;
         case 0x00D1: /* cancel_line_event */
             if (arglist[1].ptrflag) {

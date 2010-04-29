@@ -1,16 +1,13 @@
 #include "glknew.h"
 
-/* The sort of text event the program wants to recieve.  These are
-   mutually exclusive, so we just need one thingy.  On the other hand,
-   at least in theory, this is per-window state.
-*/
+/* The spec allows each window to have exactly one text input request
+   pending at once -- we can have two windows, each of which has one.
+   Worry about that when it happens. */
+struct glk_window_struct *input_window = NULL;
+int text_input_type_wanted = TEXT_INPUT_NONE;
+struct line_event_request line_event_request_info;
 
-#define TEXT_INPUT_NONE        0
-#define TEXT_INPUT_CHAR_LATIN1 1
-#define TEXT_INPUT_CHAR_UNI    2
-#define TEXT_INPUT_LINE_LATIN1 3
-#define TEXT_INPUT_LINE_UNI    4
-
+/* KEEP THIS UPDATED WITH THE #defines IN THE .h FILE! */
 const char* text_input_names[] = {
   "none",
   "char_latin1",
@@ -19,14 +16,35 @@ const char* text_input_names[] = {
   "line_uni"
 };
 
-
-struct glk_window_struct *input_window = NULL;
-
-glui32 text_input_type_wanted = TEXT_INPUT_NONE;
-
 void glk_request_char_event(winid_t win) {
   input_window = win;
   text_input_type_wanted = TEXT_INPUT_CHAR_LATIN1;
+}
+
+void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initlen) {
+  char *prefill;
+
+  /* This is the maximum len that select() is prepared to handle. */
+  if (maxlen > (1024 - 11)) {
+    printf("DEBUG: Game passed maxlen (%d) above what we are prepared for.\n", maxlen);
+  }
+
+  prefill = malloc(initlen+1);
+  if (!prefill) {
+    printf("glk_request_line_even malloc prefill failed, %d bytes\n", initlen+1);
+    exit(12);
+  }
+  strncpy(prefill, buf, initlen);
+  prefill[initlen] = '\0';
+
+  input_window = win;
+  text_input_type_wanted = TEXT_INPUT_LINE_LATIN1;
+
+  line_event_request_info.win = win;
+  line_event_request_info.buf = buf;
+  line_event_request_info.prefill = prefill;
+  line_event_request_info.maxlen = maxlen;
+  line_event_request_info.want_unicode = 0;
 }
 
 
@@ -46,8 +64,13 @@ void glk_select(event_t *event) {
     exit(10);
   }
   
-  printf(">>> select, want %s\n", text_input_names[text_input_type_wanted]);
+  printf("???select, want %s\n", text_input_names[text_input_type_wanted]);
   
+  /* FIXME: Do something useful when the game wanted a line and
+     allowed for it to be > 1024 chars. */
+  /* The spec states
+  (http://www.eblong.com/zarf/glk/glk-spec-070_2.html#s.3) that you
+  cannot input newlines, so we should be safe here. */
   ret = fgets(line, 1024, stdin);
 
   if (!ret) {
@@ -95,6 +118,26 @@ void glk_select(event_t *event) {
       printf("Couldn't process evtype_CharInput select response: '%s'\n", ret);
       exit(8);
     }
+  } else if (strncmp(ret, "evtype_LineInput ", 17) == 0) {
+    /* http://www.eblong.com/zarf/glk/glk-spec-070_4.html#s.2 second
+       para from the end. */
+    strncpy(line_event_request_info.buf, ret+17, line_event_request_info.maxlen);
+    line_event_request_info.buf[line_event_request_info.maxlen] = '\0';
+    /* Strip off the last character, which will be the trailing
+       newline */
+    line_event_request_info.buf[strlen(line_event_request_info.buf)-1] = '\0';
+    
+    if (line_event_request_info.want_unicode) {
+      printf("Line event request when unicode wanted.\n");
+      exit(13);
+    }
+
+    event->type = evtype_LineInput;
+    event->win = line_event_request_info.win;
+    event->val1 = strlen(line_event_request_info.buf);
+    event->val2 = 0;
+
+    printf("DEBUG: event got '%s' of len %d\n", line_event_request_info.buf, event->val1);
   } else {
     printf("Couldn't parse select response: '%s'\n", ret);
     exit(9);

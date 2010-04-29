@@ -69,6 +69,35 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
   return newwin;
 }
 
+void glk_window_get_size(winid_t win, glui32 *widthptr, glui32 *heightptr) {
+  char line[1024];
+  char *ret;
+  glui32 dummy;
+
+  /* If we only care about one of the width / height, get both anyway,
+     simplifies things -- passing NULL to sscanf will segfault. */
+  widthptr  = widthptr  ? widthptr  : &dummy;
+  heightptr = heightptr ? heightptr : &dummy;
+
+  printf("???window_get_size win=%p\n", win);
+  
+  ret = fgets(line, 1024, stdin);
+  
+  if (!ret) {
+    printf("Failed fgets in glk_window_get_size\n");
+    exit(12);
+  }
+
+  if (sscanf(ret, "%d %d", widthptr, heightptr)) {
+    printf("DEBUG: answered, width=%d, height=%d\n", *widthptr, *heightptr);
+    return;
+  } else {
+    printf("Couldn't scan response to window_get_size: '%s'\n", ret);
+    exit(13);
+  }
+}
+
+
 void glk_set_window(winid_t win) {
   if (!win) {
     printf("DEBUG: Ignoring attempt to set to null window, as recommended at http://groups.google.com/group/rec.arts.int-fiction/browse_thread/thread/b7671883f03914cc?pli=1\n");
