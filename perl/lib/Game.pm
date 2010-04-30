@@ -6,15 +6,19 @@ use 5.10.0;
 use Data::Dump::Streamer;
 
 sub new {
-  my ($class, $blorb_file, $git, $callback) = @_;
-  
+  my ($class, $blorb_file, $git, $callbacks) = @_;
+  $callbacks ||= {};
   die "blorb file is required" unless $blorb_file;
   die "$blorb_file does not exist" unless -e $blorb_file;
 
   my $self = bless {}, $class;
   $self->{_game_file} = $blorb_file;
   $self->{_git_binary} = $git if($git);
-  $self->{_callback} = $callback || \&default_callback;
+  $self->{_callbacks} = { 
+      select => \&default_select_callback,
+      window_size => \&default_window_size_callback,
+      %$callbacks,
+  };
 
   my $input_str = '';
   $self->{input_str} = \$input_str;
@@ -86,7 +90,7 @@ sub wait_for_select {
 sub handle_stdout {
   my ($self, $from_game) = @_;
 
-  Dump $from_game;
+#  Dump $from_game;
 
   # Because IPC::Run doesn't simply split into nice chunks for me, we
   # need to do so ourselves.  Remove any partial chunks at the end of
@@ -152,14 +156,7 @@ sub handle_stdout {
 
     when (/^\?\?\?window_get_size win=(0x[0-9a-fA-F]+)/) {
       my $winid = $1;
-      Dump $self->{windows}{$winid};
-
-      my @size = (80, 25);
-      if(grep /fixed/, @{ $self->{windows}{$winid}{method} }) {
-        $size[1] = 1;
-      }
-
-      $self->send_to_game(join(' ', @size));
+      $self->{_callbacks}{window_size}->($self, $winid);
     }
 
     when (/^>>>put_char_uni for window (0x[0-9a-fA-F]+), character U\+([0-9A-Fa-f]+)(, '.')?$/) {
@@ -174,18 +171,32 @@ sub handle_stdout {
       local $self->{harness} = 'SKIPPING HARNESS';
       Dump $self;
 
-      $self->{_callback}->($self);
+      $self->{_callbacks}{select}->($self);
 
       exit;
     }
 
     default {
       warn "Don't know how to handle input '$_'";
+      last;
     }
   }
 }
 
-sub default_callback {
+sub default_window_size_callback {
+    my ($self, $winid) = @_;
+    Dump $self->{windows}{$winid};
+
+    my @size = (80, 25);
+    if(grep /fixed/, @{ $self->{windows}{$winid}{method} }) {
+        $size[1] = 1;
+    }
+
+    $self->send_to_game(join(' ', @size));
+
+}
+
+sub default_select_callback {
   my ($self) = @_;
 
   for my $win_p (keys %{$self->{windows}}) {
