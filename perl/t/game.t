@@ -12,6 +12,9 @@ use_ok('Game');
 my $game = Game->new("t/var/Advent.ulx");
 isa_ok($game, 'Game');
 
+$game->wait_for_select();
+
+
 dies_ok(sub { Game->new() }, 'Dies when not passed a game file' );
 
 my $game_win_size = Game->new("t/var/Advent.ulx",

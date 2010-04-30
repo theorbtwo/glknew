@@ -2,7 +2,7 @@ package Game;
 use warnings;
 use strict;
 use IPC::Run 'harness';
-use 5.10.0;
+use 5.010_00;
 use Data::Dump::Streamer;
 
 sub new {
@@ -185,12 +185,20 @@ sub handle_stdout {
 
 sub default_window_size_callback {
     my ($self, $winid) = @_;
-    Dump $self->{windows}{$winid};
+    my $win = $self->{windows}{$winid};
+    Dump $win;
 
     my @size = (80, 25);
-    if(grep /fixed/, @{ $self->{windows}{$winid}{method} }) {
-        $size[1] = 1;
+    if(@{ $win->{method} } ~~ 'fixed') {
+        if (grep {$_ ~~ ['above', 'below']} @{$win->{method}}) {
+            $size[1] = $win->{size};
+        } else {
+            $size[0] = $win->{size};
+        }
+    } else {
+        die "methods unhandled.", Dump($win);
     }
+    
 
     $self->send_to_game(join(' ', @size));
 
