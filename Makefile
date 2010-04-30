@@ -1,5 +1,6 @@
 CC = gcc
-OPTIONS = -std=c99 -Wall -g3 -O0
+# -O1 because gcc isn't very good at giving warnings when not optimizing.
+OPTIONS = -std=c99 -Wall  -g3 -O1
 CFLAGS = $(OPTIONS) $(INCLUDEDIRS)
 GLKLIB = libglknew.a
 

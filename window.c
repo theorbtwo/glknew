@@ -42,6 +42,15 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
     printf("Graphics\n");
   }
 
+  newwin=malloc(sizeof(*newwin));
+  newwin->wintype=wintype;
+  newwin->rock=rock;
+  if (dispatch_register) {
+    newwin->dispatch_rock = dispatch_register(newwin, gidisp_Class_Window);
+  } else {
+    printf("Making window while dispatch_register unset\n");
+  }
+
   if (!root_window) {
     if (split) {
       /* If we are opening the root window, split must be zero, method
@@ -51,15 +60,6 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
     }
     printf(">>>win: is root\n");
     root_window = newwin;
-  }
-
-  newwin=malloc(sizeof(*newwin));
-  newwin->wintype=wintype;
-  newwin->rock=rock;
-  if (dispatch_register) {
-    newwin->dispatch_rock = dispatch_register(newwin, gidisp_Class_Window);
-  } else {
-    printf("Making window while dispatch_register unset\n");
   }
 
   printf(">>>win: at %p\n", newwin);
