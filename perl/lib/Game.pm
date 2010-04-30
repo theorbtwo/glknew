@@ -1,7 +1,8 @@
 package Game;
 use warnings;
 use strict;
-use IPC::Run 'harness';
+use IPC::Open3;
+use Symbol 'gensym';
 use 5.010_00;
 use Data::Dump::Streamer;
 
@@ -26,7 +27,7 @@ sub new {
   $self->{leftovers} = '';
 
   $self->setup_initial_styles();
-  $self->setup_ipc_harness();
+  $self->setup_ipc_open3();
 
   return $self;
 }
@@ -48,38 +49,39 @@ sub setup_initial_styles {
 
 }
 
-sub setup_ipc_harness {
+sub setup_ipc_open3 {
   my ($self) = @_;
 
   $self->{_git_binary} ||= '/mnt/shared/projects/games/flash-if/git-1.2.6/git';
-  $self->{harness} = harness([$self->{_git_binary},
-                              $self->{_game_file}],
-                             $self->{input_str},
-                             sub {
-                               $self->handle_stdout(@_);
-                             },
-                             sub {
-                               $self->handle_stderr(@_);
-                             }
-                            );
-
-
+  $self->{child_stderr} = gensym;
+  # BIG FAT WARNING: open3 modifies it's arguments!  
+  open3($self->{child_stdin}, $self->{child_stdout}, $self->{child_stderr},
+        $self->{_git_binary}, $self->{_game_file}) or die "Couldn't start child process; $!";
+  for (@{$self}{qw/child_stdin child_stdout child_stderr/}) {
+    my $was = select($_);
+    $|=1;
+    select($was);
+  }
 }
 
 sub send_to_game {
-  my ($self, $value, $type) = @_;
-  $type = $type ? "$type " : '';
+  my ($self, $line) = @_;
 
-  print "Sending: ${type}${value}\n";
-  ${$self->{input_str}} = "${type}${value}";
-  $self->{harness}->pump;
+  if ($line !~ m/\n$/) {
+    $line = "$line\n";
+  }
+  print "Sending: '$line'\n";
+  $self->{child_stdin}->print($line);
 }
 
 sub wait_for_select {
   my ($self) = @_;
 
   while (!$self->{in_select}) {
-    $self->{harness}->pump;
+    #print "Doing readline from child's stdout\n";
+    my $line = readline($self->{child_stdout});
+    #print "Doing readline from child's stdout, got '$line'\n";
+    $self->handle_stdout($line);
   }
 
   delete $self->{in_select};
@@ -105,7 +107,7 @@ sub handle_stdout {
     $self->{leftovers} = $from_game;
     return;
   }
-  print "Leftovers: $self->{leftovers}\n";
+  #print "Leftovers: $self->{leftovers}\n";
 
   # Very funny.  For some reason, I'm getting CRLF line-ends, dispite running this under linux, and having a printf("\n") generating it.
   # I also rather wonder why I am getting multiple lines at once.
@@ -177,7 +179,7 @@ sub handle_stdout {
     }
 
     default {
-      warn "Don't know how to handle input '$_'";
+      die "Don't know how to handle input '$_'";
       last;
     }
   }

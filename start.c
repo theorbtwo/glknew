@@ -31,6 +31,12 @@ int main(int argc, char *argv[])
         return 1;
     }
     
+    /* JMM: Set our standard streams to be line-buffered, to make it
+       as easy as possible to wrap us. */
+    setlinebuf(stdin);
+    setlinebuf(stdout);
+    setlinebuf(stderr);
+
     /* Now some argument-parsing. This is probably going to hurt. */
     startdata.argc = 0;
     startdata.argv = (char **)malloc(argc * sizeof(char *));

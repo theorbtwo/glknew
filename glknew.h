@@ -1,3 +1,6 @@
+/* Sometimes, I wonder what the point is in not just having #include
+   <make_it_fucking_work.h> */
+#define _BSD_SOURCE 1 /* needed for setlinebuf() */
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
