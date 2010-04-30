@@ -54,11 +54,11 @@ sub setup_ipc_harness {
   $self->{_git_binary} ||= '/mnt/shared/projects/games/flash-if/git-1.2.6/git';
   $self->{harness} = harness([$self->{_git_binary},
                               $self->{_game_file}],
-                             '<pty<', $self->{input_str},
-                             '>pty>', sub {
+                             $self->{input_str},
+                             sub {
                                $self->handle_stdout(@_);
                              },
-                             '>pty>', sub {
+                             sub {
                                $self->handle_stderr(@_);
                              }
                             );
@@ -183,13 +183,19 @@ sub handle_stdout {
   }
 }
 
+sub handle_stderr {
+  my ($self, $text) = @_;
+  
+  die "Got STDERR from child process: '$text'";
+}
+
 sub default_window_size_callback {
     my ($self, $winid) = @_;
     my $win = $self->{windows}{$winid};
     Dump $win;
 
     my @size = (80, 25);
-    if(@{ $win->{method} } ~~ 'fixed') {
+    if ('fixed' ~~ @{ $win->{method} }) {
         if (grep {$_ ~~ ['above', 'below']} @{$win->{method}}) {
             $size[1] = $win->{size};
         } else {

@@ -1,5 +1,6 @@
 #!/usr/local/bin/perl5.10.0
 # perl5.10.0 `which prove` -v -l t/game.t 
+BEGIN {$|=1;}
 
 use strict;
 use warnings;
