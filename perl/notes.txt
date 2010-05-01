@@ -1,0 +1,12 @@
+
+<div id="windows"> 
+  <div id="winid1">
+  </div>
+  <div id="winid2">
+  </div>
+</div>
+
+<input type="text" (style=fill width) name="input">
+
+window == div
+cursors?

@@ -162,24 +162,29 @@ sub handle_stdout {
     }
 
     when (/^>>>put_char_uni for window (0x[0-9a-fA-F]+), character U\+([0-9A-Fa-f]+)(, '.')?$/) {
-      push @{$self->{windows}{$1}{text}}, [$self->{windows}{$1}{current_style}, chr hex $2];
+      push @{$self->{windows}{$1}{content}}, { style => $self->{windows}{$1}{current_style}, char => chr hex $2};
+    }
+
+    when (/^>>>window_move_cursor win=(0x[0-9a-fA-F]+), xpos=(\d+), ypos=(\d+)$/) {
+      push @{$self->{windows}{$1}{content}}, {cursor_to => [$2, $3]};
+      
     }
 
     when (/^>>>glk_set_style_stream Window=(0x[0-9a-fA-F]+) to style=(\d+) \(([A-Za-z0-9]+)\)$/) {
       $self->{windows}{$1}{current_style} = $self->{styles}{$self->{windows}{$1}{wintype}}{$3};
     }
 
-    when (/^>>> select, want (\w+)$/) {
+    when (/^\?\?\?select, want (\w+)_(\w+)$/) {
       local $self->{harness} = 'SKIPPING HARNESS';
-      Dump $self;
+#      Dump $self;
 
-      $self->{_callbacks}{select}->($self);
+      $self->{_callbacks}{select}->($self, $1, $2);
 
-      exit;
+
     }
 
     default {
-      die "Don't know how to handle input '$_'";
+      warn "Don't know how to handle input '$_'";
       last;
     }
   }
@@ -213,24 +218,76 @@ sub default_window_size_callback {
 }
 
 sub default_select_callback {
-  my ($self) = @_;
+  my ($self, $input_type, $input_charset) = @_;
 
   for my $win_p (keys %{$self->{windows}}) {
     my $win = $self->{windows}{$win_p};
+#    Dump $win;
     print "----\n";
     print "$win_p\n";
     
-    my $prev_style;
-    for my $e (@{$win->{text}}) {
-      my ($style, $char) = @{$e};
-      if ($prev_style != $style) {
-        print ("<div class='$style->{name}'>");
+    my $prev_style = {};
+    for my $e (@{$win->{content}}) {
+      my ($style, $char) = @{$e}{'style', 'char'};
+      if(defined $style) {
+          if ($prev_style != $style) {
+              print ("<div class='$style->{name}'>");
+          }
+          print $char;
+          $prev_style = $style;
+      } elsif(exists $e->{cursor_to}) {
+          print "Move cursor to: ", join(':', @{ $e->{cursor_to} }), "\n";
       }
-      print $char;
-      $prev_style = $style;
     }
+    ## newline so status window line is seen..
+    print "\n";
   }
+
+  $self->{current_select} = {
+      text => $self->get_formatted_text($self->root_window),
+      input_type => $input_type,
+      input_charset => $input_charset,
+  };
+
+  $self->{in_select} = 1;
+
 }
+
+sub get_formatted_text {
+    my ($self, $winid) = @_;
+
+    my $win = $self->{windows}{$winid};
+    return '' if(!$win);
+
+    my $text = '';
+    my $prev_style = {};
+    for my $e (@{$win->{content}}) {
+      my ($style, $char) = @{$e}{'style', 'char'};
+      if(defined $style) {
+          if ($prev_style != $style) {
+              if(%$prev_style) {
+                  $text .= '</div>';
+              }
+              $text .="<div class='$style->{name}'>";
+          }
+          $text .= $char;
+          $prev_style = $style;
+      } elsif(exists $e->{cursor_to}) {
+#          print "Move cursor to: ", join(':', @{ $e->{cursor_to} }), "\n";
+      }
+    }
+    ## newline so status window line is seen..
+#    print "\n";
+
+    return $text;
+}
+
+sub root_window {
+    my ($self) = @_;
+
+    return grep { $self->{windows}{$_}{is_root} } keys %{ $self->{windows} };
+}
+
 
 1;
 
