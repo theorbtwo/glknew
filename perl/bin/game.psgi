@@ -29,10 +29,10 @@ use Web::Simple 'GameIF';
     }
 
     sub new_game {
-        my ($self) = @_;
+        my ($self, $game_path) = @_;
         my $gameid = scalar @games;
         # $games[$gameid] = Game->new('/usr/src/extern/glknew/perl/t/var/Advent.ulx');
-        my $game = Game->new('./t/var/Advent.ulx');
+        my $game = Game->new($game_path);
         $game->user_info($gameid);
         $games[$gameid] = $game;
 
@@ -57,8 +57,21 @@ use Web::Simple 'GameIF';
         },
 #        sub (POST + /game/new/*) {
         sub (/game/new/*) {
-            my ($self, @paths) = @_;
-            my $game = $self->new_game();
+            my ($self, $game_name) = @_;
+            
+            my $game_path = {
+                             advent => './t/var/Advent.ulx',
+                             'blue-lacuna' => '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb',
+                             # FIXME: Why does the gblorb not work?
+                             alabaster => '/mnt/shared/projects/games/flash-if/Alabaster/exec.glul',
+                             acg => '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx',
+                            }->{$game_name};
+            
+            if (!$game_path) {
+              die "Do not know game path for game $game_name";
+            }
+
+            my $game = $self->new_game($game_path);
             
             [ 200, 
               [ 'Content-type' => 'text/html' ], 
