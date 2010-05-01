@@ -244,7 +244,7 @@ sub default_select_callback {
   }
 
   $self->{current_select} = {
-      text => $self->get_formatted_text($self->root_window),
+      #text => $self->get_formatted_text($self->root_window),
       input_type => $input_type,
       input_charset => $input_charset,
   };

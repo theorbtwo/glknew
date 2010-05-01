@@ -36,8 +36,9 @@ static glsi32 memory_get_char_uni(strid_t str) {
 
 static void memory_put_char_uni(strid_t str, glui32 ch) {
   if (str->u.mem.pos > str->u.mem.buflen) {
-    printf("put_char_uni in memory stream out of range");
-    exit(5);
+    printf("put_char_uni in memory stream out of range: trying to write character %d in a %d character stream", str->u.mem.pos, str->u.mem.buflen);
+    /* exit(5); */
+    return;
   }
   if (str->u.mem.pos < 0) {
     printf("put_char_uni in memory stream out of range: %d\n", str->u.mem.pos);

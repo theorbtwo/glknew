@@ -45,6 +45,10 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
   newwin=malloc(sizeof(*newwin));
   newwin->wintype=wintype;
   newwin->rock=rock;
+  /* The spec has a system of parents and partners.  When you split a
+  window, you create a new window, the parent, split and newwin both
+  become children of this new parent. */
+  newwin->parent = split;
   if (dispatch_register) {
     newwin->dispatch_rock = dispatch_register(newwin, gidisp_Class_Window);
   } else {
@@ -113,4 +117,12 @@ strid_t glk_window_get_stream(winid_t win) {
 
 void glk_window_move_cursor(winid_t win, glui32 xpos, glui32 ypos) {
   printf(">>>window_move_cursor win=%p, xpos=%d, ypos=%d\n", win, xpos, ypos);
+}
+
+void glk_window_clear(winid_t win) {
+  printf(">>window_clear win=%p\n", win);
+}
+
+winid_t glk_window_get_parent(winid_t win) {
+  return win->parent;
 }

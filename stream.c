@@ -119,3 +119,15 @@ glui32 glk_get_buffer_stream(strid_t str, char *buf, glui32 len) {
 
   return i;
 }
+
+/* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.3 */
+void glk_stream_close(strid_t str, stream_result_t *result) {
+  /* We don't currently track these. */
+  if (result) {
+    result->readcount = 0;
+    result->writecount = 0;
+  }
+
+  /* We should probably do some sort of cleanup here, and disown the
+     buffer, in the case of a memory stream. */
+}

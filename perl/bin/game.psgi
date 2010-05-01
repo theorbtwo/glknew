@@ -3,11 +3,12 @@
 use strict;
 use warnings;
 
-use Game;
 use Web::Simple 'GameIF';
 
 {
     package GameIF;
+    use Game;
+    use File::Spec::Functions;
 
     my @games = ();
 
@@ -29,11 +30,14 @@ use Web::Simple 'GameIF';
     sub new_game {
         my ($self) = @_;
         my $gameid = scalar @games;
-        $games[$gameid] = Game->new('/usr/src/extern/glknew/perl/t/var/Advent.ulx');
+        # $games[$gameid] = Game->new('/usr/src/extern/glknew/perl/t/var/Advent.ulx');
+        my $game = Game->new('./t/var/Advent.ulx');
+        $game->user_info($gameid);
+        $games[$gameid] = $game;
 
-        $games[$gameid]->wait_for_select();
+        $game->wait_for_select;
 
-        return $gameid;
+        return $game;
     }
 
 #     sub game_select {
@@ -54,9 +58,11 @@ use Web::Simple 'GameIF';
         sub (/game/new/*) {
             my ($self, @paths) = @_;
             my $gameid = $self->new_game();
+            my $game = 
 
+            
             [ 200, 
-              [ 'Content-type' => 'text/plain' ], 
+              [ 'Content-type' => 'text/html' ], 
               [ $games[$gameid]{current_select}{text} ] ,
             ];
         },
