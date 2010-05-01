@@ -69,10 +69,106 @@ use Web::Simple 'GameIF';
 
     sub get_formatted_text {
       my ($win) = @_;
+
+      if (!ref $win) {
+        $win = $self->{windows}{$win};
+        return '' if(!$win);
+      }
+
+      my $own_text = get_own_formatted_text($win);
+
+      for my $child (@{$win->{children}}) {
+        my $child_text = get_formatted_text($child);
+        warn Dumper($child->{method});
+
+        my ($side, $kind, $axis);
+        for my $method (@{$child->{method}}) {
+          if ($method ~~ [qw<above below>]) {
+            $axis = 'y';
+            $side = $method;
+          } elsif ($method ~~ [qw<left right>]) {
+            $axis = 'x';
+            $side = $method;
+          } elsif ($method ~~ [qw<fixed>]) {
+            $kind = $method;
+          } else {
+            die "Unhandled method $method";
+          }
+        }
+        
+        if ($side eq 'above' and $kind eq 'fixed' and $axis eq 'y') {
+          $own_text = <<END;
+<table>
+ <tr><td>$child_text</td></tr>
+ <tr><td>$own_text</td></tr>
+</table>
+END
+        } else {
+          die "Unhandled situation, side=$side, kind=$kind, axis=$axis";
+        }
+      }
+
+      return $own_text;
+    }
+
+    # FIXME: How much of this belongs in Game.pm?
+    sub get_own_formatted_text_grid {
+      my ($win) = @_;
+
+      my ($cursor) = [0, 0];
+      my $state;
+
+      my $style = undef;
+      for my $e (@{$win->{content}}) {
+        if (exists $e->{cursor_to}) {
+          $cursor = [$e->{cursor_to}[1], $e->{cursor_to}[0]];
+        } elsif (exists $e->{char}) {
+          # always char and style.
+          $state->[$cursor->[0]][$cursor->[1]]{char}  = $e->{char};
+          $state->[$cursor->[0]][$cursor->[1]]{style} = $e->{style};
+          $cursor->[1]++;
+        } else {
+          die Dumper($e);
+        }
+      }
+
+      my $text = "<tt>";
+      my %styles_needed;
+      for my $line (@$state) {
+        for my $new_e (@$line) {
+          if (!$new_e) {
+            $text .= '&nbsp;';
+            next;
+          }
+          
+          if ($new_e->{char} eq '<') {
+            $text .= '&lt;';
+          } elsif ($new_e->{char} eq '&') {
+            $text .= '&amp;';
+          } elsif ($new_e->{char} eq ' ') {
+            $text .= '&nbsp;';
+          } else {
+            $text .= $new_e->{char};
+          }
+        }
+        $text .= "<br />\n";
+      }
+      $text .= "</tt>\n";
+
+      return $text;
+    }
+
+    # FIXME: Split this properly by wintype?  Make them objects, of different classes?
+    sub get_own_formatted_text {
+      my ($win) = @_;
       
       if (!ref $win) {
         $win = $self->{windows}{$win};
         return '' if(!$win);
+      }
+
+      if ($win->{wintype} eq 'TextGrid') {
+        return get_own_formatted_text_grid($win);
       }
       
       my $text = '';

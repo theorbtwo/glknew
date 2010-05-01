@@ -127,10 +127,11 @@ sub handle_stdout {
     }
 
     when (/^>>>Opening new window, splitting exsiting window (\(nil\)|0x[0-9a-fA-F]+)$/) {
-      # FIXME: make parent a ref, not a whatsit, and add in ->{children}.
       $self->{win_in_progress} = {};
-      $self->{win_in_progress}{parent} = $self->{windows}{$1}
-        unless $1 eq '(nil)';
+      if ($1 ne '(nil)') {
+        $self->{win_in_progress}{parent} = $self->{windows}{$1};
+        push @{$self->{win_in_progress}{parent}{children}}, $self->{win_in_progress};
+      }
     }
 
     when (/^>>>win: method=([a-z, ]+)$/) {
