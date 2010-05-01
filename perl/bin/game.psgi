@@ -55,7 +55,23 @@ use Web::Simple 'GameIF';
         sub (/) {
             return $self->static_file("index.html");
         },
-#        sub (POST + /game/new/*) {
+
+        sub (POST + /game/continue/* + %text=) {
+          my ($self, $gameid, $text) = @_;
+
+          my $game = $games[$gameid];
+          $game->send_to_game("evtype_LineInput $text\n");
+          $game->wait_for_select;
+
+          my $form = get_form($game);
+          
+          [ 200, 
+            [ 'Content-type' => 'text/html' ], 
+            [ get_formatted_text($game->root_window) . $form ]
+          ];
+          
+        },
+
         sub (/game/new/*) {
             my ($self, $game_name) = @_;
             
@@ -72,14 +88,29 @@ use Web::Simple 'GameIF';
             }
 
             my $game = $self->new_game($game_path);
+            my $form = get_form($game);
             
             [ 200, 
               [ 'Content-type' => 'text/html' ], 
-              [ get_formatted_text($game->root_window) ] ,
+              [ get_formatted_text($game->root_window) . $form ]
             ];
-        },
-    };
-
+          }
+      };
+ 
+    sub get_form {
+      my ($game) = @_;
+      
+      my $form;
+      if ($game->{current_select}{input_type} eq 'line') {
+        my $gameid = $game->user_info;
+        $form = "<form method='post' action='/game/continue/$gameid'><input type='text' name='text' /></form>";
+      } else {
+        warn "Don't know how to handle this callback -- \$self->{current_select}{input_type} eq '$self->{current_select}{input_type}'";
+      }
+      
+      return $form;
+    }
+   
     sub get_formatted_text {
       my ($win) = @_;
 
@@ -261,6 +292,7 @@ END
         $styles .= "}\n";
       }
       $text = "<style type='text/css'>$styles</style>\n$text";
+
       return $text;
     }
 

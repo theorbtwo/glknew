@@ -259,7 +259,7 @@ sub default_select_callback {
 sub user_info {
   my ($self) = @_;
   if (@_ > 1) {
-    $self->{user_info} = shift;
+    $self->{user_info} = $_[1];
   }
   
   return $self->{user_info};
