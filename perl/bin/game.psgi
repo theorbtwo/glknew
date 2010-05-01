@@ -196,8 +196,8 @@ END
             if(%$prev_style) {
               $text .= '</span>';
             }
-            $text .="<span class='$win->{id}-$style->{name}'>";
-            $styles_needed{"$win->{id}-$style->{name}"} = $style;
+            $text .="<span class='winid$win->{id}-$style->{name}'>";
+            $styles_needed{"winid$win->{id}-$style->{name}"} = $style;
           }
           if ($char eq '<') {
             $text .= '&lt;';
@@ -221,9 +221,39 @@ END
         my $style = { %{$styles_needed{$name}} };
 
         warn Dumper($style);
-        $styles .= "$name {";
+        $styles .= ".$name {";
 
         delete $style->{name};
+        if (exists $style->{TextColor}) {
+          $styles .= sprintf " color: #%06x; ", delete($style->{TextColor});
+        }
+        if (exists $style->{Weight}) {
+          my $weight = {
+                        -1 => '100',
+                         0 => '400',
+                         1 => '700'}->{$style->{Weight}};
+          if ($weight) {
+            $styles .= " font-weight: $weight; ";
+            delete $style->{Weight};
+          }
+        }
+        if (exists $style->{Proportional}) {
+          if ($style->{Proportional}) {
+            $styles .= " text-align: justify; ";
+            delete $style->{Proportional};
+          }
+        }
+        if (exists $style->{Size}) {
+          my $size = {
+                       0 => 'medium'
+                      }->{$style->{Size}};
+          if ($size) {
+            $styles .= " font-size: $size; ";
+            delete $style->{Size};
+          }
+        }
+        
+
         for my $k (sort keys %$style) {
           warn "Unhandled style hint $k (val=$style->{$k})";
         }
