@@ -127,8 +127,9 @@ sub handle_stdout {
     }
 
     when (/^>>>Opening new window, splitting exsiting window (\(nil\)|0x[0-9a-fA-F]+)$/) {
+      # FIXME: make parent a ref, not a whatsit, and add in ->{children}.
       $self->{win_in_progress} = {};
-      $self->{win_in_progress}{parent} = $1
+      $self->{win_in_progress}{parent} = $self->{windows}{$1}
         unless $1 eq '(nil)';
     }
 
@@ -153,6 +154,7 @@ sub handle_stdout {
     }
     
     when (/^>>>win: at (0x[0-9A-Fa-f]+)$/) {
+      $self->{win_in_progress}{id} = $1;
       $self->{windows}{$1} = delete $self->{win_in_progress};
     }
 
@@ -253,39 +255,20 @@ sub default_select_callback {
 
 }
 
-sub get_formatted_text {
-    my ($self, $winid) = @_;
-
-    my $win = $self->{windows}{$winid};
-    return '' if(!$win);
-
-    my $text = '';
-    my $prev_style = {};
-    for my $e (@{$win->{content}}) {
-      my ($style, $char) = @{$e}{'style', 'char'};
-      if(defined $style) {
-          if ($prev_style != $style) {
-              if(%$prev_style) {
-                  $text .= '</div>';
-              }
-              $text .="<div class='$style->{name}'>";
-          }
-          $text .= $char;
-          $prev_style = $style;
-      } elsif(exists $e->{cursor_to}) {
-#          print "Move cursor to: ", join(':', @{ $e->{cursor_to} }), "\n";
-      }
-    }
-    ## newline so status window line is seen..
-#    print "\n";
-
-    return $text;
+sub user_info {
+  my ($self) = @_;
+  if (@_ > 1) {
+    $self->{user_info} = shift;
+  }
+  
+  return $self->{user_info};
 }
+
 
 sub root_window {
     my ($self) = @_;
 
-    return grep { $self->{windows}{$_}{is_root} } keys %{ $self->{windows} };
+    return $self->{root_win};
 }
 
 
