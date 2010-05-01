@@ -67,7 +67,7 @@ use Web::Simple 'GameIF';
         },
     };
 
-    sub get_own_formatted_text {
+    sub get_formatted_text {
       my ($win) = @_;
       
       if (!ref $win) {
