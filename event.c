@@ -79,7 +79,7 @@ void glk_select(event_t *event) {
   }
 
   /* http://www.eblong.com/zarf/glk/glk-spec-070_2.html#s.4 */
-  if (strncmp(ret, "evtype_CharInput ", 11) == 0) {
+  if (strncmp(ret, "evtype_CharInput ", 17) == 0) {
     event->type = evtype_CharInput;
     /* val2 is unused for char inputs. */
     event->val2 = 0xDEADBEEF;

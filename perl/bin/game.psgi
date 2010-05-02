@@ -56,11 +56,22 @@ use Web::Simple 'GameIF';
             return $self->static_file("index.html");
         },
 
-        sub (POST + /game/continue/* + %text=) {
-          my ($self, $gameid, $text) = @_;
+        sub (/game/continue/* + %text~&char~) {
+          my ($self, $gameid, $text, $char) = @_;
 
           my $game = $games[$gameid];
-          $game->send_to_game("evtype_LineInput $text\n");
+          if (defined $text and not defined $char) {
+            $game->send_to_game("evtype_LineInput $text\n");
+          } elsif (not defined $text and defined $char) {
+            $game->send_to_game("evtype_CharInput ".ord($char)."\n");
+          } elsif (not defined $text and not defined $char) {
+            # The user hit alt-d ret ?
+            $game->send_to_game("evtype_None\n");
+          } else {
+            # Both text and char are defined?
+            die "Double-down on continue -- char='$char', text='$text'";
+          }
+
           $game->wait_for_select;
 
           my $form = get_form($game);
@@ -75,16 +86,17 @@ use Web::Simple 'GameIF';
         sub (/game/new/*) {
             my ($self, $game_name) = @_;
             
-            my $game_path = {
-                             advent => './t/var/Advent.ulx',
-                             'blue-lacuna' => '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb',
-                             # FIXME: Why does the gblorb not work?
-                             alabaster => '/mnt/shared/projects/games/flash-if/Alabaster/exec.glul',
-                             acg => '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx',
-                            }->{$game_name};
+            my %games = (
+                         advent => './t/var/Advent.ulx',
+                         'blue-lacuna' => '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb',
+                         # FIXME: Why does the gblorb not work?
+                         alabaster => '/mnt/shared/projects/games/flash-if/Alabaster/exec.glul',
+                         acg => '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx',
+                        );
+            my $game_path = $games{$game_name};
             
             if (!$game_path) {
-              die "Do not know game path for game $game_name";
+              die "Do not know game path for game $game_name -- supported: ".join(", ", keys %games);
             }
 
             my $game = $self->new_game($game_path);
@@ -100,14 +112,22 @@ use Web::Simple 'GameIF';
     sub get_form {
       my ($game) = @_;
       
+      my $gameid = $game->user_info;
       my $form;
-      if ($game->{current_select}{input_type} eq 'line') {
-        my $gameid = $game->user_info;
-        $form = "<form method='post' action='/game/continue/$gameid'><input type='text' name='text' /></form>";
-      } else {
-        warn "Don't know how to handle this callback -- \$self->{current_select}{input_type} eq '$self->{current_select}{input_type}'";
+      {
+        no warnings 'uninitialized';
+        if ($game->{current_select}{input_type} eq 'line') {
+          $form = "<form method='post' action='/game/continue/$gameid'><input type='text' name='text' /></form>";
+        } elsif ($game->{current_select}{input_type} eq 'char') {
+          $form = "<form method='post' action='/game/continue/$gameid'><i>want char</i><input type='text' name='char' /></form>";
+        } elsif (not defined $game->{current_select}{input_type}) {
+          die "Don't know how to handle this callback -- \$game->{current_select}{input_type} not defined";
+        } else {
+          print STDERR Dumper($game->{current_select});
+          die "Don't know how to handle this callback -- \$game->{current_select}{input_type} eq \'$game->{current_select}{input_type}\'";
+        }
       }
-      
+
       return $form;
     }
    
