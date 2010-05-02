@@ -153,7 +153,7 @@ use Web::Simple 'GameIF';
           } elsif ($method ~~ [qw<left right>]) {
             $axis = 'x';
             $side = $method;
-          } elsif ($method ~~ [qw<fixed>]) {
+          } elsif ($method ~~ [qw<fixed proportional>]) {
             $kind = $method;
           } else {
             die "Unhandled method $method";
@@ -165,6 +165,12 @@ use Web::Simple 'GameIF';
 <table>
  <tr><td>$child_text</td></tr>
  <tr><td>$own_text</td></tr>
+</table>
+END
+        } elsif ($side eq 'left' and $kind eq 'proportional' and $axis eq 'x') {
+          $own_text = <<END;
+<table>
+ <tr><td width="$child->{size}%">$child_text</td><td>$own_text</td></tr>
 </table>
 END
         } else {
