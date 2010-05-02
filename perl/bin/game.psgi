@@ -295,8 +295,8 @@ END
           }
         }
         if (exists $style->{Proportional}) {
-          if ($style->{Proportional}) {
-            $styles .= " text-align: justify; ";
+          if (!$style->{Proportional}) {
+            $styles .= " font-family: monospace; ";
             delete $style->{Proportional};
           }
         }
@@ -309,7 +309,16 @@ END
             delete $style->{Size};
           }
         }
-        
+        if (exists $style->{Oblique}) {
+          if ($style->{Oblique}) {
+            $styles .= " font-style: oblique; ";
+            delete $style->{Oblique};
+          } else {
+            $styles .= " font-style: normal; ";
+            delete $style->{Oblique};
+          }
+        }
+
 
         for my $k (sort keys %$style) {
           warn "Unhandled style hint $k (val=$style->{$k})";
