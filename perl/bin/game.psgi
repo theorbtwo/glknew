@@ -65,17 +65,17 @@ use Web::Simple 'GameIF';
           $game->wait_for_select;
 
           my $form = get_form($game);
-          
+
           [ 200, 
             [ 'Content-type' => 'text/html' ], 
             [ get_formatted_text($game->root_window) . $form ]
           ];
-          
+
         },
 
         sub (/game/new/*) {
             my ($self, $game_name) = @_;
-            
+
             my %games = (
                          advent => './t/var/Advent.ulx',
                          'blue-lacuna' => '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb',
@@ -85,24 +85,24 @@ use Web::Simple 'GameIF';
                          king => '/mnt/shared/projects/games/flash-if/king/exec.glul',
                         );
             my $game_path = $games{$game_name};
-            
+
             if (!$game_path) {
               die "Do not know game path for game $game_name -- supported: ".join(", ", keys %games);
             }
 
             my $game = $self->new_game($game_path);
             my $form = get_form($game);
-            
+
             [ 200, 
               [ 'Content-type' => 'text/html' ], 
-              [ get_formatted_text($game->root_window) . $form ]
+              [ get_initial_windows($game) . $form ]
             ];
           }
       };
- 
+
     sub get_form {
       my ($game) = @_;
-      
+
       my $gameid = $game->user_info;
       my $form;
       {
@@ -121,18 +121,34 @@ use Web::Simple 'GameIF';
 
       return $form;
     }
-   
+
+    sub get_initial_windows {
+        my ($game) = @_;
+
+        return get_formatted_text($game->root_window);
+    }
+
+    ## get_window_layout?
+    ## IN Window object
+    ## OUT Laid out window text plus all child windows
     sub get_formatted_text {
       my ($win) = @_;
-
-      if (!ref $win) {
-        $win = $self->{windows}{$win};
-        return '' if(!$win);
-      }
 
       my $own_text = get_own_formatted_text($win);
 
       for my $child (@{$win->{children}}) {
+        $own_text = layout_child_window($child, $own_text);
+      }
+
+      return $own_text;
+    }
+
+
+    ## IN: Child window, Parents text so-far
+    ## OUT: New text containing parent + child text
+    sub layout_child_window {
+        my ($child, $parent_text) = @_;
+
         my $child_text = get_formatted_text($child);
         warn Dumper($child->{method});
 
@@ -150,26 +166,25 @@ use Web::Simple 'GameIF';
             die "Unhandled method $method";
           }
         }
-        
+
         if ($side eq 'above' and $kind eq 'fixed' and $axis eq 'y') {
-          $own_text = <<END;
+          $parent_text = <<END;
 <table>
  <tr><td>$child_text</td></tr>
- <tr><td>$own_text</td></tr>
+ <tr><td>$parent_text</td></tr>
 </table>
 END
         } elsif ($side eq 'left' and $kind eq 'proportional' and $axis eq 'x') {
-          $own_text = <<END;
+          $parent_text = <<END;
 <table>
- <tr><td width="$child->{size}%">$child_text</td><td>$own_text</td></tr>
+ <tr><td width="$child->{size}%">$child_text</td><td>$parent_text</td></tr>
 </table>
 END
         } else {
           die "Unhandled situation, side=$side, kind=$kind, axis=$axis";
         }
-      }
 
-      return $own_text;
+        return $parent_text;
     }
 
     # FIXME: How much of this belongs in Game.pm?
@@ -201,7 +216,7 @@ END
             $text .= '&nbsp;';
             next;
           }
-          
+
           if ($new_e->{char} eq '<') {
             $text .= '&lt;';
           } elsif ($new_e->{char} eq '&') {
@@ -216,13 +231,13 @@ END
       }
       $text .= "</tt>\n";
 
-      return $text;
+      return "<div id='winid$win->{id}'>$text</div>"
     }
 
     # FIXME: Split this properly by wintype?  Make them objects, of different classes?
     sub get_own_formatted_text {
       my ($win) = @_;
-      
+
       if (!ref $win) {
         $win = $self->{windows}{$win};
         return '' if(!$win);
@@ -231,7 +246,7 @@ END
       if ($win->{wintype} eq 'TextGrid') {
         return get_own_formatted_text_grid($win);
       }
-      
+
       my $text = '';
       my $prev_style = {};
 
@@ -262,7 +277,7 @@ END
       }
       ## newline so status window line is seen..
       #    print "\n";
-      
+
       my $styles = '';
       for my $name (sort keys %styles_needed) {
         # Copy so we can freely modify it here.
@@ -319,7 +334,7 @@ END
       }
       $text = "<style type='text/css'>$styles</style>\n$text";
 
-      return $text;
+      return "<div id='winid$win->{id}'>$text</div>";
     }
 
 }
