@@ -22,11 +22,13 @@ glui32 glk_stream_get_position(strid_t str) {
 
 
 void glk_put_char_stream_uni(strid_t str, glui32 ch) {
+  str->writecount++;
   return ((*str->vtable->put_char_uni)(str, ch));
 }
 
 glsi32 glk_get_char_stream_uni(strid_t str) {
   if (str->vtable->get_char_uni) {
+    str->readcount++;
     return ((*str->vtable->get_char_uni)(str));
   } else {
     printf("Attempt to get_char_uni, but vtable entry not defined for type=%d", str->type);
@@ -122,12 +124,31 @@ glui32 glk_get_buffer_stream(strid_t str, char *buf, glui32 len) {
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.3 */
 void glk_stream_close(strid_t str, stream_result_t *result) {
+  printf("DEBUG: glk_stream_close stream=%p\n", str);
+
   /* We don't currently track these. */
   if (result) {
-    result->readcount = 0;
-    result->writecount = 0;
+    result->readcount = str->readcount;
+    result->writecount = str->writecount;
+  }
+
+  /* FIXME: This probably belongs in stream_memory.c */
+  if (str->type == STREAM_TYPE_MEMORY && dispatch_disown) {
+    printf("(close_stream) width %d, buflen=%d", str->u.mem.width, str->u.mem.buflen);
+    if (str->u.mem.width == 4) {
+      dispatch_disown(str->u.mem.buf, str->u.mem.buflen, "&+#!Iu", str->u.mem.buffer_adoption_rock);
+    } else if (str->u.mem.width == 1) {
+      dispatch_disown(str->u.mem.buf, str->u.mem.buflen, "&+#!Cn", str->u.mem.buffer_adoption_rock);
+    } else {
+      printf("(close_stream) Width %d, not 1 or 4", str->u.mem.width);
+    }
   }
 
   /* We should probably do some sort of cleanup here, and disown the
      buffer, in the case of a memory stream. */
+  if (dispatch_unregister) {
+    dispatch_unregister((void *)str, gidisp_Class_Stream, str->dispatch_rock);
+  }
+
+  /*  free(str); */
 }

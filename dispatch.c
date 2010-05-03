@@ -798,6 +798,17 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     glk_set_window(arglist[0].opaqueref);
     break;
     
+  case 0x0044: /* stream_close */
+    if (arglist[1].ptrflag) {
+      stream_result_t dat;
+      glk_stream_close(arglist[0].opaqueref, &dat);
+      arglist[2].uint = dat.readcount;
+      arglist[3].uint = dat.writecount;
+    }
+    else {
+      glk_stream_close(arglist[0].opaqueref, NULL);
+    }
+    break;
   case 0x0047: /* stream_set_current */
     glk_stream_set_current(arglist[0].opaqueref);
     break;
@@ -964,17 +975,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             else
                 arglist[4].opaqueref = glk_stream_open_memory(NULL, 
                     0, arglist[1].uint, arglist[2].uint);
-            break;
-        case 0x0044: /* stream_close */
-            if (arglist[1].ptrflag) {
-                stream_result_t dat;
-                glk_stream_close(arglist[0].opaqueref, &dat);
-                arglist[2].uint = dat.readcount;
-                arglist[3].uint = dat.writecount;
-            }
-            else {
-                glk_stream_close(arglist[0].opaqueref, NULL);
-            }
             break;
         case 0x0045: /* stream_set_position */
             glk_stream_set_position(arglist[0].opaqueref, arglist[1].sint,

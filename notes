@@ -1,0 +1,25 @@
+blue-lacuna
+ - hit "none of the above were blue" letter at very beginning -> crash, "Unhandled situation, side=below, kind=fixed, axis=y"
+
+acg
+ - Working!
+
+alabaster
+ - Errors out during startup if passed .gblorb file.
+ - Graphics
+
+advent
+ - help menu, putting a \x0A to a TextGrid doesn't move the cursor
+ - help menu, bottom window still visible.
+
+king
+ - Dies during startup: "*** fatal error: Can't read data from the Blorb file. ***"
+
+z-machine interpreter
+ - lots of undefined symbols
+
+universal
+ - line input does not echo to window.
+ - TextBuffer window grows instead of scrolling.
+ - Nicer char input?
+ 

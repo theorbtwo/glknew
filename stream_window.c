@@ -21,12 +21,18 @@ strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui
     return stream;
   }
 
+  if (!win) {
+    *(int*)NULL = 42;
+  }
+
   stream->vtable = &stream_window_vtable;
   stream->rock  = rock;
   stream->fmode = fmode;
   stream->type  = STREAM_TYPE_WINDOW;
   stream->current_style = styles[win->wintype][style_Normal];
   stream->u.win.win = win;
+  stream->readcount = 0;
+  stream->writecount = 0;
   
   /* FIXME: 1: There should be a better way.
      FIXME: 2: The spec suggests that we should save this up, and call
@@ -34,6 +40,9 @@ strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui
   if (dispatch_register) {
     stream->dispatch_rock = dispatch_register((void *)stream, gidisp_Class_Stream);
   }
+
+  printf("DEBUG: Created stream for window %p at %p\n", win, stream);
+  printf("DEBUG: Stream window: %p\n", stream->u.win.win);
 
   return stream;
 }

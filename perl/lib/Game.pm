@@ -44,7 +44,7 @@ sub setup_initial_styles {
     }
     # An interesting question: should I create defaults in these?  The spec says only Preformatted has defaulting,
     # but it probably only means that only it is required to.  Seems a bit silly to give them names otherwise, no?
-    $self->{styles}{$wt}{Preformatted}{Proportional} = 1;
+    $self->{styles}{$wt}{Preformatted}{Proportional} = 0;
   }
 
 }
@@ -80,6 +80,10 @@ sub wait_for_select {
   while (!$self->{in_select}) {
     #print "Doing readline from child's stdout\n";
     my $line = readline($self->{child_stdout});
+    if (not defined $line) {
+      die "Subprocess died?  $!";
+    }
+
     #print "Doing readline from child's stdout, got '$line'\n";
     $self->handle_stdout($line);
   }
@@ -127,10 +131,11 @@ sub handle_stdout {
     }
 
     when (/^>>>Opening new window, splitting exsiting window (\(nil\)|0x[0-9a-fA-F]+)$/) {
-      # FIXME: make parent a ref, not a whatsit, and add in ->{children}.
       $self->{win_in_progress} = {};
-      $self->{win_in_progress}{parent} = $self->{windows}{$1}
-        unless $1 eq '(nil)';
+      if ($1 ne '(nil)') {
+        $self->{win_in_progress}{parent} = $self->{windows}{$1};
+        push @{$self->{win_in_progress}{parent}{children}}, $self->{win_in_progress};
+      }
     }
 
     when (/^>>>win: method=([a-z, ]+)$/) {
@@ -176,7 +181,7 @@ sub handle_stdout {
       $self->{windows}{$1}{current_style} = $self->{styles}{$self->{windows}{$1}{wintype}}{$3};
     }
 
-    when (/^\?\?\?select, want (\w+)_(\w+)$/) {
+    when (/^\?\?\?select, want (char|line)_(latin1|uni)$/) {
       local $self->{harness} = 'SKIPPING HARNESS';
 #      Dump $self;
 
@@ -201,17 +206,23 @@ sub handle_stderr {
 sub default_window_size_callback {
     my ($self, $winid) = @_;
     my $win = $self->{windows}{$winid};
-    Dump $win;
+    #Dump $win;
 
     my @size = (80, 25);
     if ('fixed' ~~ @{ $win->{method} }) {
-        if (grep {$_ ~~ ['above', 'below']} @{$win->{method}}) {
-            $size[1] = $win->{size};
-        } else {
-            $size[0] = $win->{size};
-        }
+      if (grep {$_ ~~ ['above', 'below']} @{$win->{method}}) {
+        $size[1] = $win->{size};
+      } else {
+        $size[0] = $win->{size};
+      }
+    } elsif ('proportional' ~~ @{ $win->{method} }) {
+      if (grep {$_ ~~ ['above', 'below']} @{$win->{method}}) {
+        $size[1] *= int($win->{size}/100);
+      } else {
+        $size[0] *= int($win->{size}/100);
+      }
     } else {
-        die "methods unhandled.", Dump($win);
+      die "methods unhandled.", Dump($win);
     }
     
 
@@ -258,7 +269,7 @@ sub default_select_callback {
 sub user_info {
   my ($self) = @_;
   if (@_ > 1) {
-    $self->{user_info} = shift;
+    $self->{user_info} = $_[1];
   }
   
   return $self->{user_info};

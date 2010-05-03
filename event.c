@@ -79,7 +79,7 @@ void glk_select(event_t *event) {
   }
 
   /* http://www.eblong.com/zarf/glk/glk-spec-070_2.html#s.4 */
-  if (strncmp(ret, "evtype_CharInput ", 11) == 0) {
+  if (strncmp(ret, "evtype_CharInput ", 17) == 0) {
     event->type = evtype_CharInput;
     /* val2 is unused for char inputs. */
     event->val2 = 0xDEADBEEF;
@@ -90,11 +90,11 @@ void glk_select(event_t *event) {
       printf("DEBUG: Got evtype_CharInput: %d\n", event->val1);
       return;
     }
-    evtype_charinput_special(Left)
-    evtype_charinput_special(Right)
-    evtype_charinput_special(Up)
-    evtype_charinput_special(Down)
-    evtype_charinput_special(Return)
+    evtype_charinput_special(Left    )
+    evtype_charinput_special(Right   )
+    evtype_charinput_special(Up      )
+    evtype_charinput_special(Down    )
+    evtype_charinput_special(Return  )
     evtype_charinput_special(Delete  )
     evtype_charinput_special(Escape  )
     evtype_charinput_special(Tab     )
