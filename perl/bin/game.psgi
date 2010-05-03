@@ -41,16 +41,6 @@ use Web::Simple 'GameIF';
         return $game;
     }
 
-#     sub game_select {
-#         my ($self, $gameid, $game, $input_type, ) = @_;
-
-#         ## Get text for main window.
-#         my $text = $game->get_formatted_text($game->root_window);
-#         $games[$gameid]{pending} = $text;
-
-#         $game->{in_select} = 1;
-#     }
-
     dispatch {
         sub (/) {
             return $self->static_file("index.html");
@@ -59,7 +49,7 @@ use Web::Simple 'GameIF';
         sub (/game/new/*) {
             my ($self, @paths) = @_;
             my $game = $self->new_game();
-            
+
             [ 200, 
               [ 'Content-type' => 'text/html' ], 
               [ get_formatted_text($game->root_window) ] ,
@@ -69,12 +59,12 @@ use Web::Simple 'GameIF';
 
     sub get_formatted_text {
       my ($win) = @_;
-      
+
       if (!ref $win) {
         $win = $self->{windows}{$win};
         return '' if(!$win);
       }
-      
+
       my $text = '';
       my $prev_style = {};
 
