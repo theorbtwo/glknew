@@ -42,7 +42,7 @@ static void memory_put_char_uni(strid_t str, glui32 ch) {
     printf(" '%c'", ch);
   printf("\n");
 
-  if (str->u.mem.pos > str->u.mem.buflen) {
+  if (str->u.mem.pos >= str->u.mem.buflen) {
     printf("put_char_uni in memory stream out of range: trying to write character %d in a %d character stream", str->u.mem.pos, str->u.mem.buflen);
     /* exit(5); */
     return;

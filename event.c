@@ -90,11 +90,11 @@ void glk_select(event_t *event) {
       printf("DEBUG: Got evtype_CharInput: %d\n", event->val1);
       return;
     }
-    evtype_charinput_special(Left)
-    evtype_charinput_special(Right)
-    evtype_charinput_special(Up)
-    evtype_charinput_special(Down)
-    evtype_charinput_special(Return)
+    evtype_charinput_special(Left    )
+    evtype_charinput_special(Right   )
+    evtype_charinput_special(Up      )
+    evtype_charinput_special(Down    )
+    evtype_charinput_special(Return  )
     evtype_charinput_special(Delete  )
     evtype_charinput_special(Escape  )
     evtype_charinput_special(Tab     )
