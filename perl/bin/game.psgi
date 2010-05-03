@@ -14,6 +14,7 @@ use Web::Simple 'GameIF';
     my @games = ();
 
     default_config ( file_dir => q{/usr/src/extern/glknew/perl/root/},
+                     git_binary => '/usr/src/extern/git-1.2.6/git',
                    );
 
     sub static_file {
@@ -32,7 +33,8 @@ use Web::Simple 'GameIF';
         my ($self, $game_path) = @_;
         my $gameid = scalar @games;
         # $games[$gameid] = Game->new('/usr/src/extern/glknew/perl/t/var/Advent.ulx');
-        my $game = Game->new($game_path);
+        my $game = Game->new($game_path, 
+                             $self->config->{git_binary});
         $game->user_info($gameid);
         $games[$gameid] = $game;
 
@@ -107,16 +109,20 @@ use Web::Simple 'GameIF';
       my $form;
       {
         no warnings 'uninitialized';
+
+        my $winid = $game->{current_select}{window}{id};
         if ($game->{current_select}{input_type} eq 'line') {
-          $form = "<form method='post' action='/game/continue/$gameid'><input type='text' name='text' /></form>";
+          $form = "<input type='text' name='text' />";
         } elsif ($game->{current_select}{input_type} eq 'char') {
-          $form = "<form method='post' action='/game/continue/$gameid'><i>want char</i><input type='text' name='char' /></form>";
+          $form = "<i>want char</i><input type='text' name='char' />";
         } elsif (not defined $game->{current_select}{input_type}) {
           die "Don't know how to handle this callback -- \$game->{current_select}{input_type} not defined";
         } else {
           print STDERR Dumper($game->{current_select});
           die "Don't know how to handle this callback -- \$game->{current_select}{input_type} eq \'$game->{current_select}{input_type}\'";
         }
+
+        $form = "<form method='post' action='/game/continue/$gameid'><input type='hidden' name='window_id' value='winid$winid'/>$form</form>";
       }
 
       return $form;

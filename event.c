@@ -64,7 +64,7 @@ void glk_select(event_t *event) {
     exit(10);
   }
   
-  printf("???select, want %s\n", text_input_names[text_input_type_wanted]);
+  printf("???select, window=%p, want %s\n", input_window, text_input_names[text_input_type_wanted]);
   
   /* FIXME: Do something useful when the game wanted a line and
      allowed for it to be > 1024 chars. */

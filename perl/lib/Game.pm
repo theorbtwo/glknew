@@ -181,11 +181,11 @@ sub handle_stdout {
       $self->{windows}{$1}{current_style} = $self->{styles}{$self->{windows}{$1}{wintype}}{$3};
     }
 
-    when (/^\?\?\?select, want (char|line)_(latin1|uni)$/) {
+    when (/^\?\?\?select, window=(0x[0-9a-fA-F]+), want (char|line)_(latin1|uni)$/) {
       local $self->{harness} = 'SKIPPING HARNESS';
 #      Dump $self;
 
-      $self->{_callbacks}{select}->($self, $1, $2);
+      $self->{_callbacks}{select}->($self, $1, $2, $3);
 
 
     }
@@ -231,7 +231,7 @@ sub default_window_size_callback {
 }
 
 sub default_select_callback {
-  my ($self, $input_type, $input_charset) = @_;
+  my ($self, $winid, $input_type, $input_charset) = @_;
 
   for my $win_p (keys %{$self->{windows}}) {
     my $win = $self->{windows}{$win_p};
@@ -257,8 +257,8 @@ sub default_select_callback {
   }
 
   $self->{current_select} = {
-      #text => $self->get_formatted_text($self->root_window),
-      input_type => $input_type,
+      window       => $self->{windows}{$winid},
+      input_type   => $input_type,
       input_charset => $input_charset,
   };
 
