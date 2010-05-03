@@ -290,6 +290,9 @@ END
         if (exists $style->{TextColor}) {
           $styles .= sprintf " color: #%06x; ", delete($style->{TextColor});
         }
+        if (exists $style->{BackColor}) {
+          $styles .= sprintf " background-color: #%06x; ", delete($style->{BackColor});
+        }
         if (exists $style->{Weight}) {
           my $weight = {
                         -1 => '100',
@@ -308,7 +311,8 @@ END
         }
         if (exists $style->{Size}) {
           my $size = {
-                       0 => 'medium'
+                       0 => 'medium',
+                       1 => 'large'
                       }->{$style->{Size}};
           if ($size) {
             $styles .= " font-size: $size; ";
@@ -323,6 +327,15 @@ END
             $styles .= " font-style: normal; ";
             delete $style->{Oblique};
           }
+        }
+        if (exists $style->{Justification}) {
+          # FIXME: This requires block-level element to work; we are currently using inline elements, so this will have no effect.
+          $styles .= sprintf(" text-align: %s; ",
+                             ['left',
+                              'justify',
+                              'center',
+                              'right']->[delete $style->{Justification}]
+                            );
         }
 
 
