@@ -1,6 +1,7 @@
 #include "glknew.h"
 
-static void memory_set_position(strid_t str, glsi32 pos, glui32 seekmode) {
+static void memory_set_position(strid_t str, glsi32 pos, glui32 seekmode) { 
+  printf("DEBUG: memory_set_position str=%p, pos=%d\n", str, pos);
   if (seekmode == seekmode_Start) {
     str->u.mem.pos = pos;
   } else if (seekmode == seekmode_Current) {
@@ -16,6 +17,7 @@ static void memory_set_position(strid_t str, glsi32 pos, glui32 seekmode) {
 }
 
 static glsi32 memory_get_char_uni(strid_t str) {
+  printf("DEBUG: memory_get_char_uni str=%p\n", str);
   if (str->u.mem.pos > str->u.mem.buflen) {
     return -1;
   }
@@ -35,6 +37,11 @@ static glsi32 memory_get_char_uni(strid_t str) {
 }
 
 static void memory_put_char_uni(strid_t str, glui32 ch) {
+  printf("DEBUG: memory_put_char_uni str=%p, char=U+%x", str, ch);
+  if (ch >= ' ' && ch <= '~')
+    printf(" '%c'", ch);
+  printf("\n");
+
   if (str->u.mem.pos > str->u.mem.buflen) {
     printf("put_char_uni in memory stream out of range: trying to write character %d in a %d character stream", str->u.mem.pos, str->u.mem.buflen);
     /* exit(5); */
@@ -90,6 +97,8 @@ strid_t glk_stream_open_memory_base(void *buf, glui32 buflen, glui32 fmode, glui
   stream->u.mem.buflen = buflen;
   stream->u.mem.width = width;
   stream->u.mem.pos = 0;
+  stream->readcount = 0;
+  stream->writecount = 0;
   
   /* FIXME: 1: There should be a better way.
      FIXME: 2: The spec suggests that we should save this up, and call
@@ -104,14 +113,15 @@ strid_t glk_stream_open_memory_base(void *buf, glui32 buflen, glui32 fmode, glui
      or in glui32s? */
   if (dispatch_adopt) {
     if (width == 4) {
-      dispatch_adopt(buf, buflen, "&+#!Iu");
+      stream->u.mem.buffer_adoption_rock = dispatch_adopt(buf, buflen, "&+#!Iu");
     } else if (width == 1) {
-      dispatch_adopt(buf, buflen, "&+#!Cn");
+      stream->u.mem.buffer_adoption_rock = dispatch_adopt(buf, buflen, "&+#!Cn");
     } else {
       printf("Width %d, not 1 or 4", width);
       exit(7);
     }
   }
 
+  printf("DEBUG: opened memory stream str=%p\n", stream);
   return stream;
 }

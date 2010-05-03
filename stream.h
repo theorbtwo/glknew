@@ -20,6 +20,10 @@ struct glk_stream_struct_u_mem {
   /* buflen and pos in width-byte units */
   glui32 buflen;
   glsi32 pos;
+
+  /* The adopt/disown rock for the buffer, not to be confused with the
+     register/unregister rock for the stream! */
+  gidispatch_rock_t buffer_adoption_rock;
 };
 
 struct glk_stream_struct_u_file {
@@ -56,6 +60,9 @@ struct glk_stream_struct {
   gidispatch_rock_t dispatch_rock;
   glui32 fmode;
   glui32 type;
+
+  glui32 readcount;
+  glui32 writecount;
 
   union glk_stream_struct_u u;
 };
