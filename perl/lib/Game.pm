@@ -46,7 +46,6 @@ sub setup_initial_styles {
     # but it probably only means that only it is required to.  Seems a bit silly to give them names otherwise, no?
     $self->{styles}{$wt}{Preformatted}{Proportional} = 0;
   }
-
 }
 
 sub setup_ipc_open3 {
