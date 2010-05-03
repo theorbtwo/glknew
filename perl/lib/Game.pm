@@ -44,7 +44,7 @@ sub setup_initial_styles {
     }
     # An interesting question: should I create defaults in these?  The spec says only Preformatted has defaulting,
     # but it probably only means that only it is required to.  Seems a bit silly to give them names otherwise, no?
-    $self->{styles}{$wt}{Preformatted}{Proportional} = 1;
+    $self->{styles}{$wt}{Preformatted}{Proportional} = 0;
   }
 
 }
