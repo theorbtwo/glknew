@@ -92,6 +92,7 @@ use Web::Simple 'GameIF';
                          # FIXME: Why does the gblorb not work?
                          alabaster => '/mnt/shared/projects/games/flash-if/Alabaster/exec.glul',
                          acg => '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx',
+                         king => '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb',
                         );
             my $game_path = $games{$game_name};
             
