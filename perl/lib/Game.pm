@@ -53,9 +53,14 @@ sub setup_ipc_open3 {
 
   $self->{_git_binary} ||= '/mnt/shared/projects/games/flash-if/git-1.2.6/git';
   $self->{child_stderr} = gensym;
-  # BIG FAT WARNING: open3 modifies it's arguments!  
-  open3($self->{child_stdin}, $self->{child_stdout}, $self->{child_stderr},
-        $self->{_git_binary}, $self->{_game_file}) or die "Couldn't start child process; $!";
+  # BIG FAT WARNING: open3 modifies it's arguments!
+  if ($ENV{USE_VALGRIND}) {
+    open3($self->{child_stdin}, $self->{child_stdout}, $self->{child_stderr},
+          '/usr/bin/valgrind', $self->{_git_binary}, $self->{_game_file}) or die "Couldn't start child process; $!";
+  } else {
+    open3($self->{child_stdin}, $self->{child_stdout}, $self->{child_stderr},
+          $self->{_git_binary}, $self->{_game_file}) or die "Couldn't start child process; $!";
+  }
   for (@{$self}{qw/child_stdin child_stdout child_stderr/}) {
     my $was = select($_);
     $|=1;

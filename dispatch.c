@@ -763,6 +763,12 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
                                         NULL, 0);
     }
     break;
+  case 0x0020: /* window_iterate */
+    if (arglist[1].ptrflag) 
+      arglist[4].opaqueref = glk_window_iterate(arglist[0].opaqueref, &arglist[2].uint);
+    else
+      arglist[3].opaqueref = glk_window_iterate(arglist[0].opaqueref, NULL);
+    break;
   case 0x0023: /* window_open */
     arglist[6].opaqueref = glk_window_open(arglist[0].opaqueref, arglist[1].uint, 
                                            arglist[2].uint, arglist[3].uint, arglist[4].uint);
@@ -874,12 +880,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             break;
         case 0x0003: /* tick */
             glk_tick();
-            break;
-        case 0x0020: /* window_iterate */
-            if (arglist[1].ptrflag) 
-                arglist[4].opaqueref = glk_window_iterate(arglist[0].opaqueref, &arglist[2].uint);
-            else
-                arglist[3].opaqueref = glk_window_iterate(arglist[0].opaqueref, NULL);
             break;
         case 0x0021: /* window_get_rock */
             arglist[2].uint = glk_window_get_rock(arglist[0].opaqueref);

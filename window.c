@@ -64,6 +64,14 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
     }
     printf(">>>win: is root\n");
     root_window = newwin;
+  } else {
+    /* If we are not the root window, then we need to be added to the
+       linked list of windows. */
+    winid_t lastwin = root_window;
+    while (lastwin->next)
+      lastwin = lastwin->next;
+    lastwin->next = newwin;
+    newwin->next = NULL;
   }
 
   printf(">>>win: at %p\n", newwin);
@@ -125,4 +133,33 @@ void glk_window_clear(winid_t win) {
 
 winid_t glk_window_get_parent(winid_t win) {
   return win->parent;
+}
+
+/* FIXME: The docs suggest this can be done with a macro for this,
+ * stream, and fileref. OTOH, note that the type for windows is
+ * winid_t, but the function name is glk_win*dow*_iterate. 
+ */
+winid_t glk_window_iterate(winid_t prevwin, glui32 *rockptr) {
+  glui32 dummy;
+  
+  if (!rockptr) {
+    rockptr = &dummy;
+  }
+  
+  if (!root_window) {
+    return NULL;
+  }
+
+  if (prevwin == NULL) {
+    *rockptr = root_window->rock;
+    return root_window;
+  }
+
+  if (prevwin->next == NULL) {
+    /* Ignore rockptr? */
+    return NULL;
+  }
+
+  *rockptr = prevwin->next->rock;
+  return prevwin->next;
 }
