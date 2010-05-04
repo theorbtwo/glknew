@@ -1,5 +1,6 @@
 blue-lacuna
- - missing window clear messes up 'k' (none of these are blue) menu.
+ - help menu is not usable, because there is no way to press enter.
+ - topics subwindow always reads "Topics: topic, this / more information is often displayed here".
 
 acg
  - Working!
@@ -10,8 +11,6 @@ alabaster
 
 advent
  - help menu, putting a \x0A to a TextGrid doesn't move the cursor
- - help menu, bottom window still visible.
- - exiting help menu does not clear window.
 
 king
  - Dies during startup: "*** fatal error: Can't read data from the Blorb file. ***" if passed .gblorb file.
@@ -27,4 +26,5 @@ universal
  - line input does not echo to window.
  - TextBuffer window grows instead of scrolling.
  - Nicer char input?
+ - No way of pressing ret during char input makes most help menus unusable.
  - <title> tags.

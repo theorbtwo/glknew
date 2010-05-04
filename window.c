@@ -132,7 +132,7 @@ void glk_window_move_cursor(winid_t win, glui32 xpos, glui32 ypos) {
 }
 
 void glk_window_clear(winid_t win) {
-  printf(">>window_clear win=%p\n", win);
+  printf(">>>window_clear win=%p\n", win);
 }
 
 winid_t glk_window_get_parent(winid_t win) {

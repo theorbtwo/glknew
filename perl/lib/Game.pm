@@ -185,6 +185,10 @@ sub handle_stdout {
       $self->{windows}{$1}{current_style} = $self->{styles}{$self->{windows}{$1}{wintype}}{$3};
     }
 
+    when (/^>>>window_clear win=(0x[0-9A-Fa-f]+)$/) {
+      $self->{windows}{$1}{content} = [];
+    }
+
     when (/^\?\?\?select, window=(0x[0-9a-fA-F]+), want (char|line)_(latin1|uni)$/) {
       local $self->{harness} = 'SKIPPING HARNESS';
 #      Dump $self;

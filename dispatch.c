@@ -800,6 +800,9 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
   case 0x0028: /* window_get_type */
     arglist[2].uint = glk_window_get_type(arglist[0].opaqueref);
     break;
+  case 0x002A: /* window_clear */
+    glk_window_clear(arglist[0].opaqueref);
+    break;
   case 0x002B: /* window_move_cursor */
     glk_window_move_cursor(arglist[0].opaqueref, arglist[1].uint, 
                            arglist[2].uint);
@@ -940,9 +943,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
             break;
         case 0x0029: /* window_get_parent */
             arglist[2].opaqueref = glk_window_get_parent(arglist[0].opaqueref);
-            break;
-        case 0x002A: /* window_clear */
-            glk_window_clear(arglist[0].opaqueref);
             break;
         case 0x002C: /* window_get_stream */
             arglist[2].opaqueref = glk_window_get_stream(arglist[0].opaqueref);
