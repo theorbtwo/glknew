@@ -123,6 +123,10 @@ strid_t glk_window_get_stream(winid_t win) {
   return win->stream;
 }
 
+glui32 glk_window_get_type(winid_t win) {
+  return win->wintype;
+}
+
 void glk_window_move_cursor(winid_t win, glui32 xpos, glui32 ypos) {
   printf(">>>window_move_cursor win=%p, xpos=%d, ypos=%d\n", win, xpos, ypos);
 }

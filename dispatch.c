@@ -773,6 +773,7 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     arglist[6].opaqueref = glk_window_open(arglist[0].opaqueref, arglist[1].uint, 
                                            arglist[2].uint, arglist[3].uint, arglist[4].uint);
     break;
+
   case 0x0025: /* window_get_size */
     {
       int ix = 1;
@@ -795,6 +796,9 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
       ix++;
       glk_window_get_size(arglist[0].opaqueref, ptr1, ptr2);
     }
+    break;
+  case 0x0028: /* window_get_type */
+    arglist[2].uint = glk_window_get_type(arglist[0].opaqueref);
     break;
   case 0x002B: /* window_move_cursor */
     glk_window_move_cursor(arglist[0].opaqueref, arglist[1].uint, 
@@ -933,9 +937,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
                 ix++;
                 glk_window_get_arrangement(arglist[0].opaqueref, ptr1, ptr2, ptr3);
             }
-            break;
-        case 0x0028: /* window_get_type */
-            arglist[2].uint = glk_window_get_type(arglist[0].opaqueref);
             break;
         case 0x0029: /* window_get_parent */
             arglist[2].opaqueref = glk_window_get_parent(arglist[0].opaqueref);

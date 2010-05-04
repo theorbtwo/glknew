@@ -18,7 +18,7 @@ king
  - Graphics?
  - Multiple spaces in a row in Proportional=0 text outside TextGrid.
  - Block vs inline elements for styles -- centred text not working, text background color only set directly behind text.
- - north or exit (leave initial room) -> inf loop glk_window_iterate / glk_window_get_type
+ - Size info on graphic windows.
 
 z-machine interpreter
  - lots of undefined symbols
