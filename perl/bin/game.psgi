@@ -49,7 +49,7 @@ use Web::Simple 'GameIF';
         return "<style>
 .textBuffer {
   overflow: auto; 
-  height: 100%;
+  height: 400px;
 }
 html {
   height: 100%;
@@ -200,23 +200,25 @@ html {
 
         if ($side eq 'above' and $kind eq 'fixed' and $axis eq 'y') {
           $parent_text = <<END;
-<table>
- <tr><td>$child_text</td></tr>
- <tr><td>$parent_text</td></tr>
-</table>
+ <div>
+   $child_text
+   $parent_text
+ </div>
 END
         } elsif ($side eq 'below' and $kind eq 'fixed' and $axis eq 'y') {
           $parent_text = <<END;
-<table>
- <tr><td>$parent_text</td></tr>
- <tr><td>$child_text</td></tr>
-</table>
+ <div>
+   $parent_text
+   $child_text
+ </div>
 END
         } elsif ($side eq 'left' and $kind eq 'proportional' and $axis eq 'x') {
           $parent_text = <<END;
-<table>
- <tr><td width="$child->{size}%">$child_text</td><td>$parent_text</td></tr>
-</table>
+<div style="width:100%;">
+ <div style='min-width:$child->{size}%;'>$child_text</div>
+ <div style="float:right;">$parent_text</div>
+</div>
+<br style="clear:both"/>
 END
         } else {
           die "Unhandled situation, side=$side, kind=$kind, axis=$axis";
