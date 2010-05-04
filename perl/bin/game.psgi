@@ -35,7 +35,6 @@ use Web::Simple 'GameIF';
     sub new_game {
         my ($self, $game_path) = @_;
         my $gameid = scalar @games;
-        # $games[$gameid] = Game->new('/usr/src/extern/glknew/perl/t/var/Advent.ulx');
         my $game = Game->new($game_path, 
                              $self->config->{git_binary});
         $game->user_info($gameid);
@@ -44,6 +43,18 @@ use Web::Simple 'GameIF';
         $game->wait_for_select;
 
         return $game;
+    }
+
+    sub default_styles {
+        return "<style>
+.textBuffer {
+  overflow: auto; 
+  height: 100%;
+}
+html {
+  height: 100%;
+}
+</style>\n";
     }
 
     dispatch {
@@ -73,7 +84,7 @@ use Web::Simple 'GameIF';
 
           [ 200, 
             [ 'Content-type' => 'text/html' ], 
-            [ get_formatted_text($game->root_window) . $form ]
+            [ default_styles(). get_formatted_text($game->root_window) . $form ]
           ];
 
         },
@@ -100,7 +111,7 @@ use Web::Simple 'GameIF';
 
             [ 200, 
               [ 'Content-type' => 'text/html' ], 
-              [ get_initial_windows($game) . $form ]
+              [ default_styles() . get_initial_windows($game) . $form ]
             ];
           }
       };
@@ -258,7 +269,7 @@ END
       }
       $text .= "</tt>\n";
 
-      return "<div id='winid$win->{id}'>$text</div>"
+      return "<div class='textGrid' id='winid$win->{id}'>$text</div>"
     }
 
     # FIXME: Split this properly by wintype?  Make them objects, of different classes?
@@ -374,7 +385,7 @@ END
       }
       $text = "<style type='text/css'>$styles</style>\n$text";
 
-      return "<div id='winid$win->{id}'>$text</div>";
+      return "<div class='textBuffer' id='winid$win->{id}'>$text</div>";
     }
 
 }
