@@ -176,11 +176,29 @@ use Web::Simple 'GameIF';
           }
         }
 
+        # fixed vs proportional: are height/width attrs (as
+        # approprate) percentages, or number-of-chars?  Currently, we
+        # assume that if it's fixed, the height is ignorable, since
+        # one side will be a textgrid of that size anyway.
+
+        # x vs y axis determines if we have one tr of two td (x) or
+        # two trs, each with one td.
+
+        # above/left means $child_text comes first.  below/right means
+        # $parent_text comes first.
+
         if ($side eq 'above' and $kind eq 'fixed' and $axis eq 'y') {
           $parent_text = <<END;
 <table>
  <tr><td>$child_text</td></tr>
  <tr><td>$parent_text</td></tr>
+</table>
+END
+        } elsif ($side eq 'below' and $kind eq 'fixed' and $axis eq 'y') {
+          $parent_text = <<END;
+<table>
+ <tr><td>$parent_text</td></tr>
+ <tr><td>$child_text</td></tr>
 </table>
 END
         } elsif ($side eq 'left' and $kind eq 'proportional' and $axis eq 'x') {

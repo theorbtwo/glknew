@@ -4,7 +4,7 @@ use strict;
 
 # What the prototypes mean: http://www.eblong.com/zarf/glk/glk-spec-070_11.html#s.1.4
 
-my @protos = ('4IuIuIuIs', '3IuIu:Iu', '3Qa<Iu:Qa', '3Qc<Iu:Qc', '1Qa:', '6QaIuIuIuIu:Qa', '4IuIuIuIs:', '1Qb:', '1Iu:', '2Qb<[2IuIu]:');
+my @protos = ('4IuIuIuIs', '3IuIu:Iu', '3Qa<Iu:Qa', '3Qc<Iu:Qc', '1Qa:', '6QaIuIuIuIu:Qa', '4IuIuIuIs:', '1Qb:', '1Iu:', '2Qb<[2IuIu]:', '3IuIuIu:');
 # , '4&+#!IuIuIu:Qb');
 
 for my $prototype (@protos) {

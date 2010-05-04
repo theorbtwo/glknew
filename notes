@@ -1,5 +1,5 @@
 blue-lacuna
- - hit "none of the above were blue" letter at very beginning -> crash, "Unhandled situation, side=below, kind=fixed, axis=y"
+ - missing window clear messes up 'k' (none of these are blue) menu.
 
 acg
  - Working!
