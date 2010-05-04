@@ -14,7 +14,10 @@ use Web::Simple 'GameIF';
     my @games = ();
 
     default_config ( file_dir => q{/usr/src/extern/glknew/perl/root/},
-                     git_binary => '/usr/src/extern/git-1.2.6/git',
+                     # FIXME: Use Local.pm to load correct version for current machine,
+                     # based on machine name, instead of using rel path?
+                     # Current version assumes it's run from $CHECKOUT/perl/
+                     git_binary => '../../git-1.2.6/git',
                    );
 
     sub static_file {

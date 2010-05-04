@@ -11,11 +11,14 @@ alabaster
 advent
  - help menu, putting a \x0A to a TextGrid doesn't move the cursor
  - help menu, bottom window still visible.
+ - exiting help menu does not clear window.
 
 king
  - Dies during startup: "*** fatal error: Can't read data from the Blorb file. ***" if passed .gblorb file.
  - Graphics?
  - Multiple spaces in a row in Proportional=0 text outside TextGrid.
+ - Type "exit" -> inf loop of window_iterate
+ - Block vs inline elements for styles -- centred text not working, text background color only set directly behind text.
 
 z-machine interpreter
  - lots of undefined symbols
