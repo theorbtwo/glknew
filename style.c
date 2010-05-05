@@ -73,6 +73,30 @@ void glk_stylehint_set(glui32 wintype, glui32 styl, glui32 hint,
   }
 }
 
+/* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.5.2 -- returns
+   1 iff the user can see the difference between the two given styles
+   in the given window. */
+glui32 glk_style_distinguish(winid_t win, glui32 styl1, glui32 styl2) {
+  /* 6 is pretty arbitrary.  Really, we just want three chars,
+     [01]\n\0. */
+  char line[6];
+  char *ret;
+
+  printf("??? glk_style_distinguish win=%p, styl1=%d, styl2=%d\n", win, styl1, styl2);
+  ret = fgets(line, 6, stdin);
+  if (!ret) {
+    printf("Failed fgets in glk_style_distinguish!");
+    exit(15);
+  }
+
+  if (strncmp(ret, "1", 1) == 0) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+
+
 void glk_set_style(glui32 styl) {
   glk_set_style_stream(current_stream, styl);
 }
