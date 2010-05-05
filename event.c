@@ -21,6 +21,11 @@ void glk_request_char_event(winid_t win) {
   text_input_type_wanted = TEXT_INPUT_CHAR_LATIN1;
 }
 
+void glk_cancel_char_event(winid_t win) {
+  input_window = NULL;
+  text_input_type_wanted = TEXT_INPUT_NONE;
+}
+
 void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initlen) {
   char *prefill;
 
