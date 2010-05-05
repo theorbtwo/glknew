@@ -237,7 +237,7 @@ END
       my $state;
 
       my $style = undef;
-      for my $e (@{$win->{content}}) {
+      for my $e (@{$win->last_page}) {
         if (exists $e->{cursor_to}) {
           $cursor = [$e->{cursor_to}[1], $e->{cursor_to}[0]];
         } elsif (exists $e->{char}) {
@@ -280,11 +280,6 @@ END
     sub get_own_formatted_text {
       my ($win) = @_;
 
-      if (!ref $win) {
-        $win = $self->{windows}{$win};
-        return '' if(!$win);
-      }
-
       if ($win->{wintype} eq 'TextGrid') {
         return get_own_formatted_text_grid($win);
       }
@@ -294,7 +289,7 @@ END
 
       my %styles_needed;
 
-      for my $e (@{$win->{content}}) {
+      for my $e (@{$win->last_page}) {
         my ($style, $char) = @{$e}{'style', 'char'};
         if(defined $style) {
           if ($prev_style != $style) {
