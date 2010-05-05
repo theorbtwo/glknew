@@ -35,7 +35,6 @@ use Web::Simple 'GameIF';
     sub new_game {
         my ($self, $game_path) = @_;
         my $gameid = scalar @games;
-        # $games[$gameid] = Game->new('/usr/src/extern/glknew/perl/t/var/Advent.ulx');
         my $game = Game->new($game_path, 
                              $self->config->{git_binary});
         $game->user_info($gameid);
@@ -44,6 +43,18 @@ use Web::Simple 'GameIF';
         $game->wait_for_select;
 
         return $game;
+    }
+
+    sub default_styles {
+        return "<style>
+.textBuffer {
+  overflow: auto; 
+  height: 400px;
+}
+html {
+  height: 100%;
+}
+</style>\n";
     }
 
     dispatch {
@@ -75,7 +86,7 @@ use Web::Simple 'GameIF';
 
           [ 200, 
             [ 'Content-type' => 'text/html' ], 
-            [ get_formatted_text($game->root_window) . $form ]
+            [ default_styles(). get_formatted_text($game->root_window) . $form ]
           ];
 
         },
@@ -102,7 +113,7 @@ use Web::Simple 'GameIF';
 
             [ 200, 
               [ 'Content-type' => 'text/html' ], 
-              [ get_initial_windows($game) . $form ]
+              [ default_styles() . get_initial_windows($game) . $form ]
             ];
           }
       };
@@ -191,23 +202,25 @@ use Web::Simple 'GameIF';
 
         if ($side eq 'above' and $kind eq 'fixed' and $axis eq 'y') {
           $parent_text = <<END;
-<table>
- <tr><td>$child_text</td></tr>
- <tr><td>$parent_text</td></tr>
-</table>
+ <div>
+   $child_text
+   $parent_text
+ </div>
 END
         } elsif ($side eq 'below' and $kind eq 'fixed' and $axis eq 'y') {
           $parent_text = <<END;
-<table>
- <tr><td>$parent_text</td></tr>
- <tr><td>$child_text</td></tr>
-</table>
+ <div>
+   $parent_text
+   $child_text
+ </div>
 END
         } elsif ($side eq 'left' and $kind eq 'proportional' and $axis eq 'x') {
           $parent_text = <<END;
-<table>
- <tr><td width="$child->{size}%">$child_text</td><td>$parent_text</td></tr>
-</table>
+<div style="width:100%;">
+ <div style='min-width:$child->{size}%;'>$child_text</div>
+ <div style="float:right;">$parent_text</div>
+</div>
+<br style="clear:both"/>
 END
         } else {
           die "Unhandled situation, side=$side, kind=$kind, axis=$axis";
@@ -260,7 +273,7 @@ END
       }
       $text .= "</tt>\n";
 
-      return "<div id='winid$win->{id}'>$text</div>"
+      return "<div class='textGrid' id='winid$win->{id}'>$text</div>"
     }
 
     # FIXME: Split this properly by wintype?  Make them objects, of different classes?
@@ -376,7 +389,7 @@ END
       }
       $text = "<style type='text/css'>$styles</style>\n$text";
 
-      return "<div id='winid$win->{id}'>$text</div>";
+      return "<div class='textBuffer' id='winid$win->{id}'>$text</div>";
     }
 
 }
