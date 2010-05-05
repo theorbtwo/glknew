@@ -26,6 +26,26 @@ void glk_cancel_char_event(winid_t win) {
   text_input_type_wanted = TEXT_INPUT_NONE;
 }
 
+void glk_cancel_line_event(winid_t win, event_t *event) {
+  input_window = NULL;
+  text_input_type_wanted = TEXT_INPUT_NONE;
+
+  /* We are apparently supposed to fill in the event structure based
+     on what the user has already entered.  Ignore this (for now?),
+     and simply tell the caller that the user has not yet entered
+     anything.
+  */
+
+  if (event) {
+    event->type = evtype_LineInput;
+    event->win = win;
+    event->val1 = 0;
+    event->val2 = 0;
+  }
+
+  line_event_request_info.buf[0] = '\0';
+}
+
 void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initlen) {
   char *prefill;
 
