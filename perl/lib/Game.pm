@@ -6,6 +6,8 @@ use Symbol 'gensym';
 use 5.010_00;
 use Data::Dump::Streamer;
 
+use Game::Window;
+
 sub new {
   my ($class, $blorb_file, $git, $callbacks) = @_;
   $callbacks ||= {};
@@ -138,7 +140,6 @@ sub handle_stdout {
       $self->{win_in_progress} = {};
       if ($1 ne '(nil)') {
         $self->{win_in_progress}{parent} = $self->{windows}{$1};
-        push @{$self->{win_in_progress}{parent}{children}}, $self->{win_in_progress};
       }
     }
 
@@ -159,12 +160,16 @@ sub handle_stdout {
       delete $self->{win_in_progress}{method};
       delete $self->{win_in_progress}{size};
       $self->{win_in_progress}{is_root}++;
-      $self->{root_win} = $self->{win_in_progress};
     }
     
     when (/^>>>win: at (0x[0-9A-Fa-f]+)$/) {
       $self->{win_in_progress}{id} = $1;
-      $self->{windows}{$1} = delete $self->{win_in_progress};
+
+      my $win = $self->{windows}{$1} = Game::Window->new(delete $self->{win_in_progress});
+#      $self->{windows}{$1} = delete $self->{win_in_progress};
+      push @{$self->{win_in_progress}{parent}{children}}, $self->{windows}{$1};
+      $self->{root_win} = $win if($win->{is_root});
+
     }
 
     when (/^\?\?\?window_get_size win=(0x[0-9a-fA-F]+)/) {
@@ -186,6 +191,7 @@ sub handle_stdout {
     }
 
     when (/^>>>window_clear win=(0x[0-9A-Fa-f]+)$/) {
+      ## This needs to empty "pages" now, probably
       $self->{windows}{$1}{content} = [];
     }
 
@@ -214,7 +220,7 @@ sub handle_stderr {
 sub default_window_size_callback {
     my ($self, $winid) = @_;
     my $win = $self->{windows}{$winid};
-    #Dump $win;
+#    Dump $win;
 
     my @size = (80, 25);
     if ('fixed' ~~ @{ $win->{method} }) {
@@ -262,6 +268,10 @@ sub default_select_callback {
     }
     ## newline so status window line is seen..
     print "\n";
+
+
+    ## Backup previous window content
+    push @{ $win->{pages} }, delete $win->{content};
   }
 
   $self->{current_select} = {
