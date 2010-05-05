@@ -26,6 +26,26 @@ void glk_cancel_char_event(winid_t win) {
   text_input_type_wanted = TEXT_INPUT_NONE;
 }
 
+void glk_cancel_line_event(winid_t win, event_t *event) {
+  input_window = NULL;
+  text_input_type_wanted = TEXT_INPUT_NONE;
+
+  /* We are apparently supposed to fill in the event structure based
+     on what the user has already entered.  Ignore this (for now?),
+     and simply tell the caller that the user has not yet entered
+     anything.
+  */
+
+  if (event) {
+    event->type = evtype_LineInput;
+    event->win = win;
+    event->val1 = 0;
+    event->val2 = 0;
+  }
+
+  line_event_request_info.buf[0] = '\0';
+}
+
 void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initlen) {
   char *prefill;
 
@@ -50,6 +70,19 @@ void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initle
   line_event_request_info.prefill = prefill;
   line_event_request_info.maxlen = maxlen;
   line_event_request_info.want_unicode = 0;
+}
+
+void glk_request_mouse_event(winid_t win) {
+  /* Ignore this for now. */
+}
+
+void glk_request_timer_events(glui32 miliseconds) {
+  /* Ignore this for now.  Thinking about implementation anyway: store
+     time of next timer event in a global, if select happens after
+     then, throw the timer event and update the time at which the next
+     timer even happens.  However, this contrivenes the end of
+     http://www.eblong.com/zarf/glk/glk-spec-070_4.html#s.4, which
+     says that keyboard events should win over timer events. */
 }
 
 
