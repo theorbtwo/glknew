@@ -72,6 +72,19 @@ void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initle
   line_event_request_info.want_unicode = 0;
 }
 
+void glk_request_mouse_event(winid_t win) {
+  /* Ignore this for now. */
+}
+
+void glk_request_timer_events(glui32 miliseconds) {
+  /* Ignore this for now.  Thinking about implementation anyway: store
+     time of next timer event in a global, if select happens after
+     then, throw the timer event and update the time at which the next
+     timer even happens.  However, this contrivenes the end of
+     http://www.eblong.com/zarf/glk/glk-spec-070_4.html#s.4, which
+     says that keyboard events should win over timer events. */
+}
+
 
 #define evtype_charinput_special(name) \
   else if (sscanf(ret, "evtype_CharInput keycode_" #name)) { \
