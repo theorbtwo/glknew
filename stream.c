@@ -70,6 +70,12 @@ void glk_put_string_stream(strid_t str, char *s) {
   }
 }
 
+void glk_put_buffer_stream(strid_t str, char *buf, glui32 len) {
+  for (int i = 0; i < len; i++) {
+    glk_put_char_stream(str, buf[i]);
+  }
+}
+
 void glk_put_char_uni(glui32 ch) {
   glk_put_char_stream_uni(current_stream, ch);
 }
@@ -106,6 +112,21 @@ glsi32 glk_get_char_stream(strid_t str) {
 
   return uni_char;
 }
+
+glui32 glk_get_line_stream(strid_t str, char *buf, glui32 len) {
+  int offset;
+  
+  for (offset = 0; offset < len; offset++) {  
+    buf[offset] = glk_get_char_stream(str);
+    if (buf[offset] == '\n') {
+      break;
+    }
+  }
+  buf[offset+1] = '\0';
+
+  return offset;
+}
+
 
 glui32 glk_get_buffer_stream(strid_t str, char *buf, glui32 len) {
   int i;

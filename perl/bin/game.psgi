@@ -54,20 +54,22 @@ use Web::Simple 'GameIF';
         sub (/game/continue/* + %text~&char~) {
           my ($self, $gameid, $text, $char) = @_;
 
+          my $run_select = 1;
           my $game = $games[$gameid];
           if (defined $text and not defined $char) {
             $game->send_to_game("evtype_LineInput $text\n");
           } elsif (not defined $text and defined $char) {
             $game->send_to_game("evtype_CharInput ".ord($char)."\n");
           } elsif (not defined $text and not defined $char) {
-            # The user hit alt-d ret ?
-            $game->send_to_game("evtype_None\n");
+            # Do nothing.
+            $run_select = 0;
           } else {
             # Both text and char are defined?
             die "Double-down on continue -- char='$char', text='$text'";
           }
 
-          $game->wait_for_select;
+          $game->wait_for_select
+            if $run_select;
 
           my $form = get_form($game);
 
