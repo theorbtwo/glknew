@@ -8,6 +8,7 @@ use Web::Simple 'GameIF';
 {
     package GameIF;
     use Game;
+    use JSON;
     use File::Spec::Functions;
     use Data::Dump::Streamer 'Dumper';
 
@@ -22,7 +23,8 @@ use Web::Simple 'GameIF';
 
     sub static_file {
         my ($self, $file, $type) = @_;
-        open my $fh, '<', catfile($self->config->{file_dir}, "$file") or return [ 404, [ 'Content-type', 'text/html' ], [ 'file not found']];
+        my $fullfile = catfile($self->config->{file_dir}, "$file");
+        open my $fh, '<', $fullfile or return [ 404, [ 'Content-type', 'text/html' ], [ "file not found $fullfile"]];
 
         local $/ = undef;
         my $file_content = <$fh>;
@@ -62,11 +64,21 @@ html {
             return $self->static_file("index.html");
         },
 
-        sub (/game/continue/* + %text~&char~) {
-          my ($self, $gameid, $text, $char) = @_;
+        sub (/js/**) {
+            my $file=$_[1];
+            return $self->static_file("js/$file", "text/javascript");
+        },
+ 
+       sub (/css/**) {
+            my $file=$_[1];
+            return $self->static_file("css/$file", "text/css");
+        },
+
+        sub (/game/continue + ?text~&char~&game_id=&window_id=) {
+          my ($self, $text, $char, $game_id, $window_id) = @_;
 
           my $run_select = 1;
-          my $game = $games[$gameid];
+          my $game = $games[$game_id];
           if (defined $text and not defined $char) {
             $game->send_to_game("evtype_LineInput $text\n");
           } elsif (not defined $text and defined $char) {
@@ -84,9 +96,15 @@ html {
 
           my $form = get_form($game);
 
+          my $json = JSON::encode_json({ winid => "winid" . $game->{current_select}{window}{id},
+                                         content => get_formatted_text($game->root_window)
+                                         });
+
           [ 200, 
-            [ 'Content-type' => 'text/html' ], 
-            [ default_styles(). get_formatted_text($game->root_window) . $form ]
+            [ 'Content-type' => 'application/json' ], 
+            [ $json ]
+#            [ 'Content-type' => 'text/html' ], 
+#            [ default_styles(). get_formatted_text($game->root_window) . $form ]
           ];
 
         },
@@ -113,10 +131,25 @@ html {
 
             [ 200, 
               [ 'Content-type' => 'text/html' ], 
-              [ default_styles() . get_initial_windows($game) . $form ]
+              [ make_page(get_initial_windows($game) . $form )]
             ];
           }
       };
+
+    ## TT?
+    sub make_page {
+        my ($content) = @_;
+
+        my $js = '<script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>' 
+          . '<script type="text/javascript" src="/js/next-action.js"></script>';
+
+
+
+        my $page = "<html><head>$js</head><body>" 
+          . default_styles()
+            . $content
+              . '</body></html>';
+    }
 
     sub get_form {
       my ($game) = @_;
@@ -138,7 +171,7 @@ html {
           die "Don't know how to handle this callback -- \$game->{current_select}{input_type} eq \'$game->{current_select}{input_type}\'";
         }
 
-        $form = "<form method='post' action='/game/continue/$gameid'><input type='hidden' name='window_id' value='winid$winid'/>$form</form>";
+        $form = "<form id='input' method='post' action='/game/continue/$gameid'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/>$form</form>";
       }
 
       return $form;
@@ -384,6 +417,8 @@ END
       }
       $text = "<style type='text/css'>$styles</style>\n$text";
 
+      ## need to only add the class for the initial set of windows
+      ## should not be set on subsequent content fetches via ajax!
       return "<div class='textBuffer' id='winid$win->{id}'>$text</div>";
     }
 
