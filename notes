@@ -30,3 +30,6 @@ universal
  - <title> tags.
  - expand Game::Window to cover all window attrs
  - add Game::Style ?
+ - ajax: return json/content per window, instead of just one
+ - continue, return content without divs/classes etc.
+
