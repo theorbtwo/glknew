@@ -64,6 +64,8 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
   newwin->wintype=wintype;
   newwin->rock=rock;
   newwin->echo_stream = NULL;
+  newwin->next = NULL;
+  
   /* The spec has a system of parents and partners.  When you split a
   window, you create a new window, the parent, split and newwin both
   become children of this new parent. */
@@ -83,7 +85,6 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
     }
     printf(">>>win: is root\n");
     root_window = newwin;
-    newwin->next = NULL;
   } else {
     /* If we are not the root window, then we need to be added to the
        linked list of windows. */
@@ -91,7 +92,6 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
     while (lastwin->next)
       lastwin = lastwin->next;
     lastwin->next = newwin;
-    newwin->next = NULL;
   }
 
   printf(">>>win: at %p\n", newwin);
@@ -118,18 +118,29 @@ void glk_window_close(winid_t win, stream_result_t *result) {
 
   glk_stream_close(win->stream, result);
   
-  /* Because windows are a singly linked list, we need to start from
-     the beginning / root to find the prev.
-  */
-  walker = root_window;
-  while (1) {
-    if (walker->next == win) {
-      walker->next = win->next;
-      break;
+  /* 
+   * Because windows are a singly linked list, we need to start from
+   * the beginning / root to find the prev.  (But if the window to
+   * kill is the root window, then you don't need to, since there is
+   * nothing currently previous to it... and we'd fall off the end if
+   * we tried.
+   * 
+   * Fixme: We seem to be running through things here after they've
+   * been closed already, which means that the entire point is being
+   * missed somehow.     
+   */
+  if (win != root_window) {
+    walker = root_window;
+    while (1) {
+      printf("glk_window_close walking: %p\n", walker);
+      if (walker->next == win) {
+        walker->next = win->next;
+        break;
+      }
+      walker = walker->next;
     }
-    walker = walker->next;
   }
-
+  
   if (dispatch_unregister) {
     dispatch_unregister(win, gidisp_Class_Window, win->dispatch_rock);
   }
