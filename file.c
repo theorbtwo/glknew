@@ -26,3 +26,20 @@ void glk_fileref_destroy(frefid_t fileref) {
   free(fileref->name);
   free(fileref);
 }
+
+glui32 glk_fileref_does_file_exist(frefid_t fref) {
+  int ret;
+  struct stat info;
+
+  ret = stat(fref->name, &info);
+
+  if (ret == -1 && errno == ENOENT) {
+    return 0;
+  } else if (ret == -1) {
+    printf("DEBUG: (unexpected) error on stat for glk_fileref_does_file_exist on %s: errno=%d\n",
+           fref->name, errno);
+    return 0;
+  } else {
+    return 1;
+  }
+}
