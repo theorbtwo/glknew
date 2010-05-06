@@ -129,7 +129,9 @@ void glk_window_close(winid_t win, stream_result_t *result) {
    * been closed already, which means that the entire point is being
    * missed somehow.     
    */
-  if (win != root_window) {
+  if (win == root_window) {
+    root_window = win->next;
+  } else if (win != root_window) {
     walker = root_window;
     while (1) {
       printf("glk_window_close walking: %p\n", walker);
