@@ -1,5 +1,9 @@
 #include "glknew.h"
 
+static glui32 get_position(strid_t str) {
+  return lseek(str->u.file.fd, 0, SEEK_CUR);
+}
+
 static void set_position(strid_t str, glsi32 pos, glui32 seekmode) {
   int fd = str->u.file.fd;
   int whence;
@@ -21,8 +25,22 @@ static void set_position(strid_t str, glsi32 pos, glui32 seekmode) {
   }
 }
 
+static glsi32 get_char_uni(strid_t str) {
+  char ch;
+  ssize_t ret;
+  
+  ret = read(str->u.file.fd, &ch, 1);
+  if (ret == 0) {
+    return -1;
+  } else {
+    return ch;
+  }
+}
+
 struct glk_stream_struct_vtable stream_file_vtable = {
-  .set_position = &set_position
+  .set_position = &set_position,
+  .get_position = &get_position,
+  .get_char_uni = &get_char_uni
 };
 
 /* This is probably woefully incomplete WRT unicode & textmode. */
