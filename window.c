@@ -11,30 +11,39 @@ void glk_window_set_echo_stream(winid_t win, strid_t str) {
   win->echo_stream = str;
 }
 
+/* str should point to at least WIN_METHOD_NAME_SIZE
+ bytes of space. */
+#define WIN_METHOD_NAME_SIZE strlen("above, proportional")+1
+void win_method_to_name(glui32 method, char *str) {
+  str[0] = '\0';
+
+  if ((method & winmethod_DirMask) == winmethod_Left) {
+    strncat(str, "left", WIN_METHOD_NAME_SIZE);
+  } else if ((method & winmethod_DirMask) == winmethod_Right) {
+    strncat(str, "right", WIN_METHOD_NAME_SIZE);
+  } else if ((method & winmethod_DirMask) == winmethod_Above) {
+    strncat(str, "above", WIN_METHOD_NAME_SIZE);
+  } else if ((method & winmethod_DirMask) == winmethod_Below) {
+    strncat(str, "below", WIN_METHOD_NAME_SIZE);
+  }
+
+  if ((method & winmethod_DivisionMask) == winmethod_Fixed) {
+    strncat(str, ", fixed", WIN_METHOD_NAME_SIZE);
+  } else if ((method & winmethod_DivisionMask) == winmethod_Proportional) {
+    strncat(str, ", proportional", WIN_METHOD_NAME_SIZE);
+  }
+}
+
+
 /* http://www.eblong.com/zarf/glk/glk-spec-070_3.html#s.2 */
 winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
                         glui32 wintype, glui32 rock) {
   struct glk_window_struct *newwin;
+  char win_method_name[WIN_METHOD_NAME_SIZE];
   
   printf(">>>Opening new window, splitting exsiting window %p\n", split);
-  printf(">>>win: method=");
-  if ((method & winmethod_DirMask) == winmethod_Left) {
-    printf("left");
-  } else if ((method & winmethod_DirMask) == winmethod_Right) {
-    printf("right");
-  } else if ((method & winmethod_DirMask) == winmethod_Above) {
-    printf("above");
-  } else if ((method & winmethod_DirMask) == winmethod_Below) {
-    printf("below");
-  }
-
-  if ((method & winmethod_DivisionMask) == winmethod_Fixed) {
-    printf(", fixed");
-  } else if ((method & winmethod_DivisionMask) == winmethod_Proportional) {
-    printf(", proportional");
-  }
-
-  printf("\n");
+  win_method_to_name(method, win_method_name);
+  printf(">>>win: method=%s\n", win_method_name);
 
   printf(">>>win: size %d\n", size);
 
@@ -90,6 +99,16 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
 
   return newwin;
 }
+
+void glk_window_set_arrangement(winid_t win, glui32 method,
+                                glui32 size, winid_t keywin) {
+  char method_name[WIN_METHOD_NAME_SIZE];
+  win_method_to_name(method, method_name);
+
+  printf(">>>window_set_arrangement win=%p, method=%s, size=%d, keywin=%p\n",
+         win, method_name, size, keywin);
+} 
+
 
 void glk_window_get_size(winid_t win, glui32 *widthptr, glui32 *heightptr) {
   char line[1024];
