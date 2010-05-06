@@ -17,6 +17,7 @@
 #include "event.h"
 #include "window.h"
 #include "style.h"
+#include "file.h"
 
 /* The current stream; there's a bunch of shortcut functions in the
    API that use this explicitly.  Used to be local to stream.c, but
