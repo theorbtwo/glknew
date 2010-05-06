@@ -43,3 +43,63 @@ glui32 glk_fileref_does_file_exist(frefid_t fref) {
     return 1;
   }
 }
+
+#define USAGE_NAME_LEN strlen("InputRecord, BinaryMode")+1
+void usage_to_name(glui32 usage, char *name) {
+  name[0] = '\0';
+  
+  if ((usage & fileusage_TypeMask) == fileusage_Data) {
+    strcat(name, "Data");
+  } else if ((usage & fileusage_TypeMask) == fileusage_SavedGame) {
+    strcat(name, "SavedGame");
+  } else if ((usage & fileusage_TypeMask) == fileusage_Transcript) {
+    strcat(name, "Transcript");
+  } else if ((usage & fileusage_TypeMask) == fileusage_InputRecord) {
+    strcat(name, "InputRecord");
+  }
+
+  if ((usage & fileusage_TextMode) == fileusage_TextMode) {
+    strcat(name, "TextMode");
+  } else if ((usage & fileusage_TextMode) == fileusage_TextMode) {
+    strcat(name, "BinaryMode");
+  }
+}
+
+#define FILEMODE_NAME_LEN strlen("WriteAppend")+1
+void filemode_to_name(glui32 filemode, char *name) {
+  name[0] = '\0';
+
+  if (filemode == filemode_Write) {
+    strcat(name, "Write");
+  } else if (filemode == filemode_Read) {
+    strcat (name, "Read");
+  } else if (filemode == filemode_ReadWrite) {
+    strcat (name, "ReadWrite");
+  } else if (filemode == filemode_WriteAppend) {
+    strcat (name, "WriteAppend");
+  } else {
+    strcat (name, "???");
+  }
+}
+
+frefid_t glk_fileref_create_by_prompt(glui32 usage, glui32 filemode, glui32 rock) {
+  char name[1024];
+  char *ret;
+  char usage_name[USAGE_NAME_LEN];
+  char filemode_name[FILEMODE_NAME_LEN];
+
+  usage_to_name(usage, usage_name);
+  filemode_to_name(filemode, filemode_name);
+
+  printf("???glk_fileref_create_by_prompt usage=%d (%s), filemode=%d (%s)\n", usage, usage_name, filemode, filemode_name);
+
+  ret = fgets(name, 1024, stdin);
+  if (!ret) {
+    printf("Failed fgets in glk_fileref_create_by_prompt!\n");
+    exit(18);
+  }
+
+  /* Remove trailing newline. */
+  name[strlen(name)] = '\0';
+  return glk_fileref_create_by_name(usage, name, rock);
+}
