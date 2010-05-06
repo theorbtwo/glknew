@@ -25,6 +25,14 @@ struct glk_stream_struct_vtable stream_file_vtable = {
   .set_position = &set_position
 };
 
+/* This is probably woefully incomplete WRT unicode & textmode. */
+strid_t glk_stream_open_file(frefid_t fileref, glui32 fmode,
+                             glui32 rock) {
+  return gli_stream_open_pathname(fileref->name, fileref->usage & fileusage_TextMode,
+                                  rock);
+}
+
+
 /* Not part of the glk API proper, but required by the glkunix API. */
 /* Opens a given pathname, as a read-only stream. */
 strid_t gli_stream_open_pathname(char *pathname, int textmode,
