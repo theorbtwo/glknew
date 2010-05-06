@@ -2,8 +2,9 @@
 
 struct stylehint styles[wintype_Graphics][style_NUMSTYLES][stylehint_NUMHINTS];
 
-const char *style_name(glui32 styl) {
 #define switch_entry(const, var, this) case const ## _ ## this : return #this; break
+
+const char *style_to_name(glui32 styl) {
 #define style_entry(this) switch_entry(style, styl_name, this)
     switch(styl) {
       style_entry(Normal);
@@ -19,23 +20,10 @@ const char *style_name(glui32 styl) {
       style_entry(User2);
     default: return "WTF"; break;
     }
-#undef switch_entry
 #undef style_entry
 }
 
-void glk_stylehint_set(glui32 wintype, glui32 styl, glui32 hint,
-                       glsi32 val) {
-  styles[wintype][styl][hint].is_set = 1;
-  styles[wintype][styl][hint].val = val;
-
-  {
-    const char *wintype_name;
-    const char *styl_name;
-    const char *hint_name;
-
-    /* must be used with trailing ; */
-#define switch_entry(const, var, this) case const ## _ ## this : var = #this; break
-
+const char *wintype_to_name(glui32 wintype) {
 #define wintype_entry(this) switch_entry(wintype, wintype_name, this)
     switch (wintype) {
       wintype_entry(Pair);
@@ -44,12 +32,12 @@ void glk_stylehint_set(glui32 wintype, glui32 styl, glui32 hint,
       wintype_entry(TextGrid);
       wintype_entry(Graphics);
     default:
-      wintype_name = "WTF";
+      return "WTF";
       break;
     }
-    
-    styl_name = style_name(styl);
-    
+}
+
+const char *hint_to_name(glui32 hint) {
 #define hint_entry(this) switch_entry(stylehint, hint_name, this)
     switch(hint) {
       hint_entry(Indentation);
@@ -63,14 +51,39 @@ void glk_stylehint_set(glui32 wintype, glui32 styl, glui32 hint,
       hint_entry(BackColor);
       hint_entry(ReverseColor);
     default:
-      hint_name="WTF";
+      return "WTF";
       break;
     }
+}
+
+#undef switch_entry
+
+void glk_stylehint_set(glui32 wintype, glui32 styl, glui32 hint,
+                       glsi32 val) {
+  styles[wintype][styl][hint].is_set = 1;
+  styles[wintype][styl][hint].val = val;
+
+  {
+    const char *wintype_name = wintype_to_name(wintype);
+    const char *styl_name = style_to_name(styl);
+    const char *hint_name = hint_to_name(hint);
 
     printf(">>stylehint_set for wintype=%d (%s), styl=%d (%s), hint=%d (%s) to val=%d\n",
            wintype, wintype_name, styl, styl_name, hint, hint_name, val
            );
   }
+}
+
+extern void glk_stylehint_clear(glui32 wintype, glui32 styl, glui32 hint) {
+  const char *wintype_name = wintype_to_name(wintype);
+  const char *styl_name = style_to_name(styl);
+  const char *hint_name = hint_to_name(hint);
+  
+  styles[wintype][styl][hint].is_set = 0;
+
+  printf(">>stylehint_clear for wintype=%d (%s), styl=%d (%s), hint=%d (%s)\n",
+         wintype, wintype_name, styl, styl_name, hint, hint_name
+         );
 }
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.5.2 -- returns
@@ -108,7 +121,7 @@ void glk_set_style_stream(strid_t str, glui32 styl) {
      have a window style! */
   
   if (str->type != STREAM_TYPE_WINDOW) {
-    printf("Attempt to call glk_set_style_stream on a non-window stream (stream type=%d, style=%d (%s))\n", str->type, styl, style_name(styl));
+    printf("Attempt to call glk_set_style_stream on a non-window stream (stream type=%d, style=%d (%s))\n", str->type, styl, style_to_name(styl));
     
     /* Alabaster does this, on a memory stream.  The spec says "For a
   window stream, the text will appear in that style. For a memory
@@ -122,7 +135,7 @@ void glk_set_style_stream(strid_t str, glui32 styl) {
     return;
   }
 
-  printf(">>>glk_set_style_stream Window=%p to style=%d (%s)\n", str->u.win.win, styl, style_name(styl));
+  printf(">>>glk_set_style_stream Window=%p to style=%d (%s)\n", str->u.win.win, styl, style_to_name(styl));
 
   str->current_style = styles[str->u.win.win->wintype][styl];
 }

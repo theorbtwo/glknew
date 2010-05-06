@@ -7,6 +7,9 @@ winid_t glk_window_get_root(void) {
   return root_window;
 }
 
+void glk_window_set_echo_stream(winid_t win, strid_t str) {
+  win->echo_stream = str;
+}
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_3.html#s.2 */
 winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
@@ -51,6 +54,7 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
   newwin=malloc(sizeof(*newwin));
   newwin->wintype=wintype;
   newwin->rock=rock;
+  newwin->echo_stream = NULL;
   /* The spec has a system of parents and partners.  When you split a
   window, you create a new window, the parent, split and newwin both
   become children of this new parent. */
@@ -60,7 +64,7 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
   } else {
     printf("Making window while dispatch_register unset\n");
   }
-
+  
   if (!root_window) {
     if (split) {
       /* If we are opening the root window, split must be zero, method

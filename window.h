@@ -9,6 +9,7 @@ struct glk_window_struct {
   struct glk_stream_struct *stream;
   glui32 rock;
   struct glk_window_struct *parent;
+  struct glk_stream_struct *echo_stream;
 };
 
 #endif

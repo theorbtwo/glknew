@@ -7,6 +7,10 @@ static void put_char_uni(struct glk_stream_struct *str, glui32 ch) {
   } else {
     printf("\n");
   }
+  
+  if (str->u.win.win->echo_stream) {
+    glk_put_char_stream_uni(str->u.win.win->echo_stream, ch);
+  }
 }
 
 struct glk_stream_struct_vtable stream_window_vtable = {
