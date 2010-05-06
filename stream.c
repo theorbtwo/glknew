@@ -114,9 +114,10 @@ glsi32 glk_get_char_stream(strid_t str) {
 }
 
 glui32 glk_get_line_stream(strid_t str, char *buf, glui32 len) {
-  int offset;
+  glui32 offset;
   
-  for (offset = 0; offset < len; offset++) {  
+  /* FIXME: Halt on error reading properly. */
+  for (offset = 0; offset < len; offset++) {
     buf[offset] = glk_get_char_stream(str);
     if (buf[offset] == '\n') {
       break;
@@ -129,15 +130,18 @@ glui32 glk_get_line_stream(strid_t str, char *buf, glui32 len) {
 
 
 glui32 glk_get_buffer_stream(strid_t str, char *buf, glui32 len) {
-  int i;
+  glui32 i;
 
-  /* FIXME: stop at eof */
   for (i=0; i<len; i++) {
-    glui32 c = glk_get_char_stream(str);
+    glsi32 c = glk_get_char_stream(str);
     if (c == -1) {
       return i-1;
     }
-    buf[i] = c;
+    if (i > 0xFF) {
+      buf[i] = '?';
+    } else {
+      buf[i] = (char)c;
+    }
   }
 
   return i;

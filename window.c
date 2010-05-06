@@ -83,6 +83,7 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
     }
     printf(">>>win: is root\n");
     root_window = newwin;
+    newwin->next = NULL;
   } else {
     /* If we are not the root window, then we need to be added to the
        linked list of windows. */
@@ -156,7 +157,7 @@ void glk_window_get_size(winid_t win, glui32 *widthptr, glui32 *heightptr) {
     exit(12);
   }
 
-  if (sscanf(ret, "%d %d", widthptr, heightptr)) {
+  if (sscanf(ret, "%d %d", widthptr, heightptr) == 2) {
     printf("DEBUG: answered, width=%d, height=%d\n", *widthptr, *heightptr);
     return;
   } else {

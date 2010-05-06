@@ -26,14 +26,18 @@ static void set_position(strid_t str, glsi32 pos, glui32 seekmode) {
 }
 
 static glsi32 get_char_uni(strid_t str) {
-  char ch;
+  unsigned char ch;
   ssize_t ret;
   
   ret = read(str->u.file.fd, &ch, 1);
+
+  /* printf("DEBUG: get_char_uni returned %d, errno=%d, ch=0x%x\n",
+     ret, errno, ch); */
+
   if (ret == 0) {
     return -1;
   } else {
-    return ch;
+    return ch & 0xFF;
   }
 }
 

@@ -1,19 +1,26 @@
 #include "glknew.h"
 
 static void memory_set_position(strid_t str, glsi32 pos, glui32 seekmode) { 
+  glsi32 temp_pos;
+
   printf("DEBUG: memory_set_position str=%p, pos=%d\n", str, pos);
   if (seekmode == seekmode_Start) {
-    str->u.mem.pos = pos;
+    temp_pos = pos;
   } else if (seekmode == seekmode_Current) {
-    str->u.mem.pos += pos;
+    temp_pos = (glsi32)str->u.mem.buflen + pos;
   } else if (seekmode == seekmode_End) {
-    str->u.mem.pos = str->u.mem.buflen - pos;
+    temp_pos = (glsi32)str->u.mem.buflen - pos;
+  } else {
+    printf("seekmode %d out of range", seekmode);
+    exit(18);
   }
 
   if (str->u.mem.pos > str->u.mem.buflen || str->u.mem.pos < 0) {
     printf("Memory stream seeked to illegal position %u, but has length %d\n", str->u.mem.pos, str->u.mem.buflen);
     exit(~0);
   }
+
+  str->u.mem.pos = temp_pos;
 }
 
 static glsi32 memory_get_char_uni(strid_t str) {
