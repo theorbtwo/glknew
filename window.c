@@ -109,6 +109,33 @@ void glk_window_set_arrangement(winid_t win, glui32 method,
          win, method_name, size, keywin);
 } 
 
+/* http://www.eblong.com/zarf/glk/glk-spec-070_3.html#s.2 */
+void glk_window_close(winid_t win, stream_result_t *result) {
+  struct glk_window_struct *walker;
+  
+  printf(">>>glk_window_close win=%p\n", win);
+
+  glk_stream_close(win->stream, result);
+  
+  /* Because windows are a singly linked list, we need to start from
+     the beginning / root to find the prev.
+  */
+  walker = root_window;
+  while (1) {
+    if (walker->next == win) {
+      walker->next = win->next;
+      break;
+    }
+    walker = walker->next;
+  }
+
+  if (dispatch_unregister) {
+    dispatch_unregister(win, gidisp_Class_Window, win->dispatch_rock);
+  }
+
+  free(win);
+}
+
 
 void glk_window_get_size(winid_t win, glui32 *widthptr, glui32 *heightptr) {
   char line[1024];
