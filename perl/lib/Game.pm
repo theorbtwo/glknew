@@ -123,7 +123,7 @@ sub handle_stdout {
   # Very funny.  For some reason, I'm getting CRLF line-ends, dispite running this under linux, and having a printf("\n") generating it.
   # I also rather wonder why I am getting multiple lines at once.
   for (split m/\cM?\cJ/, $from_game) {
-    print "Line: ##$_##\n";
+    # print "Line: ##$_##\n";
     when ('GLK new!') {
       # garbage.
     }
@@ -221,7 +221,7 @@ sub handle_stderr {
 sub default_window_size_callback {
     my ($self, $winid) = @_;
     my $win = $self->{windows}{$winid};
-#    Dump $win;
+    Dump $win;
 
     my @size = (80, 25);
     if ('fixed' ~~ @{ $win->{method} }) {
