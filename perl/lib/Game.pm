@@ -239,7 +239,7 @@ sub handle_stderr {
 sub default_window_size_callback {
     my ($self, $winid) = @_;
     my $win = $self->{windows}{$winid};
-    Dump $win;
+    # Dump $win;
 
     my @size = (80, 25);
     if ('fixed' ~~ @{ $win->{method} }) {
