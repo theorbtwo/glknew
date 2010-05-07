@@ -123,9 +123,9 @@ html {
                          advent => "$root/t/var/Advent.ulx",
                          'blue-lacuna' => '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb',
                          # FIXME: Why does the gblorb not work?
-                         alabaster => '/mnt/shared/projects/games/flash-if/Alabaster/exec.glul',
+                         alabaster => '/mnt/shared/projects/games/flash-if/Alabaster/Alabaster.gblorb',
                          acg => '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx',
-                         king => '/mnt/shared/projects/games/flash-if/king/exec.glul',
+                         king => '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb',
                         );
             my $game_path = $games{$game_name};
 
