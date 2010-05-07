@@ -30,7 +30,7 @@ use Web::Simple 'GameIF';
     sub static_file {
         my ($self, $file, $type) = @_;
         my $fullfile = catfile($self->config->{file_dir}, "$file");
-print STDERR "static File: $fullfile\n";
+#print STDERR "static File: $fullfile\n";
         open my $fh, '<', $fullfile or return [ 404, [ 'Content-type', 'text/html' ], [ "file not found $fullfile"]];
 
         local $/ = undef;
@@ -81,14 +81,15 @@ html {
             return $self->static_file("css/$file", "text/css");
         },
 
-        sub (/game/continue + ?text~&char~&game_id=&window_id=) {
-          my ($self, $text, $char, $game_id, $window_id) = @_;
+        sub (/game/continue + ?text~&input_type=&game_id=&window_id=) {
+          my ($self, $text, $input_type, $game_id, $window_id) = @_;
+          my $char = $text if($input_type eq 'char');
 
           my $run_select = 1;
           my $game = $games[$game_id];
           if (defined $text and not defined $char) {
             $game->send_to_game("evtype_LineInput $text\n");
-          } elsif (not defined $text and defined $char) {
+          } elsif (defined $char) {
             $game->send_to_game("evtype_CharInput ".ord($char)."\n");
           } elsif (not defined $text and not defined $char) {
             # Do nothing.
@@ -103,8 +104,10 @@ html {
 
           my $form = get_form($game);
 
-          my $json = JSON::encode_json({ winid => "winid" . $game->{current_select}{window}{id},
-                                         content => get_formatted_text($game->root_window)
+          my $json = JSON::encode_json({ 
+                                        winid => "winid" . $game->{current_select}{window}{id},
+                                        input_type => $game->{current_select}{input_type},
+                                        content => get_formatted_text($game->root_window)
                                          });
 
           [ 200, 
@@ -172,17 +175,18 @@ html {
 
         my $winid = $game->{current_select}{window}{id};
         if ($game->{current_select}{input_type} eq 'line') {
-          $form = "<input type='text' name='text' />";
+#          $form = "<input type='text' name='text' />";
         } elsif ($game->{current_select}{input_type} eq 'char') {
-          $form = "<i>want char</i><input type='text' name='char' />";
+#          $form = "<i>want char</i><input type='text' name='char' />";
         } elsif (not defined $game->{current_select}{input_type}) {
           die "Don't know how to handle this callback -- \$game->{current_select}{input_type} not defined";
         } else {
           print STDERR Dumper($game->{current_select});
           die "Don't know how to handle this callback -- \$game->{current_select}{input_type} eq \'$game->{current_select}{input_type}\'";
         }
+        my $input = "Input <span id='prompt_type'>$game->{current_select}{input_type}</span><input id='prompt' type='text' name='text' /><input id='input_type' type='hidden' name='input_type' value=\'$game->{current_select}{input_type}\'";
 
-        $form = "<form id='input' method='post' action='/game/continue/$gameid'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/>$form</form>";
+        $form = "<form id='input' method='post' action='/game/continue/$gameid'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/>$input</form>";
       }
 
       return $form;
