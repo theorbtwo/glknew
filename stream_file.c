@@ -31,10 +31,10 @@ static glsi32 get_char_uni(strid_t str) {
   
   ret = read(str->u.file.fd, &ch, 1);
   
-  printf("DEBUG: get_char_uni returned %d, errno=%d, ch=0x%x\n",
-         ret, errno, ch);
 
   if (ret == 0) {
+    printf("DEBUG: get_char_uni(file) read returned %d, errno=%d, ch=0x%x\n",
+           ret, errno, ch);
     return -1;
   } else {
     return ch & 0xFF;

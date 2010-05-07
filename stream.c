@@ -144,7 +144,7 @@ glui32 glk_get_buffer_stream(strid_t str, char *buf, glui32 len) {
       buf[i] = '?';
     } else {
       buf[i] = (char)c;
-      printf("glk_get_buffer_stream [%d]: 0x%x\n", i, buf[i]);
+      /* printf("glk_get_buffer_stream [%d]: 0x%x\n", i, buf[i]); */
     }
   }
 
