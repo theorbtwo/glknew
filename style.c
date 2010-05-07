@@ -95,7 +95,8 @@ glui32 glk_style_distinguish(winid_t win, glui32 styl1, glui32 styl2) {
   char line[6];
   char *ret;
 
-  printf("??? glk_style_distinguish win=%p, styl1=%d, styl2=%d\n", win, styl1, styl2);
+  printf("??? glk_style_distinguish win=%p, styl1=%d (%s), styl2=%d (%s)\n", 
+         win, styl1, style_to_name(styl1), styl2, style_to_name(styl2));
   ret = fgets(line, 6, stdin);
   if (!ret) {
     printf("Failed fgets in glk_style_distinguish!");

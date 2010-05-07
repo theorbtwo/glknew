@@ -164,7 +164,7 @@ void glk_stream_close(strid_t str, stream_result_t *result) {
 
   /* FIXME: This probably belongs in stream_memory.c */
   if (str->type == STREAM_TYPE_MEMORY && dispatch_disown) {
-    printf("DEBUG: (close_stream) width %d, buflen=%d", str->u.mem.width, str->u.mem.buflen);
+    printf("DEBUG: (close_stream) width %d, buflen=%d\n", str->u.mem.width, str->u.mem.buflen);
     if (str->u.mem.width == 4) {
       dispatch_disown(str->u.mem.buf, str->u.mem.buflen, "&+#!Iu", str->u.mem.buffer_adoption_rock);
     } else if (str->u.mem.width == 1) {

@@ -810,6 +810,18 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     glk_set_window(arglist[0].opaqueref);
     break;
     
+  case 0x0042: /* stream_open_file */
+    arglist[4].opaqueref = glk_stream_open_file(arglist[0].opaqueref, arglist[1].uint, 
+                                                arglist[2].uint);
+    break;
+  case 0x0043: /* stream_open_memory */
+    if (arglist[0].ptrflag) 
+      arglist[6].opaqueref = glk_stream_open_memory(arglist[1].array, 
+                                                    arglist[2].uint, arglist[3].uint, arglist[4].uint);
+    else
+      arglist[4].opaqueref = glk_stream_open_memory(NULL, 
+                                                    0, arglist[1].uint, arglist[2].uint);
+    break;
   case 0x0044: /* stream_close */
     if (arglist[1].ptrflag) {
       stream_result_t dat;
@@ -826,6 +838,14 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     break;
   case 0x0048: /* stream_get_current */
     arglist[1].opaqueref = glk_stream_get_current();
+    break;
+
+  case 0x0061: /* fileref_create_by_name */
+    arglist[4].opaqueref = glk_fileref_create_by_name(arglist[0].uint, 
+                                                      arglist[1].charstr, arglist[2].uint);
+    break;
+  case 0x0067: /* fileref_does_file_exist */
+    arglist[2].uint = glk_fileref_does_file_exist(arglist[0].opaqueref);
     break;
 
   case 0x0086: /* set_style */
@@ -964,18 +984,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
   case 0x0041: /* stream_get_rock */
     arglist[2].uint = glk_stream_get_rock(arglist[0].opaqueref);
     break;
-  case 0x0042: /* stream_open_file */
-    arglist[4].opaqueref = glk_stream_open_file(arglist[0].opaqueref, arglist[1].uint, 
-                                                arglist[2].uint);
-    break;
-  case 0x0043: /* stream_open_memory */
-    if (arglist[0].ptrflag) 
-      arglist[6].opaqueref = glk_stream_open_memory(arglist[1].array, 
-                                                    arglist[2].uint, arglist[3].uint, arglist[4].uint);
-    else
-      arglist[4].opaqueref = glk_stream_open_memory(NULL, 
-                                                    0, arglist[1].uint, arglist[2].uint);
-    break;
   case 0x0045: /* stream_set_position */
     glk_stream_set_position(arglist[0].opaqueref, arglist[1].sint,
                             arglist[2].uint);
@@ -989,10 +997,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
   case 0x0060: /* fileref_create_temp */
     arglist[3].opaqueref = glk_fileref_create_temp(arglist[0].uint, 
                                                    arglist[1].uint);
-    break;
-  case 0x0061: /* fileref_create_by_name */
-    arglist[4].opaqueref = glk_fileref_create_by_name(arglist[0].uint, 
-                                                      arglist[1].charstr, arglist[2].uint);
     break;
   case 0x0062: /* fileref_create_by_prompt */
     arglist[4].opaqueref = glk_fileref_create_by_prompt(arglist[0].uint, 
@@ -1012,9 +1016,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     break;
   case 0x0066: /* fileref_delete_file */
     glk_fileref_delete_file(arglist[0].opaqueref);
-    break;
-  case 0x0067: /* fileref_does_file_exist */
-    arglist[2].uint = glk_fileref_does_file_exist(arglist[0].opaqueref);
     break;
   case 0x0068: /* fileref_create_from_fileref */
     arglist[4].opaqueref = glk_fileref_create_from_fileref(arglist[0].uint, 

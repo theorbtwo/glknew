@@ -31,10 +31,15 @@ gidispatch_rock_t gidispatch_get_objrock(void *obj, glui32 objclass) {
     }
     break;
 
-  default:
-    printf("gidspatch_get_objrock on objclass=%d", objclass);
-    exit(~0);
+  case gidisp_Class_Fileref:
+    {
+      struct glk_fileref_struct *fileref = obj;
+      return fileref->dispatch_rock;
+    }
 
+  default:
+    printf("gidspatch_get_objrock on objclass=%d\n", objclass);
+    exit(22);
   }
 }
 
