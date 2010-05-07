@@ -53,7 +53,7 @@ static void memory_put_char_uni(strid_t str, glui32 ch) {
   printf("\n");
 
   if (str->u.mem.pos >= str->u.mem.buflen) {
-    printf("put_char_uni in memory stream out of range: trying to write character %d in a %d character stream", str->u.mem.pos, str->u.mem.buflen);
+    printf("DEBUG: put_char_uni in memory stream out of range: trying to write character %d in a %d character stream\n", str->u.mem.pos, str->u.mem.buflen);
     /* exit(5); */
     return;
   }
@@ -71,7 +71,7 @@ static void memory_put_char_uni(strid_t str, glui32 ch) {
     
     buf[str->u.mem.pos++] = ch;
   } else {
-    printf("Strange width %d on memory stream", str->u.mem.width);
+    printf("Strange width %d on memory stream\n", str->u.mem.width);
     exit(4);
   }
 }

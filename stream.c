@@ -148,9 +148,7 @@ glui32 glk_get_buffer_stream(strid_t str, char *buf, glui32 len) {
     }
   }
 
-  /* Unclear why, but nitfol will read one byte off the end of the
-     buffer otherwise. */
-  printf("glk_get_buffer_stream terminating from running out the clock, %d of %d\n", i, len);
+  printf("DEBUG: glk_get_buffer_stream terminating from running out the clock, %d of %d\n", i, len);
   return i;
 }
 
@@ -166,13 +164,14 @@ void glk_stream_close(strid_t str, stream_result_t *result) {
 
   /* FIXME: This probably belongs in stream_memory.c */
   if (str->type == STREAM_TYPE_MEMORY && dispatch_disown) {
-    printf("(close_stream) width %d, buflen=%d", str->u.mem.width, str->u.mem.buflen);
+    printf("DEBUG: (close_stream) width %d, buflen=%d", str->u.mem.width, str->u.mem.buflen);
     if (str->u.mem.width == 4) {
       dispatch_disown(str->u.mem.buf, str->u.mem.buflen, "&+#!Iu", str->u.mem.buffer_adoption_rock);
     } else if (str->u.mem.width == 1) {
       dispatch_disown(str->u.mem.buf, str->u.mem.buflen, "&+#!Cn", str->u.mem.buffer_adoption_rock);
     } else {
       printf("(close_stream) Width %d, not 1 or 4", str->u.mem.width);
+      exit(22);
     }
   }
 

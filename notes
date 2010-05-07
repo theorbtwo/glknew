@@ -19,8 +19,8 @@ king
  - Block vs inline elements for styles -- centred text not working, text background color only set directly behind text.
  - Size info on graphic windows.
 
-z-machine interpreter
- - lots of undefined symbols
+curses
+
 
 universal
  - line input does not echo to window.

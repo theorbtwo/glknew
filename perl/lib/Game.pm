@@ -123,7 +123,7 @@ sub handle_stdout {
   # Very funny.  For some reason, I'm getting CRLF line-ends, dispite running this under linux, and having a printf("\n") generating it.
   # I also rather wonder why I am getting multiple lines at once.
   for (split m/\cM?\cJ/, $from_game) {
-    print "Line: ##$_##\n";
+    # print "Line: ##$_##\n";
     when ('GLK new!') {
       # garbage.
     }
@@ -133,7 +133,7 @@ sub handle_stdout {
     }
 
     #       >>stylehint_set for wintype=3    (TextBuffer  ), styl=9    ( User1        \), hint=4    ( Weight        ) to val=1' at lib/Game.pm line 61.
-    when (/^>>stylehint_set for wintype=\d+ \(([A-Za-z]+)\), styl=\d+ \(([A-Za-z0-9]+)\), hint=\d+ \(([A-Za-z0-9]+)\) to val=(\d+)$/) {
+    when (/^>>stylehint_set for wintype=\d+ \(([A-Za-z]+)\), styl=\d+ \(([A-Za-z0-9]+)\), hint=\d+ \(([A-Za-z0-9]+)\) to val=(-?\d+)$/) {
       $self->{styles}{$1}{$2}{$3} = $4;
     }
 

@@ -42,10 +42,10 @@ use Web::Simple 'GameIF';
     }
 
     sub new_game {
-        my ($self, $game_path) = @_;
+        my ($self, $game_path, $interp_path) = @_;
         my $gameid = scalar @games;
         my $game = Game->new($game_path, 
-                             $self->config->{git_binary});
+                             $interp_path);
         $game->user_info($gameid);
         $games[$gameid] = $game;
 
@@ -122,21 +122,25 @@ html {
         sub (/game/new/*) {
             my ($self, $game_name) = @_;
 
+            my $git = "$root/../../git-1.2.6/git";
+            my $nitfol = "/mnt/shared/projects/games/flash-if/nitfol-0.5/newnitfol";
             my %games = (
-                         advent => "$root/t/var/Advent.ulx",
-                         'blue-lacuna' => '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb',
+                         advent        => [$git, "$root/t/var/Advent.ulx"],
+                         'blue-lacuna' => [$git, '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb'],
                          # FIXME: Why does the gblorb not work?
-                         alabaster => '/mnt/shared/projects/games/flash-if/Alabaster/Alabaster.gblorb',
-                         acg => '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx',
-                         king => '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb',
+                         alabaster     => [$git, '/mnt/shared/projects/games/flash-if/Alabaster/Alabaster.gblorb'],
+                         acg           => [$git, '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx'],
+                         king          => [$git, '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb'],
+                         curses        => [$nitfol, '/mnt/shared/projects/games/flash-if/curses.z5'],
                         );
-            my $game_path = $games{$game_name};
+            my $game_info = $games{$game_name};
 
-            if (!$game_path) {
+            if (!$game_info) {
               die "Do not know game path for game $game_name -- supported: ".join(", ", keys %games);
             }
+            my ($interp_path, $game_path) = @$game_info;
 
-            my $game = $self->new_game($game_path);
+            my $game = $self->new_game($game_path, $interp_path);
             my $form = get_form($game);
 
             [ 200, 
