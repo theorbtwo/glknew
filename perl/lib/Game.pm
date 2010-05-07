@@ -22,6 +22,7 @@ sub new {
   $self->{_callbacks} = { 
       select => \&default_select_callback,
       window_size => \&default_window_size_callback,
+      style_distinguish => sub { 0; },
       %$callbacks,
   };
 
@@ -122,8 +123,11 @@ sub handle_stdout {
 
   # Very funny.  For some reason, I'm getting CRLF line-ends, dispite running this under linux, and having a printf("\n") generating it.
   # I also rather wonder why I am getting multiple lines at once.
+
+  my $winid_r = qr/(0x[0-9A-Fa-f]+)/;
+
   for (split m/\cM?\cJ/, $from_game) {
-    # print "Line: ##$_##\n";
+#    print "Line: ##$_##\n";
     when ('GLK new!') {
       # garbage.
     }
@@ -152,7 +156,7 @@ sub handle_stdout {
       $self->{win_in_progress}{size} = $1;
     }
 
-    when (/^>>>win: wintype=(\d+) ([A-Za-z]+)$/) {
+    when (/^>>>win: wintype=(\d+) (\w+)$/) {
       $self->{win_in_progress}{wintype} = $2;
       $self->{win_in_progress}{current_style} = $self->{styles}{$2}{Normal};
     }
@@ -163,7 +167,7 @@ sub handle_stdout {
       $self->{win_in_progress}{is_root}++;
     }
     
-    when (/^>>>win: at (0x[0-9A-Fa-f]+)$/) {
+    when (/^>>>win: at $winid_r$/) {
       $self->{win_in_progress}{id} = $1;
 
       my $win = $self->{windows}{$1} = Game::Window->new(delete $self->{win_in_progress});
@@ -173,30 +177,44 @@ sub handle_stdout {
 
     }
 
-    when (/^\?\?\?window_get_size win=(0x[0-9a-fA-F]+)/) {
+    when (/>>>window_set_arrangement win=$winid_r, method=([a-z, ]+), size=(\d+), keywin=$winid_r/) {
+        next if(!exists $self->{windows}{$1});
+
+        $self->{windows}{$1}{method} = $2;
+        $self->{windows}{$1}{size} = $3;
+
+        print "window_set_arrangement, ignoring keywin argument\n";
+    }
+
+    when (/^\?\?\?window_get_size win=$winid_r/) {
       my $winid = $1;
       $self->{_callbacks}{window_size}->($self, $winid);
     }
 
-    when (/^>>>put_char_uni for window (0x[0-9a-fA-F]+), character U\+([0-9A-Fa-f]+)(, '.')?$/) {
+    when (/^>>>put_char_uni for window $winid_r, character U\+([0-9A-Fa-f]+)(, '.')?$/) {
       push @{$self->{windows}{$1}{content}}, { style => $self->{windows}{$1}{current_style}, char => chr hex $2};
     }
 
-    when (/^>>>window_move_cursor win=(0x[0-9a-fA-F]+), xpos=(\d+), ypos=(\d+)$/) {
+    when (/^>>>window_move_cursor win=$winid_r, xpos=(\d+), ypos=(\d+)$/) {
       push @{$self->{windows}{$1}{content}}, {cursor_to => [$2, $3]};
       
     }
 
-    when (/^>>>glk_set_style_stream Window=(0x[0-9a-fA-F]+) to style=(\d+) \(([A-Za-z0-9]+)\)$/) {
+    when (/^>>>glk_set_style_stream Window=$winid_r to style=(\d+) \(([A-Za-z0-9]+)\)$/) {
       $self->{windows}{$1}{current_style} = $self->{styles}{$self->{windows}{$1}{wintype}}{$3};
     }
 
-    when (/^>>>window_clear win=(0x[0-9A-Fa-f]+)$/) {
+    when (/\?\?\? glk_style_distinguish win=$winid_r, styl1=\d+ \(([A-Za-z0-9]+)\), styl2=\d+ \(([A-Za-z0-9]+)\)/) {
+      my ($winid, $style1, $style2) = ($1, $2, $3);
+      $self->{_callbacks}{style_distinguish}->($self, $winid, $style1, $style2);
+    }
+
+    when (/^>>>window_clear win=$winid_r$/) {
       ## This needs to empty "pages" now, probably
       $self->{windows}{$1}{content} = [];
     }
 
-    when (/^\?\?\?select, window=(0x[0-9a-fA-F]+), want (char|line)_(latin1|uni)$/) {
+    when (/^\?\?\?select, window=$winid_r, want (char|line)_(latin1|uni)$/) {
       local $self->{harness} = 'SKIPPING HARNESS';
 #      Dump $self;
 

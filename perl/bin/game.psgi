@@ -45,7 +45,8 @@ use Web::Simple 'GameIF';
         my ($self, $game_path, $interp_path) = @_;
         my $gameid = scalar @games;
         my $game = Game->new($game_path, 
-                             $interp_path);
+                             $interp_path,
+                            { style_distinguish => \&style_distinguish });
         $game->user_info($gameid);
         $games[$gameid] = $game;
 
@@ -360,23 +361,36 @@ END
           warn "Cursor to: ", join(':', @{ $e->{cursor_to} }), "\n";
         }
       }
-      ## newline so status window line is seen..
-      #    print "\n";
 
       my $styles = '';
       for my $name (sort keys %styles_needed) {
         # Copy so we can freely modify it here.
         my $style = { %{$styles_needed{$name}} };
 
+        $styles .= get_style($style);
+      }
+      $text = "<style type='text/css'>$styles</style>\n$text";
+
+      ## need to only add the class for the initial set of windows
+      ## should not be set on subsequent content fetches via ajax!
+      return "<div class='textBuffer' id='winid$win->{id}'>$text</div>";
+    }
+
+    sub get_style {
+        my ($style) = @_;
+
+        my $style_str = '';
+
         warn Dumper($style);
-        $styles .= ".$name {";
+        return '' if(exists $style->{name});
+        $style_str .= ".$style->{name} {";
 
         delete $style->{name};
         if (exists $style->{TextColor}) {
-          $styles .= sprintf " color: #%06x; ", delete($style->{TextColor});
+          $style_str .= sprintf " color: #%06x; ", delete($style->{TextColor});
         }
         if (exists $style->{BackColor}) {
-          $styles .= sprintf " background-color: #%06x; ", delete($style->{BackColor});
+          $style_str .= sprintf " background-color: #%06x; ", delete($style->{BackColor});
         }
         if (exists $style->{Weight}) {
           my $weight = {
@@ -384,13 +398,13 @@ END
                          0 => '400',
                          1 => '700'}->{$style->{Weight}};
           if ($weight) {
-            $styles .= " font-weight: $weight; ";
+            $style_str .= " font-weight: $weight; ";
             delete $style->{Weight};
           }
         }
         if (exists $style->{Proportional}) {
           if (!$style->{Proportional}) {
-            $styles .= " font-family: monospace; ";
+            $style_str .= " font-family: monospace; ";
             delete $style->{Proportional};
           }
         }
@@ -400,22 +414,22 @@ END
                        1 => 'large'
                       }->{$style->{Size}};
           if ($size) {
-            $styles .= " font-size: $size; ";
+            $style_str .= " font-size: $size; ";
             delete $style->{Size};
           }
         }
         if (exists $style->{Oblique}) {
           if ($style->{Oblique}) {
-            $styles .= " font-style: oblique; ";
+            $style_str .= " font-style: oblique; ";
             delete $style->{Oblique};
           } else {
-            $styles .= " font-style: normal; ";
+            $style_str .= " font-style: normal; ";
             delete $style->{Oblique};
           }
         }
         if (exists $style->{Justification}) {
           # FIXME: This requires block-level element to work; we are currently using inline elements, so this will have no effect.
-          $styles .= sprintf(" text-align: %s; ",
+          $style_str .= sprintf(" text-align: %s; ",
                              ['left',
                               'justify',
                               'center',
@@ -428,13 +442,15 @@ END
           warn "Unhandled style hint $k (val=$style->{$k})";
         }
 
-        $styles .= "}\n";
-      }
-      $text = "<style type='text/css'>$styles</style>\n$text";
+        $style_str .= "}\n";
+    }
 
-      ## need to only add the class for the initial set of windows
-      ## should not be set on subsequent content fetches via ajax!
-      return "<div class='textBuffer' id='winid$win->{id}'>$text</div>";
+    sub style_distinguish {
+        my ($game, $winid, $style1, $style2) = @_;
+
+        my ($style_css_1, $style_css_2) = map  { get_style( $game->{styles}{ $game->{windows}{$winid}{wintype} }{$style1} ) } ($style1, $style2);
+
+        $game->send_to_game($style_css_1 eq $style_css_2 ? "1\n" : "0\n");
     }
 
 }
