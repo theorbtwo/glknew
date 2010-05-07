@@ -123,7 +123,7 @@ sub handle_stdout {
   # Very funny.  For some reason, I'm getting CRLF line-ends, dispite running this under linux, and having a printf("\n") generating it.
   # I also rather wonder why I am getting multiple lines at once.
   for (split m/\cM?\cJ/, $from_game) {
-    print "Line: ##$_##\n";
+    # print "Line: ##$_##\n";
     when ('GLK new!') {
       # garbage.
     }
