@@ -73,7 +73,7 @@ winid_t glk_window_open(winid_t split, glui32 method, glui32 size,
   if (dispatch_register) {
     newwin->dispatch_rock = dispatch_register(newwin, gidisp_Class_Window);
   } else {
-    printf("Making window while dispatch_register unset\n");
+    printf("DEBUG: Making window while dispatch_register unset\n");
   }
   
   if (!root_window) {

@@ -62,10 +62,10 @@ strid_t gli_stream_open_pathname(char *pathname, int textmode,
   struct glk_stream_struct *stream;
   int fd;
   
-  printf("gli_stream_open_pathname: %s\n", pathname);
+  printf("DEBUG: gli_stream_open_pathname: %s\n", pathname);
   fd = open(pathname, O_RDONLY);
   if (fd == -1) {
-    printf("open of file %s failed: errno=%d\n", pathname, errno);
+    printf("DEBUG: open of file %s failed: errno=%d\n", pathname, errno);
     return NULL;
   }
 
