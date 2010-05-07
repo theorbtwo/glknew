@@ -181,5 +181,6 @@ void glk_stream_close(strid_t str, stream_result_t *result) {
     dispatch_unregister((void *)str, gidisp_Class_Stream, str->dispatch_rock);
   }
 
+  /* Curses likes to write to a closed window stream. */
   /*  free(str); */
 }

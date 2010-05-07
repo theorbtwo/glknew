@@ -108,7 +108,7 @@ void glk_window_set_arrangement(winid_t win, glui32 method,
 
   printf(">>>window_set_arrangement win=%p, method=%s, size=%d, keywin=%p\n",
          win, method_name, size, keywin);
-} 
+}
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_3.html#s.2 */
 void glk_window_close(winid_t win, stream_result_t *result) {
@@ -147,7 +147,8 @@ void glk_window_close(winid_t win, stream_result_t *result) {
     dispatch_unregister(win, gidisp_Class_Window, win->dispatch_rock);
   }
 
-  free(win);
+  /* Curses likes to write to a closed window stream. */
+  /* free(win); */
 }
 
 
