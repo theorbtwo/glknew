@@ -30,9 +30,9 @@ static glsi32 get_char_uni(strid_t str) {
   ssize_t ret;
   
   ret = read(str->u.file.fd, &ch, 1);
-
-  /* printf("DEBUG: get_char_uni returned %d, errno=%d, ch=0x%x\n",
-     ret, errno, ch); */
+  
+  printf("DEBUG: get_char_uni returned %d, errno=%d, ch=0x%x\n",
+         ret, errno, ch);
 
   if (ret == 0) {
     return -1;

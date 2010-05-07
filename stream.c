@@ -135,18 +135,23 @@ glui32 glk_get_buffer_stream(strid_t str, char *buf, glui32 len) {
   for (i=0; i<len; i++) {
     glsi32 c = glk_get_char_stream(str);
     if (c == -1) {
+      printf("glk_get_buffer_stream terminating from -1, %d of %d\n", i, len);
       return i-1;
     }
-    if (i > 0xFF) {
+    if (c > 0xFF) {
+      printf("'?' while narrowing in glk_get_buffer_stream!\n");
+      exit(21);
       buf[i] = '?';
     } else {
       buf[i] = (char)c;
+      printf("glk_get_buffer_stream [%d]: 0x%x\n", i, buf[i]);
     }
   }
 
   /* Unclear why, but nitfol will read one byte off the end of the
      buffer otherwise. */
-  return i-1;
+  printf("glk_get_buffer_stream terminating from running out the clock, %d of %d\n", i, len);
+  return i;
 }
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.3 */
