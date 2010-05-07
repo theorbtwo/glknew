@@ -144,7 +144,9 @@ glui32 glk_get_buffer_stream(strid_t str, char *buf, glui32 len) {
     }
   }
 
-  return i;
+  /* Unclear why, but nitfol will read one byte off the end of the
+     buffer otherwise. */
+  return i-1;
 }
 
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.3 */
