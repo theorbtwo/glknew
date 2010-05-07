@@ -13,10 +13,12 @@ sub new {
   $callbacks ||= {};
   die "blorb file is required" unless $blorb_file;
   die "$blorb_file does not exist" unless -e $blorb_file;
+  die "git binary is required" unless $git;
+  die "$git does not exist" unless -e $git;
 
   my $self = bless {}, $class;
   $self->{_game_file} = $blorb_file;
-  $self->{_git_binary} = $git if($git);
+  $self->{_git_binary} = $git;
   $self->{_callbacks} = { 
       select => \&default_select_callback,
       window_size => \&default_window_size_callback,
@@ -53,7 +55,6 @@ sub setup_initial_styles {
 sub setup_ipc_open3 {
   my ($self) = @_;
 
-  $self->{_git_binary} ||= '/mnt/shared/projects/games/flash-if/git-1.2.6/git';
   $self->{child_stderr} = gensym;
   # BIG FAT WARNING: open3 modifies it's arguments!
   if ($ENV{USE_VALGRIND}) {

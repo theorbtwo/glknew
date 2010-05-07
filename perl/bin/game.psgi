@@ -14,16 +14,23 @@ use Web::Simple 'GameIF';
 
     my @games = ();
 
-    default_config ( file_dir => q{/usr/src/extern/glknew/perl/root/},
-                     # FIXME: Use Local.pm to load correct version for current machine,
-                     # based on machine name, instead of using rel path?
-                     # Current version assumes it's run from $CHECKOUT/perl/
-                     git_binary => '../../git-1.2.6/git',
+    my $root;
+    if (-e '/usr/src/extern/glknew/perl') {
+      $root = '/usr/src/extern/glknew/perl/';
+    } elsif (-e '/mnt/shared/projects/games/flash-if/glknew/perl/') {
+      $root = '/mnt/shared/projects/games/flash-if/glknew/perl/';
+    } else {
+      die "Cannot find root";
+    }
+
+    default_config ( file_dir => "$root/root",
+                     git_binary => "$root/../../git-1.2.6/git",
                    );
 
     sub static_file {
         my ($self, $file, $type) = @_;
         my $fullfile = catfile($self->config->{file_dir}, "$file");
+print STDERR "static File: $fullfile\n";
         open my $fh, '<', $fullfile or return [ 404, [ 'Content-type', 'text/html' ], [ "file not found $fullfile"]];
 
         local $/ = undef;
@@ -113,7 +120,7 @@ html {
             my ($self, $game_name) = @_;
 
             my %games = (
-                         advent => './t/var/Advent.ulx',
+                         advent => "$root/t/var/Advent.ulx",
                          'blue-lacuna' => '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb',
                          # FIXME: Why does the gblorb not work?
                          alabaster => '/mnt/shared/projects/games/flash-if/Alabaster/exec.glul',
