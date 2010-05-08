@@ -20,10 +20,17 @@ king
  - Size info on graphic windows.
 
 curses
+ - Gets the windows confused somehow?
+
+/mnt/shared/projects/games/flash-if/garglk-read-only/terps/scare
+ - glk_request_line_event_uni
+
+/mnt/shared/projects/games/flash-if/garglk-read-only/terps/agility
+ - needs ifphdr
+
 
 
 universal
- - line input does not echo to window.
  - TextBuffer window grows instead of scrolling.
  - Nicer char input?
  - No way of pressing ret during char input makes most help menus unusable.

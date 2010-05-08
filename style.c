@@ -26,6 +26,7 @@ const char *style_to_name(glui32 styl) {
 const char *wintype_to_name(glui32 wintype) {
 #define wintype_entry(this) switch_entry(wintype, wintype_name, this)
     switch (wintype) {
+      wintype_entry(AllTypes);
       wintype_entry(Pair);
       wintype_entry(Blank);
       wintype_entry(TextBuffer);
