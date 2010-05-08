@@ -108,9 +108,9 @@ html {
           my $json = JSON::encode_json({ 
                                         winid => "winid" . $game->{current_select}{window}{id},
                                         input_type => $game->{current_select}{input_type},
-                                        content => get_formatted_text($game->root_window)
+                                        content => get_own_formatted_text($game->root_window)
                                          });
-
+print "Sending JSON: $json\n";
           [ 200, 
             [ 'Content-type' => 'application/json' ], 
             [ $json ]
@@ -206,7 +206,7 @@ html {
       my ($win) = @_;
 
       my $win_text = get_own_formatted_text($win);
-      my $win_div  = "<div class='$win->{wintype} id='winid$win->{id}'> $win_text </div>" ;
+      my $win_div  = "<div class='$win->{wintype}' id='winid$win->{id}'> $win_text </div>" ;
 
       my $formatted = $win_div;
       for my $child (@{$win->{children}}) {
@@ -373,7 +373,7 @@ END
       }
       $text = "<style type='text/css'>$styles</style>\n$text";
 
-      print "Text with styles: $text\n";
+#      print "Text with styles: $text\n";
       return $text;
     }
 
@@ -444,7 +444,7 @@ END
         }
 
         $style_str .= "}\n";
-        print "Adding style: $style_str\n";
+#        print "Adding style: $style_str\n";
 
         return $style_str;
     }
