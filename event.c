@@ -166,7 +166,7 @@ void glk_select(event_t *event) {
     line_event_request_info.buf[strlen(line_event_request_info.buf)-1] = '\0';
     
     if (line_event_request_info.want_unicode) {
-      printf("Line event request when unicode wanted.\n");
+      printf("Line event response when unicode wanted.\n");
       exit(13);
     }
 
@@ -174,6 +174,8 @@ void glk_select(event_t *event) {
     event->win = line_event_request_info.win;
     event->val1 = strlen(line_event_request_info.buf);
     event->val2 = 0;
+
+    glk_put_string_stream(line_event_request_info.win->stream, ret+17);
 
     printf("DEBUG: event got '%s' of len %d\n", line_event_request_info.buf, event->val1);
   } else {

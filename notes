@@ -31,7 +31,6 @@ curses
 
 
 universal
- - line input does not echo to window.
  - TextBuffer window grows instead of scrolling.
  - Nicer char input?
  - No way of pressing ret during char input makes most help menus unusable.
