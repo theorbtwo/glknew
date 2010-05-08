@@ -15,6 +15,16 @@
 */
 
 #include <stdint.h>
+
+/* agility requires us to define these for it. */
+#ifndef TRUE
+#define TRUE !0
+#endif
+
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 /* You may have to edit the definition of glui32 to make sure it's really a
     32-bit unsigned integer type, and glsi32 to make sure it's really a
     32-bit signed integer type. If they're not, horrible things will happen. */
