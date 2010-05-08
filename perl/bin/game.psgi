@@ -105,11 +105,23 @@ html {
 
           my $form = get_form($game);
 
+          my @windows = map { 
+              my $status = 'append';
+              if ($_->{wintype} eq 'TextGrid') {
+                  $status = 'clear';
+              } elsif ($_->last_page->[0]{clear}) {
+                  $status = 'clear';
+              };
+              +{ 
+                winid => "winid" . $_->{id}, 
+                content => get_own_formatted_text($_),
+                status => $status,
+               } 
+          } (values %{ $game->{windows} });
           my $json = JSON::encode_json({ 
-                                        winid => "winid" . $game->{current_select}{window}{id},
+                                        windows => \@windows,
                                         input_type => $game->{current_select}{input_type},
-                                        content => get_own_formatted_text($game->root_window)
-                                         });
+                                       });
 print "Sending JSON: $json\n";
           [ 200, 
             [ 'Content-type' => 'application/json' ], 
@@ -224,6 +236,7 @@ print "Sending JSON: $json\n";
 
         my $child_text = get_formatted_text($child);
         warn Dumper($child->{method});
+        warn "Child: $child_text\n";
 
         my ($side, $kind, $axis);
         for my $method (@{$child->{method}}) {
@@ -297,7 +310,7 @@ END
           $state->[$cursor->[0]][$cursor->[1]]{style} = $e->{style};
           $cursor->[1]++;
         } else {
-          die Dumper($e);
+          warn "Unhandled content element: ", Dumper($e);
         }
       }
 
@@ -323,6 +336,7 @@ END
         $text .= "<br />\n";
       }
       $text .= "</tt>\n";
+      $text .= "<div class='move-end'></div>";
 
       return $text;
     }
@@ -372,6 +386,7 @@ END
         $styles .= get_style($style);
       }
       $text = "<style type='text/css'>$styles</style>\n$text";
+      $text .= "<div class='move-end'></div>";
 
 #      print "Text with styles: $text\n";
       return $text;
@@ -440,6 +455,7 @@ END
 
 
         for my $k (sort keys %$style) {
+          next if $k eq 'wintype';
           warn "Unhandled style hint $k (val=$style->{$k})";
         }
 
