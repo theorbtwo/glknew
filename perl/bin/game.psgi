@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl5.10.0
-
+# -*- cperl-mode -*-
 use strict;
 use warnings;
 
@@ -57,7 +57,7 @@ use Web::Simple 'GameIF';
 
     sub default_styles {
         return "<style>
-.textBuffer {
+.TextBuffer {
   overflow: auto; 
   height: 400px;
 }
