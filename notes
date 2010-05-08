@@ -12,7 +12,9 @@ alabaster
  - Graphics
 
 advent
- - help menu, putting a \x0A to a TextGrid doesn't move the cursor
+ - DONE: help menu, putting a \x0A to a TextGrid doesn't move the cursor
+ - help menu: window_set_arrangement and window_get_parent don't work via dispatch.
+ - help menu: gets cleared "for us" after 'n'.
 
 king
  - Graphics?
@@ -34,9 +36,10 @@ universal
  - TextBuffer window grows instead of scrolling.
  - Nicer char input?
  - No way of pressing ret during char input makes most help menus unusable.
- - <title> tags.
+ - DONE: <title> tags.
  - expand Game::Window to cover all window attrs
  - add Game::Style ?
  - ajax: return json/content per window, instead of just one
  - continue, return content without divs/classes etc.
-
+ - make TextGrid excempt from pages garbage?
+ - make get_own_formatted_text part of Game::Window::*?  Likewise ->move_cursor, etc?

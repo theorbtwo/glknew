@@ -312,16 +312,21 @@ END
       my $state;
 
       my $style = undef;
-      for my $e (@{$win->last_page}) {
+      for my $e (map {@$_} @{$win->pages}) {
         if (exists $e->{cursor_to}) {
           $cursor = [$e->{cursor_to}[1], $e->{cursor_to}[0]];
+        } elsif (exists $e->{char} and $e->{char} eq "\n") {
+          $cursor->[0]++;
+          $cursor->[1]=0;
         } elsif (exists $e->{char}) {
           # always char and style.
           $state->[$cursor->[0]][$cursor->[1]]{char}  = $e->{char};
           $state->[$cursor->[0]][$cursor->[1]]{style} = $e->{style};
           $cursor->[1]++;
+        } elsif (exists $e->{clear}) {
+          $state = [];
         } else {
-          warn "Unhandled content element: ", Dumper($e);
+          die "Unhandled content element: ", Dumper($e);
         }
       }
 

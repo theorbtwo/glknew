@@ -128,7 +128,7 @@ sub handle_stdout {
   my $winid_r = qr/(0x[0-9A-Fa-f]+)/;
 
   for (split m/\cM?\cJ/, $from_game) {
-#    print "Line: ##$_##\n";
+    print "Line: ##$_##\n";
     when ('GLK new!') {
       # garbage.
     }
