@@ -44,7 +44,8 @@ sub setup_initial_styles {
   for my $wt (qw<Pair Blank TextBuffer TextGrid Graphics>) {
     for my $s (qw<Normal Emphasized Preformatted Header Subheader Alert Note BlockQUote Input User1 User2>) {
       $self->{styles}{$wt}{$s} = {
-                                  name => $s
+                                  name => $s,
+                                  wintype => $wt,
                                  };
     }
     # An interesting question: should I create defaults in these?  The spec says only Preformatted has defaulting,
@@ -138,7 +139,18 @@ sub handle_stdout {
 
     #       >>stylehint_set for wintype=3    (TextBuffer  ), styl=9    ( User1        \), hint=4    ( Weight        ) to val=1' at lib/Game.pm line 61.
     when (/^>>stylehint_set for wintype=\d+ \(([A-Za-z]+)\), styl=\d+ \(([A-Za-z0-9]+)\), hint=\d+ \(([A-Za-z0-9]+)\) to val=(-?\d+)$/) {
-      $self->{styles}{$1}{$2}{$3} = $4;
+      my @styletypes = ($1);
+      @styletypes = ('TextBuffer', 'TextGrid') if($1 eq 'AllTypes');
+
+      $self->{styles}{$_}{$2}{$3} = $4 for(@styletypes);
+    }
+
+    when (/^>>stylehint_clear for wintype=\d+ \(([A-Za-z]+)\), styl=\d+ \(([A-Za-z0-9]+)\), hint=\d+ \(([A-Za-z]+)\)/) {
+        foreach my $style (keys %{ $self->{styles} } ) {
+            next if($style ne $1 && $1 ne 'AllTypes');
+
+            delete $self->{styles}{$1}{$2}{$3};
+        }
     }
 
     when (/^>>>Opening new window, splitting exsiting window (\(nil\)|0x[0-9a-fA-F]+)$/) {
@@ -239,7 +251,7 @@ sub handle_stderr {
 sub default_window_size_callback {
     my ($self, $winid) = @_;
     my $win = $self->{windows}{$winid};
-    Dump $win;
+#    Dump $win;
 
     my @size = (80, 25);
     if ('fixed' ~~ @{ $win->{method} }) {
@@ -255,7 +267,7 @@ sub default_window_size_callback {
         $size[0] *= int($win->{size}/100);
       }
     } else {
-      die "methods unhandled.", Dump($win);
+      die "methods unhandled.", Dump($win->{method});
     }
     
 

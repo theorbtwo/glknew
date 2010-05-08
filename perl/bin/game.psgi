@@ -205,13 +205,15 @@ html {
     sub get_formatted_text {
       my ($win) = @_;
 
-      my $own_text = get_own_formatted_text($win);
+      my $win_text = get_own_formatted_text($win);
+      my $win_div  = "<div class='$win->{wintype} id='winid$win->{id}'> $win_text </div>" ;
 
+      my $formatted = $win_div;
       for my $child (@{$win->{children}}) {
-        $own_text = layout_child_window($child, $own_text);
+        $formatted = layout_child_window($child, $formatted);
       }
 
-      return $own_text;
+      return $formatted;
     }
 
 
@@ -322,7 +324,7 @@ END
       }
       $text .= "</tt>\n";
 
-      return "<div class='textGrid' id='winid$win->{id}'>$text</div>"
+      return $text;
     }
 
     # FIXME: Split this properly by wintype?  Make them objects, of different classes?
@@ -345,8 +347,8 @@ END
             if(%$prev_style) {
               $text .= '</span>';
             }
-            $text .="<span class='winid$win->{id}-$style->{name}'>";
-            $styles_needed{"winid$win->{id}-$style->{name}"} = $style;
+            $text .="<span class='$win->{wintype}-$style->{name}'>";
+            $styles_needed{"$win->{wintype}-$style->{name}"} = $style;
           }
           if ($char eq '<') {
             $text .= '&lt;';
@@ -371,9 +373,8 @@ END
       }
       $text = "<style type='text/css'>$styles</style>\n$text";
 
-      ## need to only add the class for the initial set of windows
-      ## should not be set on subsequent content fetches via ajax!
-      return "<div class='textBuffer' id='winid$win->{id}'>$text</div>";
+      print "Text with styles: $text\n";
+      return $text;
     }
 
     sub get_style {
@@ -382,8 +383,8 @@ END
         my $style_str = '';
 
         warn Dumper($style);
-        return '' if(exists $style->{name});
-        $style_str .= ".$style->{name} {";
+        return '' if(!exists $style->{name});
+        $style_str .= ".$style->{wintype}-$style->{name} {";
 
         delete $style->{name};
         if (exists $style->{TextColor}) {
@@ -443,6 +444,9 @@ END
         }
 
         $style_str .= "}\n";
+        print "Adding style: $style_str\n";
+
+        return $style_str;
     }
 
     sub style_distinguish {
@@ -450,7 +454,7 @@ END
 
         my ($style_css_1, $style_css_2) = map  { get_style( $game->{styles}{ $game->{windows}{$winid}{wintype} }{$style1} ) } ($style1, $style2);
 
-        $game->send_to_game($style_css_1 eq $style_css_2 ? "1\n" : "0\n");
+        $game->send_to_game($style_css_1 eq $style_css_2 ? "0\n" : "1\n");
     }
 
 }
