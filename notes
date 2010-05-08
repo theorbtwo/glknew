@@ -6,7 +6,7 @@ acg
  - Working!
 
 alabaster
- - Errors out during startup if passed .gblorb file.
+ - Attempt to muck about with game's own config file still not working (doesn't like opening file that isn't preexiting?)
  - Graphics
 
 advent
@@ -14,7 +14,6 @@ advent
 
 king
  - Graphics?
- - Multiple spaces in a row in Proportional=0 text outside TextGrid.
  - Block vs inline elements for styles -- centred text not working, text background color only set directly behind text.
  - Size info on graphic windows.
 
