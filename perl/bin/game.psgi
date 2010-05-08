@@ -126,46 +126,57 @@ print "Sending JSON: $json\n";
             my $git = "$root/../../git-1.2.6/git";
             my $nitfol = "/mnt/shared/projects/games/flash-if/nitfol-0.5/newnitfol";
             my %games = (
-                         advent        => [$git, "$root/t/var/Advent.ulx"],
-                         'blue-lacuna' => [$git, '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb'],
+                         advent        => [$git, "$root/t/var/Advent.ulx", 'Adventure!'],
+                         'blue-lacuna' => [$git, '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb', 'Blue Lacuna'],
                          # FIXME: Why does the gblorb not work?
-                         alabaster     => [$git, '/mnt/shared/projects/games/flash-if/Alabaster/Alabaster.gblorb'],
-                         acg           => [$git, '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx'],
-                         king          => [$git, '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb'],
-                         curses        => [$nitfol, '/mnt/shared/projects/games/flash-if/curses.z5'],
+                         alabaster     => [$git, '/mnt/shared/projects/games/flash-if/Alabaster/Alabaster.gblorb', 'Alabaster'],
+                         acg           => [$git, '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx', 'Adventurer\'s Consumer Guide'],
+                         king          => [$git, '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb', 'The King of Shreds and Patches'],
+                         curses        => [$nitfol, '/mnt/shared/projects/games/flash-if/curses.z5', 'Curses'],
                         );
             my $game_info = $games{$game_name};
 
             if (!$game_info) {
               die "Do not know game path for game $game_name -- supported: ".join(", ", keys %games);
             }
-            my ($interp_path, $game_path) = @$game_info;
+            my ($interp_path, $game_path, $title) = @$game_info;
 
             my $game = $self->new_game($game_path, $interp_path);
             my $form = get_form($game);
 
             [ 200, 
               [ 'Content-type' => 'text/html' ], 
-              [ make_page(get_initial_windows($game) . $form )]
+              [ make_page(get_initial_windows($game) . $form, $title)]
             ];
           }
       };
 
     ## TT?
     sub make_page {
-        my ($content) = @_;
+        my ($content, $title) = @_;
 
         my $js = '<script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>' 
           . '<script type="text/javascript" src="/js/next-action.js"></script>';
 
-
-
-        my $page = "<html><head>$js</head><body>" 
-          . default_styles()
-            . $content
-              . '</body></html>';
-    }
-
+        my $styles = default_styles();
+        
+        my $page = <<END;
+<? xml ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+ <head>
+  <title>$title</title>
+  $js
+  $styles
+ </head>
+ <body>
+  $content
+ </body>
+</html>
+END
+      }
+    
     sub get_form {
       my ($game) = @_;
 
