@@ -281,7 +281,7 @@ END
         } elsif ($side eq 'left' and $kind eq 'proportional' and $axis eq 'x') {
           $parent_text = <<END;
 <div style="width:100%;">
- <div style='min-width:$child->{size}%;'>$child_text</div>
+ <div style='width:$child->{size}%;'>$child_text</div>
  <div style="float:right;">$parent_text</div>
 </div>
 <br style="clear:both"/>
@@ -366,8 +366,6 @@ END
           }
           if ($char eq '<') {
             $text .= '&lt;';
-          } elsif ($char eq "\n") {
-            $text .= "<br />\n";
           } else {
             $text .= $char;
           }
@@ -400,8 +398,13 @@ END
         warn Dumper($style);
         return '' if(!exists $style->{name});
         $style_str .= ".$style->{wintype}-$style->{name} {";
-
         delete $style->{name};
+
+        # The spec doesn't really call out this behavior at all, but
+        # squashing multiple space chars in a row is really a HTML
+        # thing, not a general text-processing thing.
+        $style_str .= " white-space: pre-wrap; ";
+
         if (exists $style->{TextColor}) {
           $style_str .= sprintf " color: #%06x; ", delete($style->{TextColor});
         }
