@@ -184,7 +184,7 @@ sub handle_stdout {
 
       my $win = $self->{windows}{$1} = Game::Window->new(delete $self->{win_in_progress});
 #      $self->{windows}{$1} = delete $self->{win_in_progress};
-      push @{$self->{win_in_progress}{parent}{children}}, $self->{windows}{$1};
+      push @{$win->{parent}{children}}, $self->{windows}{$1};
       $self->{root_win} = $win if($win->{is_root});
 
     }
@@ -222,8 +222,7 @@ sub handle_stdout {
     }
 
     when (/^>>>window_clear win=$winid_r$/) {
-      ## This needs to empty "pages" now, probably
-      $self->{windows}{$1}{content} = [];
+      push @{ $self->{windows}{$1}{content} }, { clear => 1 };
     }
 
     when (/^\?\?\?select, window=$winid_r, want (char|line)_(latin1|uni)$/) {

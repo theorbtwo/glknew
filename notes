@@ -1,5 +1,7 @@
 blue-lacuna
  - help menu is not usable, because there is no way to press enter.
+  - JS to capture key onchange of input textfield, and if Return/cursor key etc, send "evtype_CharInput Return\n"
+  - see event.c line 131.
  - topics subwindow always reads "Topics: topic, this / more information is often displayed here".
 
 acg
