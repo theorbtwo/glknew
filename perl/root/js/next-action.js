@@ -27,11 +27,11 @@ jQuery(document).ready(function(){
                                     win_div.append(value.content);
                                     //  alert(win_div.height());
                                     
-                                    var move_end = win_div.find('div.move-end').last();
+                                    var move_top = win_div.find('span.move-top').last();
                                     win_div.scrollTop(0);
                                     
                                     //alert('pos:' + move_end.position().top + 'offset: ' + move_end.offset().top + 'win off:' + win_div.offset().top);
-                                    win_div.scrollTop(move_end.offset().top - win_div.offset().top);
+                                    win_div.scrollTop(move_top.offset().top - win_div.offset().top);
                                 });
                             jQuery('#prompt_type').text(data.input_type);
                             jQuery('#input_type').val(data.input_type);
