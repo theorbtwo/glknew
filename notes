@@ -14,7 +14,7 @@ alabaster
 advent
  - DONE: help menu, putting a \x0A to a TextGrid doesn't move the cursor
  - help menu: window_set_arrangement and window_get_parent don't work via dispatch.
- - help menu: gets cleared "for us" after 'n'.
+ - DONE: help menu: gets cleared "for us" after 'n'.
 
 king
  - Graphics?
@@ -23,6 +23,12 @@ king
 
 curses
  - Gets the windows confused somehow?
+
+emy
+ - Done: initial working!
+ - Save: needs "???glk_fileref_create_by_prompt usage=1 (SavedGame), filemode=1 (Write)"
+ - All writes go to one window?
+ - Proper support for glk_style_measure
 
 /mnt/shared/projects/games/flash-if/garglk-read-only/terps/scare
  - glk_request_line_event_uni

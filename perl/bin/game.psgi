@@ -137,6 +137,7 @@ print "Sending JSON: $json\n";
 
             my $git = "$root/../../git-1.2.6/git";
             my $nitfol = "/mnt/shared/projects/games/flash-if/nitfol-0.5/newnitfol";
+            my $agility = "/mnt/shared/projects/games/flash-if/garglk-read-only/terps/agility/glkagil";
             my %games = (
                          advent        => [$git, "$root/t/var/Advent.ulx", 'Adventure!'],
                          'blue-lacuna' => [$git, '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb', 'Blue Lacuna'],
@@ -145,6 +146,7 @@ print "Sending JSON: $json\n";
                          acg           => [$git, '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx', 'Adventurer\'s Consumer Guide'],
                          king          => [$git, '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb', 'The King of Shreds and Patches'],
                          curses        => [$nitfol, '/mnt/shared/projects/games/flash-if/curses.z5', 'Curses'],
+                         emy           => [$agility, '/mnt/shared/projects/games/flash-if/Emy Discovers Life/DISCOVER', 'Emy Discovers Life'],
                         );
             my $game_info = $games{$game_name};
 

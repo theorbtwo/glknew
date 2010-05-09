@@ -12,7 +12,9 @@ sub new {
   my ($class, $blorb_file, $git, $callbacks) = @_;
   $callbacks ||= {};
   die "blorb file is required" unless $blorb_file;
-  die "$blorb_file does not exist" unless -e $blorb_file;
+  # Turns out that the "blorb file" doesn't always need to exist;
+  # in fact, it will never exist in the Agility case.
+  # die "$blorb_file does not exist" unless -e $blorb_file;
   die "git binary is required" unless $git;
   die "$git does not exist" unless -e $git;
 
