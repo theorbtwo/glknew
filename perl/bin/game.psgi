@@ -86,6 +86,11 @@ html {
           my ($self, $text, $input_type, $game_id, $window_id) = @_;
           my $char = $text if($input_type eq 'char');
 
+          $SIG{__DIE__} = sub {
+            # Breaks my heart to do this, it really does...
+            print "DIED! $@\n";
+          };
+
           my $run_select = 1;
           my $game = $games[$game_id];
           if (defined $text and not defined $char) {
@@ -305,9 +310,25 @@ END
 
         return $parent_text;
     }
+    
+    # FIXME: Split this properly by wintype?  Make them objects, of different classes?
+    sub get_own_formatted_text {
+      my ($win) = @_;
+      
+      my $dispatch = {
+                      TextGrid   => \&get_own_formatted_text_TextGrid,
+                      TextBuffer => \&get_own_formatted_text_TextBuffer,
+                      Graphics   => \&get_own_formatted_text_Graphics,
+                     };
+      if (not exists $dispatch->{$win->{wintype}}) {
+        die "Don't know how to dispatch get_own_formatted_text for wintype $win->{wintype}";
+      }
+      
+      return $dispatch->{$win->{wintype}}->($win);
+    }
 
     # FIXME: How much of this belongs in Game.pm?
-    sub get_own_formatted_text_grid {
+    sub get_own_formatted_text_TextGrid {
       my ($win) = @_;
 
       my ($cursor) = [0, 0];
@@ -359,13 +380,8 @@ END
       return $text;
     }
 
-    # FIXME: Split this properly by wintype?  Make them objects, of different classes?
-    sub get_own_formatted_text {
+    sub get_own_formatted_text_TextBuffer {
       my ($win) = @_;
-
-      if ($win->{wintype} eq 'TextGrid') {
-        return get_own_formatted_text_grid($win);
-      }
 
       my $text = '';
       my $prev_style = {};
@@ -406,6 +422,10 @@ END
 
 #      print "Text with styles: $text\n";
       return $text;
+    }
+
+    sub get_own_formatted_text_Graphics {
+      return "GRAPHICS GOES HERE!";
     }
 
     sub get_style {

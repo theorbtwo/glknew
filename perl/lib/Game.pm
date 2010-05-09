@@ -263,12 +263,12 @@ sub default_window_size_callback {
       }
     } elsif ('proportional' ~~ @{ $win->{method} }) {
       if (grep {$_ ~~ ['above', 'below']} @{$win->{method}}) {
-        $size[1] *= int($win->{size}/100);
+        $size[1] = int($size[1] * $win->{size}/100);
       } else {
-        $size[0] *= int($win->{size}/100);
+        $size[0] = int($size[0] * $win->{size}/100);
       }
     } else {
-      die "methods unhandled.", Dump($win->{method});
+      die "methods unhandled in default_window_size_callback", Dump($win->{method});
     }
     
 
