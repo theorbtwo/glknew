@@ -844,6 +844,10 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     arglist[4].opaqueref = glk_fileref_create_by_name(arglist[0].uint, 
                                                       arglist[1].charstr, arglist[2].uint);
     break;
+  case 0x0062: /* fileref_create_by_prompt */
+    arglist[4].opaqueref = glk_fileref_create_by_prompt(arglist[0].uint, 
+                                                        arglist[1].uint, arglist[2].uint);
+    break;
   case 0x0067: /* fileref_does_file_exist */
     arglist[2].uint = glk_fileref_does_file_exist(arglist[0].opaqueref);
     break;
@@ -997,10 +1001,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
   case 0x0060: /* fileref_create_temp */
     arglist[3].opaqueref = glk_fileref_create_temp(arglist[0].uint, 
                                                    arglist[1].uint);
-    break;
-  case 0x0062: /* fileref_create_by_prompt */
-    arglist[4].opaqueref = glk_fileref_create_by_prompt(arglist[0].uint, 
-                                                        arglist[1].uint, arglist[2].uint);
     break;
   case 0x0063: /* fileref_destroy */
     glk_fileref_destroy(arglist[0].opaqueref);
