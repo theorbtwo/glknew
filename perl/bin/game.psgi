@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl5.10.0
-
+# -*- cperl-mode -*-
 use strict;
 use warnings;
 
@@ -82,7 +82,7 @@ use Web::Simple 'GameIF';
 
     sub default_styles {
         return "<style>
-.textBuffer {
+.TextBuffer {
   overflow: auto; 
   height: 400px;
 }
@@ -166,47 +166,60 @@ print "Sending JSON: $json\n";
 
             my $git = "$root/../../git-1.2.6/git";
             my $nitfol = "/mnt/shared/projects/games/flash-if/nitfol-0.5/newnitfol";
+            my $agility = "/mnt/shared/projects/games/flash-if/garglk-read-only/terps/agility/glkagil";
             my %games = (
-                         advent        => [$git, "$root/t/var/Advent.ulx"],
-                         'blue-lacuna' => [$git, '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb'],
+                         advent        => [$git, "$root/t/var/Advent.ulx", 'Adventure!'],
+                         'blue-lacuna' => [$git, '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb', 'Blue Lacuna'],
                          # FIXME: Why does the gblorb not work?
-                         alabaster     => [$git, '/mnt/shared/projects/games/flash-if/Alabaster/Alabaster.gblorb'],
-                         acg           => [$git, '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx'],
-                         king          => [$git, '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb'],
-                         curses        => [$nitfol, '/mnt/shared/projects/games/flash-if/curses.z5'],
+                         alabaster     => [$git, '/mnt/shared/projects/games/flash-if/Alabaster/Alabaster.gblorb', 'Alabaster'],
+                         acg           => [$git, '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx', 'Adventurer\'s Consumer Guide'],
+                         king          => [$git, '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb', 'The King of Shreds and Patches'],
+                         curses        => [$nitfol, '/mnt/shared/projects/games/flash-if/curses.z5', 'Curses'],
+                         emy           => [$agility, '/mnt/shared/projects/games/flash-if/Emy Discovers Life/DISCOVER', 'Emy Discovers Life'],
                         );
             my $game_info = $games{$game_name};
 
             if (!$game_info) {
               die "Do not know game path for game $game_name -- supported: ".join(", ", keys %games);
             }
-            my ($interp_path, $game_path) = @$game_info;
+            my ($interp_path, $game_path, $title) = @$game_info;
 
             my $game = $self->new_game($game_path, $interp_path);
             my $form = get_form($game);
 
             [ 200, 
               [ 'Content-type' => 'text/html' ], 
-              [ make_page(get_initial_windows($game) . $form )]
+              [ make_page(get_initial_windows($game) . $form, $title)]
             ];
           }
       };
 
     ## TT?
     sub make_page {
-        my ($content) = @_;
+        my ($content, $title) = @_;
 
         my $js = '<script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>' 
           . '<script type="text/javascript" src="/js/next-action.js"></script>';
 
-
-
-        my $page = "<html><head>$js</head><body>" 
-          . default_styles()
-            . $content
-              . '</body></html>';
-    }
-
+        my $styles = default_styles();
+        
+        my $page = <<END;
+<? xml ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+ <head>
+  <title>$title</title>
+  $js
+  $styles
+ </head>
+ <body>
+  $content
+ </body>
+</html>
+END
+      }
+    
     sub get_form {
       my ($game) = @_;
 
@@ -330,18 +343,21 @@ END
       my $state;
 
       my $style = undef;
-      for my $e (@{$win->last_page}) {
+      for my $e (map {@$_} @{$win->pages}) {
         if (exists $e->{cursor_to}) {
           $cursor = [$e->{cursor_to}[1], $e->{cursor_to}[0]];
+        } elsif (exists $e->{char} and $e->{char} eq "\n") {
+          $cursor->[0]++;
+          $cursor->[1]=0;
         } elsif (exists $e->{char}) {
           # always char and style.
           $state->[$cursor->[0]][$cursor->[1]]{char}  = $e->{char};
           $state->[$cursor->[0]][$cursor->[1]]{style} = $e->{style};
           $cursor->[1]++;
-        } elsif ( exists $e->{clear} ) {
-          ## Window clear, ignore
+        } elsif (exists $e->{clear}) {
+          $state = [];
         } else {
-          warn "Unhandled content element: ", Dumper($e);
+          die "Unhandled content element: ", Dumper($e);
         }
       }
 

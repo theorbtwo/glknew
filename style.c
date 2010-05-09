@@ -111,6 +111,17 @@ glui32 glk_style_distinguish(winid_t win, glui32 styl1, glui32 styl2) {
   }
 }
 
+extern glui32 glk_style_measure(winid_t win, glui32 styl, glui32 hint,
+                                glui32 *result) {
+  printf("???glk_style_measure win=%p, styl=%d (%s), hint=%d (%s)\n",
+         win, 
+         styl, style_to_name(styl),
+         hint, hint_to_name(hint)
+         );
+  *result = 0;
+  return 0;
+}
+
 
 void glk_set_style(glui32 styl) {
   glk_set_style_stream(current_stream, styl);

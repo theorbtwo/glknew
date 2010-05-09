@@ -72,6 +72,13 @@ void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initle
   line_event_request_info.want_unicode = 0;
 }
 
+void glk_request_line_event_uni(winid_t win, glui32 *buf,
+                                glui32 maxlen, glui32 initlen) {
+  printf("glk_request_line_event_uni\n");
+  exit(23);
+}
+
+
 void glk_request_mouse_event(winid_t win) {
   /* Ignore this for now. */
 }
