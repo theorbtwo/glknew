@@ -54,3 +54,4 @@ universal
  - continue, return content without divs/classes etc. - DONE
  - make TextGrid excempt from pages garbage?
  - make get_own_formatted_text part of Game::Window::*?  Likewise ->move_cursor, etc?
+ - Chrome: hitting up or down in a charinput box makes the autocomplete thingy show up.

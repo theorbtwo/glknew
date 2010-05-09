@@ -94,9 +94,9 @@ void glk_request_timer_events(glui32 miliseconds) {
 
 
 #define evtype_charinput_special(name) \
-  else if (sscanf(ret, "evtype_CharInput keycode_" #name)) { \
-    event->val1 = keycode_ ## name;                          \
-    return;                                                  \
+  else if (strcmp(ret, "evtype_CharInput keycode_" #name "\n") == 0) {  \
+    event->val1 = keycode_ ## name;                                     \
+    return;                                                             \
   }
 
 void glk_select(event_t *event) {

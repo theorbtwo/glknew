@@ -1,5 +1,5 @@
 #!/usr/local/bin/perl5.10.0
-# -*- cperl-mode -*-
+# -*- cperl -*-
 use strict;
 use warnings;
 
