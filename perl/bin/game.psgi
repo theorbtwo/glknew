@@ -405,7 +405,7 @@ END
         $text .= "<br />\n";
       }
       $text .= "</tt>\n";
-      $text .= "<div class='move-end'></div>";
+      $text = "<span class='move-top'></span>$text";
 
       return $text;
     }
@@ -448,7 +448,7 @@ END
         $styles .= get_style($style);
       }
       $text = "<style type='text/css'>$styles</style>\n$text";
-      $text .= "<div class='move-end'></div>";
+      $text = "<span class='move-top'></span>$text";
 
 #      print "Text with styles: $text\n";
       return $text;
