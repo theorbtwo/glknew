@@ -5,7 +5,9 @@ jQuery(document).ready(function(){
 
                 if(jQuery('#prompt_type').text() == 'char') {
                     jQuery('#keycode_input').val(event.which);
+                    event.preventDefault;
                     jQuery('#input').submit();
+                    return false;
                 }
                 return true;
             });
