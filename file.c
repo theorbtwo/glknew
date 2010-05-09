@@ -44,7 +44,6 @@ glui32 glk_fileref_does_file_exist(frefid_t fref) {
   }
 }
 
-#define USAGE_NAME_LEN strlen("InputRecord, BinaryMode")+1
 void usage_to_name(glui32 usage, char *name) {
   name[0] = '\0';
   
@@ -65,7 +64,6 @@ void usage_to_name(glui32 usage, char *name) {
   }
 }
 
-#define FILEMODE_NAME_LEN strlen("WriteAppend")+1
 void filemode_to_name(glui32 filemode, char *name) {
   name[0] = '\0';
 
@@ -100,6 +98,6 @@ frefid_t glk_fileref_create_by_prompt(glui32 usage, glui32 filemode, glui32 rock
   }
 
   /* Remove trailing newline. */
-  name[strlen(name)] = '\0';
+  name[strlen(name)-1] = '\0';
   return glk_fileref_create_by_name(usage, name, rock);
 }

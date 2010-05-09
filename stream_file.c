@@ -41,31 +41,54 @@ static glsi32 get_char_uni(strid_t str) {
   }
 }
 
+static void file_put_char_uni(strid_t str, glui32 ch) {
+  ssize_t ret;
+  unsigned char real_ch;
+
+  if (ch > 255) {
+    printf("Over-wide character (U+%x) in put_char_uni for file stream\n", ch);
+    exit(26);
+  }
+  real_ch = (unsigned char)ch;
+
+  ret = write(str->u.file.fd, &real_ch, 1);
+  if (ret != 1) {
+    printf("Error writing to file, errno=%d\n", errno);
+    exit(27);
+  }
+}
+
 struct glk_stream_struct_vtable stream_file_vtable = {
   .set_position = &set_position,
   .get_position = &get_position,
-  .get_char_uni = &get_char_uni
+  .get_char_uni = &get_char_uni,
+  .put_char_uni = &file_put_char_uni,
 };
 
 /* This is probably woefully incomplete WRT unicode & textmode. */
 strid_t glk_stream_open_file(frefid_t fileref, glui32 fmode,
                              glui32 rock) {
-  return gli_stream_open_pathname(fileref->name, fileref->usage & fileusage_TextMode,
-                                  rock);
-}
-
-
-/* Not part of the glk API proper, but required by the glkunix API. */
-/* Opens a given pathname, as a read-only stream. */
-strid_t gli_stream_open_pathname(char *pathname, int textmode,
-                                 glui32 rock) {
   struct glk_stream_struct *stream;
   int fd;
+  int open_flags = 0;
+  char filemode_name[FILEMODE_NAME_LEN];
   
-  printf("DEBUG: gli_stream_open_pathname: %s\n", pathname);
-  fd = open(pathname, O_RDONLY);
+
+  filemode_to_name(fmode, filemode_name);
+  printf("DEBUG: glk_stream_open_file, fileref->name=%s fmode=%d (%s)\n", fileref->name, fmode, filemode_name);
+
+  if (fmode == filemode_Write) {
+    open_flags |= O_CREAT | O_WRONLY;
+  } else {
+    printf("FIXME: fmode to open_flags");
+    exit(25);
+  }
+  
+  /* rw for ugo.  If the user doesn't like this, by all means, they
+     should set umask. */
+  fd = open(fileref->name, open_flags, 0666);
   if (fd == -1) {
-    printf("DEBUG: open of file %s failed: errno=%d\n", pathname, errno);
+    printf("DEBUG: open of file %s failed: errno=%d\n", fileref->name, errno);
     return NULL;
   }
 
@@ -75,7 +98,7 @@ strid_t gli_stream_open_pathname(char *pathname, int textmode,
   }
   
   stream->rock = rock;
-  stream->fmode = filemode_Read;
+  stream->fmode = fmode;
   stream->type = STREAM_TYPE_FILE;
   stream->vtable = &stream_file_vtable;
   stream->u.file.fd = fd;
@@ -87,5 +110,14 @@ strid_t gli_stream_open_pathname(char *pathname, int textmode,
   }
   
   return stream;
+}
+
+
+/* Not part of the glk API proper, but required by the glkunix API. */
+/* Opens a given pathname, as a read-only stream. */
+strid_t gli_stream_open_pathname(char *pathname, int textmode,
+                                 glui32 rock) {
+  printf("FIXME: Reimplement gli_stream_open_pathname in terms of glk_stream_open_file\n");
+  exit(24);
 }
 
