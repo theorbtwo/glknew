@@ -25,7 +25,32 @@ use Web::Simple 'GameIF';
 
     default_config ( file_dir => "$root/root",
                      git_binary => "$root/../../git-1.2.6/git",
-                   );
+                     js_keycodes => {
+                                     37 => 'Left',
+                                     39 => 'Right',
+                                     38 => 'Up',
+                                     40 => 'Down',
+                                     13 => 'Return',
+                                     46 => 'Delete',
+                                     27 => 'Escape',
+                                      9 => 'Tab',
+                                     33 => 'PageUp',
+                                     34 => 'PageDown',
+                                     36 => 'Home',
+                                     35 => 'End',
+                                     112 => 'Func1',
+                                     113 => 'Func2',
+                                     114 => 'Func3',
+                                     115 => 'Func4',
+                                     116 => 'Func5',
+                                     117 => 'Func6',
+                                     118 => 'Func7',
+                                     119 => 'Func8',
+                                     120 => 'Func10',
+                                     121 => 'Func11',
+                                     122 => 'Func12',
+                                    }
+   );
 
     sub static_file {
         my ($self, $file, $type) = @_;
@@ -82,27 +107,32 @@ html {
             return $self->static_file("css/$file", "text/css");
         },
 
-        sub (/game/continue + ?text~&input_type=&game_id=&window_id=) {
-          my ($self, $text, $input_type, $game_id, $window_id) = @_;
-          my $char = $text if($input_type eq 'char');
+        sub (/game/continue + ?text~&input_type=&game_id=&window_id=&keycode~) {
+          my ($self, $text, $input_type, $game_id, $window_id, $keycode) = @_;
+#          my $char = $keycode if($input_type eq 'char');
 
           $SIG{__DIE__} = sub {
             # Breaks my heart to do this, it really does...
             print "DIED! $@\n";
           };
 
+          warn Dumper(@_[1..$#_]);
+
           my $run_select = 1;
           my $game = $games[$game_id];
-          if (defined $text and not defined $char) {
+          if (length $text and not length $keycode) {
             $game->send_to_game("evtype_LineInput $text\n");
-          } elsif (defined $char) {
-            $game->send_to_game("evtype_CharInput ".ord($char)."\n");
-          } elsif (not defined $text and not defined $char) {
+          } elsif(exists($self->config->{js_keycodes}{$keycode}) and not length $text) {
+              $game->send_to_game("evtype_CharInput keycode_" . $self->config->{js_keycodes}{$keycode} . "\n");
+          } elsif (length $keycode and not length $text) {
+            $game->send_to_game("evtype_CharInput $keycode\n");
+#            $game->send_to_game("evtype_CharInput ".ord($char)."\n");
+          } elsif (not length $text and not length $keycode) {
             # Do nothing.
             $run_select = 0;
           } else {
-            # Both text and char are defined?
-            die "Double-down on continue -- char='$char', text='$text'";
+            # Both text and keycode are defined?
+            die "Double-down on continue -- keycode='$keycode', text='$text'";
           }
 
           $game->wait_for_select
@@ -217,7 +247,7 @@ END
         }
         my $input = "Input <span id='prompt_type'>$game->{current_select}{input_type}</span><input id='prompt' type='text' name='text' /><input id='input_type' type='hidden' name='input_type' value=\'$game->{current_select}{input_type}\'";
 
-        $form = "<form id='input' method='post' action='/game/continue/$gameid'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/>$input</form>";
+        $form = "<form id='input' method='post' action='/game/continue/$gameid'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/><input id='keycode_input' type='hidden' name='keycode' value=''/>$input</form>";
       }
 
       return $form;
@@ -513,6 +543,8 @@ END
 
         $game->send_to_game($style_css_1 eq $style_css_2 ? "0\n" : "1\n");
     }
+
+    
 
 }
 

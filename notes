@@ -40,16 +40,17 @@ emy
 /mnt/shared/projects/games/flash-if/garglk-read-only/terps/agility
  - needs ifphdr
 
-
+js keycodes:
+http://unixpapa.com/js/key.html
 
 universal
- - TextBuffer window grows instead of scrolling.
+ - TextBuffer window grows instead of scrolling. - DONE
  - Nicer char input?
  - No way of pressing ret during char input makes most help menus unusable.
  - DONE: <title> tags.
  - expand Game::Window to cover all window attrs
  - add Game::Style ?
- - ajax: return json/content per window, instead of just one
- - continue, return content without divs/classes etc.
+ - ajax: return json/content per window, instead of just one - DONE
+ - continue, return content without divs/classes etc. - DONE
  - make TextGrid excempt from pages garbage?
  - make get_own_formatted_text part of Game::Window::*?  Likewise ->move_cursor, etc?
