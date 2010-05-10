@@ -82,12 +82,14 @@ use Web::Simple 'GameIF';
             return $self->static_file("css/$file", "text/css");
         },
 
-        sub (/game/savefile + %username=&save_file=&game_id=) {
+        sub (/game/savefile + ?username=&save_file=&game_id=) {
             my ($self, $username, $save_file, $game_id) = @_;           
-            tr/\0\///d for ($username, $save_file); 
+            s{[\0\/]}{}g for ($username, $save_file); 
 
             my $game = $games[$game_id];
+            $game->send_save_file($username, $save_file);
 
+          return $self->continue_game($game, 1);
         }, 
 
         sub (/game/continue + ?text~&input_type=&game_id=&window_id=&keycode~) {
@@ -121,20 +123,7 @@ use Web::Simple 'GameIF';
             die "Double-down on continue -- keycode='$keycode', text='$text'";
           }
 
-          $game->continue
-            if $run_select;
-
-          my $json = JSON::encode_json({ 
-                                        windows => $game->get_continue_windows(),
-                                        input_type => $game->get_input_type(),
-                                        show_forms => $game->get_form_states(),
-                                       });
-print "Sending JSON: $json\n";
-          [ 200, 
-            [ 'Content-type' => 'application/json' ], 
-            [ $json ]
-          ];
-
+          return $self->continue_game($game, $run_select);
         },
 
         sub (/game/new/*) {
@@ -176,6 +165,25 @@ print "Sending JSON: $json\n";
             ];
           }
       };
+
+    sub continue_game {
+        my ($self, $game, $run_select) = @_;
+
+        $game->continue
+          if $run_select;
+
+        my $json = JSON::encode_json({ 
+                                      windows => $game->get_continue_windows(),
+                                      input_type => $game->get_input_type(),
+                                      show_forms => $game->get_form_states(),
+                                     });
+        print "Sending JSON: $json\n";
+
+        [ 200, 
+          [ 'Content-type' => 'application/json' ], 
+          [ $json ]
+        ];
+    }
 }
 
 GameIF->run_if_script;

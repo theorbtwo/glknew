@@ -13,10 +13,10 @@ jQuery(document).ready(function(){
             });
 
 
-        jQuery("#input").submit(function() {
-                var fields = jQuery("#input").serialize();
+        jQuery("form").submit(function() {
+                var fields = jQuery(this).serialize();
                 jQuery.ajax({ 
-                        url: "/game/continue", 
+                        url: jQuery(this).attr('action'), 
                         data: fields,
                         success: function(data) {
                             jQuery.each(data.windows, function(ind, value) { 

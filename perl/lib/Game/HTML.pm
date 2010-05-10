@@ -6,6 +6,7 @@ use warnings;
 
 use Game;
 use File::Spec::Functions;
+use File::Path 'mkpath';
 use Data::Dumper;
 ## This is the HTML layer over Game, which is the perl skin over glknew, which is.. C all the way down.
 
@@ -48,11 +49,12 @@ sub send {
 sub send_save_file {
   my ($self, $username, $savefile) = @_;
 
-  my $game_file = catfile($self->{save_file_dir}, $username, $savefile);
+  my $game_dir = catfile($self->{save_file_dir}, $username);
+  mkpath($game_dir);
+  my $game_file = catfile($game_dir, $savefile);
 
   $self->send("$game_file\n");
 
-  $self->continue();
 }
 
 sub prep_save_file {
@@ -109,9 +111,9 @@ sub get_forms {
     }
     my $input = "Input <span id='prompt_type'>$game->{current_select}{input_type}</span><input id='prompt' type='text' name='text' /><input id='input_type' type='hidden' name='input_type' value=\'$game->{current_select}{input_type}\'";
       
-    $forms = "<form id='input' method='post' action='/game/continue'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/><input id='keycode_input' type='hidden' name='keycode' value=''/>$input</form>";
+    $forms = "<form class='form' id='input' method='post' action='/game/continue'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/><input id='keycode_input' type='hidden' name='keycode' value=''/>$input</form>";
 
-    $forms .= "<form id='save' style='display: none' method='post' action='/game/savefile'><span><label for='username'>Username<input type='text' id='username' name='username'/></label></span><br/><span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/><input type='hidden' name='game_id' value='$gameid' /><input type='submit' value='Save'/>";
+    $forms .= "<form class='form' id='save' style='display: none' method='post' action='/game/savefile'><span><label for='username'>Username<input type='text' id='username' name='username'/></label></span><br/><span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/><input type='hidden' name='game_id' value='$gameid' /><input type='submit' value='Save'/>";
 
     return $forms;
 }
