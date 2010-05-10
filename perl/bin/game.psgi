@@ -82,6 +82,14 @@ use Web::Simple 'GameIF';
             return $self->static_file("css/$file", "text/css");
         },
 
+        sub (/game/savefile + %username=&save_file=&game_id=) {
+            my ($self, $username, $save_file, $game_id) = @_;           
+            tr/\0\///d for ($username, $save_file); 
+
+            my $game = $games[$game_id];
+
+        }, 
+
         sub (/game/continue + ?text~&input_type=&game_id=&window_id=&keycode~) {
           my ($self, $text, $input_type, $game_id, $window_id, $keycode) = @_;
 #          my $char = $keycode if($input_type eq 'char');
