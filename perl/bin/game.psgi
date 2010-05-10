@@ -5,6 +5,10 @@ use warnings;
 
 use Web::Simple 'GameIF';
 
+BEGIN {
+  $|=1;
+}
+
 {
     package GameIF;
     use Game::HTML;

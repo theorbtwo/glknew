@@ -136,7 +136,10 @@ sub handle_stdout {
   my $winid_r = qr/(0x[0-9A-Fa-f]+)/;
 
   for (split m/\cM?\cJ/, $from_game) {
-    print "Line: ##$_##\n";
+    if ($ENV{GLKNEW_TRACE}) {
+      print "Line: ##$_##\n";
+    }
+
     when ('GLK new!') {
       # garbage.
     }
