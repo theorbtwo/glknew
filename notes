@@ -47,11 +47,19 @@ universal
  - TextBuffer window grows instead of scrolling. - DONE
  - Nicer char input?
  - No way of pressing ret during char input makes most help menus unusable.
- - DONE: <title> tags.
+ - <title> tags. - DONE
  - expand Game::Window to cover all window attrs
  - add Game::Style ?
  - ajax: return json/content per window, instead of just one - DONE
  - continue, return content without divs/classes etc. - DONE
  - make TextGrid excempt from pages garbage?
  - make get_own_formatted_text part of Game::Window::*?  Likewise ->move_cursor, etc?
- - Chrome: hitting up or down in a charinput box makes the autocomplete thingy show up.
+ - Chrome: hitting up or down in a charinput box makes the autocomplete thingy show up. - DONE
+
+ - saving
+  - type "save", Game responds by running "save_file_name" callback, exits loop, and user is shown save form instead of normal input form (contains "username" and "save game" fields)
+ - Re-use input form, by making username universal?
+  - add hidden username field / user sessions?
+
+ - output hint about the maximum length of an input line, and verify before sending to game itself
+  - truncate or error on "too long"?
