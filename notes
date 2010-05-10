@@ -34,6 +34,10 @@ emy
  - All writes go to one window?
  - Proper support for glk_style_measure
 
+sd3:
+ - After a, b, c menu, doesn't scroll back to top.
+
+
 /mnt/shared/projects/games/flash-if/garglk-read-only/terps/scare
  - glk_request_line_event_uni
 
@@ -63,3 +67,7 @@ universal
 
  - output hint about the maximum length of an input line, and verify before sending to game itself
   - truncate or error on "too long"?
+
+ - Handle game titles with html metacharacters.
+ - s/Game/GlkNew/ in all module names?
+

@@ -50,8 +50,9 @@ void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initle
   char *prefill;
 
   /* This is the maximum len that select() is prepared to handle. */
-  if (maxlen > (1024 - 11)) {
+  if (maxlen > (1024 - 17)) {
     printf("DEBUG: Game passed maxlen (%d) above what we are prepared for.\n", maxlen);
+    maxlen = 1024-17;
   }
 
   prefill = malloc(initlen+1);
@@ -189,4 +190,8 @@ void glk_select(event_t *event) {
     printf("Couldn't parse select response: '%s'\n", ret);
     exit(9);
   }
+}
+
+void glk_tick(void) {
+  /* NOP */
 }

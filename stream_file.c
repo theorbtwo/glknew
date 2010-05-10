@@ -79,8 +79,10 @@ strid_t glk_stream_open_file(frefid_t fileref, glui32 fmode,
 
   if (fmode == filemode_Write) {
     open_flags |= O_CREAT | O_WRONLY;
+  } else if (fmode == filemode_Read) {
+    open_flags |= O_RDONLY;
   } else {
-    printf("FIXME: fmode to open_flags");
+    printf("FIXME: fmode to open_flags\n");
     exit(25);
   }
   
@@ -117,7 +119,19 @@ strid_t glk_stream_open_file(frefid_t fileref, glui32 fmode,
 /* Opens a given pathname, as a read-only stream. */
 strid_t gli_stream_open_pathname(char *pathname, int textmode,
                                  glui32 rock) {
-  printf("FIXME: Reimplement gli_stream_open_pathname in terms of glk_stream_open_file\n");
-  exit(24);
+  frefid_t fileref;
+  strid_t stream;
+  glui32 fmode = filemode_Read;
+  
+  fileref = glk_fileref_create_by_name(fileusage_Data | fileusage_BinaryMode, pathname, rock);
+  if (!fileref) {
+    printf("DEBUG: Couldn't create fileref for pathname %s in gli_stream_open_pathname\n", pathname);
+    exit(1);
+  }
+
+  stream = glk_stream_open_file(fileref, fmode, rock);
+  glk_fileref_destroy(fileref);
+  
+  return stream;
 }
 

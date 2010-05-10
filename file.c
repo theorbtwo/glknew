@@ -101,3 +101,16 @@ frefid_t glk_fileref_create_by_prompt(glui32 usage, glui32 filemode, glui32 rock
   name[strlen(name)-1] = '\0';
   return glk_fileref_create_by_name(usage, name, rock);
 }
+
+void glk_fileref_delete_file(frefid_t fref) {
+  if(unlink(fref->name)) {
+    printf("Could not unlink file %s: %d", fref->name, errno);
+    exit(28);
+  }
+}
+
+frefid_t glk_fileref_create_temp(glui32 usage, glui32 rock) {
+  char *name = tempnam(NULL, "glknew");
+
+  return glk_fileref_create_by_name(usage, name, rock);
+}
