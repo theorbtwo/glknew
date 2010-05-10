@@ -100,7 +100,7 @@ sub get_forms {
       
     $forms = "<form id='input' method='post' action='/game/continue/'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/><input id='keycode_input' type='hidden' name='keycode' value=''/>$input</form>";
 
-    $forms .= "<form id='save' style='display: none' method='post' action='/game/savefile/'><span><label for='username'><input type='text' id='username' name='username'/></label></span><br/><span><label for='save_file'><input type='text' id='save_file' name='save_file'/></label></span><br/><input type='submit' value='Save'/>";
+    $forms .= "<form id='save' style='display: none' method='post' action='/game/savefile/'><span><label for='username'>Username<input type='text' id='username' name='username'/></label></span><br/><span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/><input type='submit' value='Save'/>";
 
     return $forms;
 }
