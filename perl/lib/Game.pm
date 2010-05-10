@@ -44,15 +44,21 @@ sub setup_initial_styles {
 
   # Only TextBuffer and TextGrid can have text in them, but the spec says they all have styles, so what the hell.
   for my $wt (qw<Pair Blank TextBuffer TextGrid Graphics>) {
-    for my $s (qw<Normal Emphasized Preformatted Header Subheader Alert Note BlockQUote Input User1 User2>) {
-      $self->{styles}{$wt}{$s} = {
-                                  name => $s,
-                                  wintype => $wt,
-                                 };
+    $self->{styles}{$wt}{Emphasized} = {Weight => 1};
+    $self->{styles}{$wt}{Preformatted} = {Proportional => 0};
+    $self->{styles}{$wt}{Header} = {Weight => 1,
+                                    Size => 2};
+    $self->{styles}{$wt}{Subheader} = {Weight => 1,
+                                       Size => 1};
+    $self->{styles}{$wt}{Alert} = {Color => 0xFF0000};
+    $self->{styles}{$wt}{Note}  = {Oblique => 1};
+    
+    for my $s (qw<Normal Emphasized Preformatted Header Subheader Alert Note BlockQuote Input User1 User2>) {
+      $self->{styles}{$wt}{$s}{name} = $s;
+      $self->{styles}{$wt}{$s}{wintype} = $wt;
     }
     # An interesting question: should I create defaults in these?  The spec says only Preformatted has defaulting,
     # but it probably only means that only it is required to.  Seems a bit silly to give them names otherwise, no?
-    $self->{styles}{$wt}{Preformatted}{Proportional} = 0;
   }
 }
 

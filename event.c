@@ -52,6 +52,7 @@ void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initle
   /* This is the maximum len that select() is prepared to handle. */
   if (maxlen > (1024 - 17)) {
     printf("DEBUG: Game passed maxlen (%d) above what we are prepared for.\n", maxlen);
+    maxlen = 1024-17;
   }
 
   prefill = malloc(initlen+1);

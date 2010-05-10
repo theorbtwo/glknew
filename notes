@@ -34,6 +34,10 @@ emy
  - All writes go to one window?
  - Proper support for glk_style_measure
 
+sd3:
+ - After a, b, c menu, doesn't scroll back to top.
+
+
 /mnt/shared/projects/games/flash-if/garglk-read-only/terps/scare
  - glk_request_line_event_uni
 
