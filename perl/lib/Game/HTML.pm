@@ -5,31 +5,84 @@ use strict;
 use warnings;
 
 use Game;
+use File::Spec::Functions;
+use File::Path 'mkpath';
 use Data::Dumper;
-use Moose;
 ## This is the HTML layer over Game, which is the perl skin over glknew, which is.. C all the way down.
 
 sub new {
-    my ($class, $game_id, $game_path, $interp_path) = @_;
+    my ($class, $game_id, $game_path, $interp_path, $save_file_dir) = @_;
+    my $self = bless({ 
+                      save_file_dir => $save_file_dir,
+                      ## keys here correspond to HTML ids of forms in get_forms
+                      form_states => { input => 1, save => 0 },
+                     }, $class);
+
     my $game = Game->new($game_path, 
                          $interp_path,
-                         { style_distinguish => \&style_distinguish });
+                         { 
+                          style_distinguish => \&style_distinguish,
+                          save_file => sub { $self->prep_save_file() },
+                         });
     $game->user_info($game_id);
+    $self->{game_obj} = $game;
 
-    my $self = bless({ game_obj => $game }, $class);
     return $self;
 }
 
-sub start {
+sub continue {
     my ($self) = @_;
+
+    $self->set_form_visible('input');
+    $self->{game_obj}{current_select} = {};
+    $_->new_turn for(values %{ $self->{game_obj}{windows} });
 
     $self->{game_obj}->wait_for_select;
 }
 
 sub send {
-    my ($self, $input) = @_;
+  my ($self, $input) = @_;
 
-    $self->{game_obj}->send_to_game($input);
+  $self->{game_obj}->send_to_game($input);
+}
+
+sub send_save_file {
+  my ($self, $username, $savefile) = @_;
+
+  my $game_dir = catfile($self->{save_file_dir}, $username);
+  mkpath($game_dir);
+  my $game_file = catfile($game_dir, $savefile);
+
+  $self->send("$game_file\n");
+
+}
+
+sub prep_save_file {
+    my ($self, $file_dir) = @_;
+
+    ## get_form sends several forms, some are hidden, we set a value that json will use to unhide the save file form.
+    $self->set_form_visible('save');
+
+    ## file is a line input.. although we're not using this on-screen yet anyway
+    $self->{game_obj}->{current_select}{input_type} = 'line';
+    
+    ## Escape loop so we can send the form to the browser
+    $self->{game_obj}{collecting_input} = 0;
+}
+
+sub set_form_visible {
+    my ($self, $formid) = @_;
+
+    foreach my $form (keys %{ $self->{form_states} }) {
+        $self->{form_states}{$form} = 0;
+        $self->{form_states}{$form} = 1 if($form eq $formid);
+    }
+}
+
+sub get_form_states {
+    my ($self) = @_;
+
+    return $self->{form_states};
 }
 
 sub get_input_type {
@@ -38,38 +91,37 @@ sub get_input_type {
     return $self->{game_obj}->{current_select}{input_type};
 }
 
-sub get_form {
+sub get_forms {
     my ($self) = @_;
     my ($game) = $self->{game_obj};
 
     my $gameid = $game->user_info;
-    my $form;
-    {
-      no warnings 'uninitialized';
-        
-        my $winid = $game->{current_select}{window}{id};
-        if ($game->{current_select}{input_type} eq 'line') {
-          # $form = "<input type='text' name='text' />";
-        } elsif ($game->{current_select}{input_type} eq 'char') {
-          # $form = "<i>want char</i><input type='text' name='char' />";
-        } elsif (not defined $game->{current_select}{input_type}) {
-          die "Don't know how to handle this callback -- \$game->{current_select}{input_type} not defined";
-        } else {
-          print STDERR Dumper($game->{current_select});
-          die "Don't know how to handle this callback -- \$game->{current_select}{input_type} eq \'$game->{current_select}{input_type}\'";
-        }
-        my $input = "Input <span id='prompt_type'>$game->{current_select}{input_type}</span><input id='prompt' type='text' name='text' /><input id='input_type' type='hidden' name='input_type' value=\'$game->{current_select}{input_type}\'";
+    my $forms;
+    my $winid = $game->{current_select}{window}{id};
 
-        $form = "<form id='input' method='post' action='/game/continue/$gameid'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/><input id='keycode_input' type='hidden' name='keycode' value=''/>$input</form>";
+    if ($game->{current_select}{input_type} eq 'line') {
+        # $form = "<input type='text' name='text' />";
+    } elsif ($game->{current_select}{input_type} eq 'char') {
+        # $form = "<i>want char</i><input type='text' name='char' />";
+    } elsif (not defined $game->{current_select}{input_type}) {
+        die "Don't know how to handle this callback -- \$game->{current_select}{input_type} not defined";
+    } else {
+        print STDERR Dumper($game->{current_select});
+        die "Don't know how to handle this callback -- \$game->{current_select}{input_type} eq \'$game->{current_select}{input_type}\'";
     }
+    my $input = "Input <span id='prompt_type'>$game->{current_select}{input_type}</span><input id='prompt' type='text' name='text' /><input id='input_type' type='hidden' name='input_type' value=\'$game->{current_select}{input_type}\'";
+      
+    $forms = "<form class='form' id='input' method='post' action='/game/continue'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/><input id='keycode_input' type='hidden' name='keycode' value=''/>$input</form>";
 
-    return $form;
+    $forms .= "<form class='form' id='save' style='display: none' method='post' action='/game/savefile'><span><label for='username'>Username<input type='text' id='username' name='username'/></label></span><br/><span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/><input type='hidden' name='game_id' value='$gameid' /><input type='submit' value='Save'/>";
+
+    return $forms;
 }
 
 sub make_page {
   my ($self, $content, $title) = @_;
 
-  $content ||= $self->get_initial_windows() . $self->get_form;
+  $content ||= $self->get_initial_windows() . $self->get_forms;
   my $js = '<script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>' 
     . '<script type="text/javascript" src="/js/next-action.js"></script>';
 
@@ -237,7 +289,7 @@ sub get_own_formatted_text_TextGrid {
     my $state;
     
     my $style = undef;
-    for my $e (map {@$_} @{$win->pages}) {
+    for my $e (map {@$_} @{$win->pages}, $win->content) {
         if (exists $e->{cursor_to}) {
             $cursor = [$e->{cursor_to}[1], $e->{cursor_to}[0]];
         } elsif (exists $e->{char} and $e->{char} eq "\n") {
@@ -290,7 +342,7 @@ sub get_own_formatted_text_TextBuffer {
     
     my %styles_needed;
     
-    for my $e (@{$win->last_page}) {
+    for my $e (@{$win->content}) {
         my ($style, $char) = @{$e}{'style', 'char'};
         if(defined $style) {
             if ($prev_style != $style) {

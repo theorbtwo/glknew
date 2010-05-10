@@ -4,6 +4,7 @@ use Moose;
 
 has pages => (is => 'rw', isa => 'ArrayRef', required => 0, default => sub { [] } );
 has method => (is => 'rw', isa => 'ArrayRef', required => 0, default => sub { [] } );
+has content => (is => 'rw', isa => 'ArrayRef', required => 0, default => sub { [] } );
 
 sub BUILD { 
     my ($self, $attrs) = @_; 
@@ -12,6 +13,13 @@ sub BUILD {
     @{$self}{@not_got} = @{$attrs}{@not_got}; 
 }
 
+sub new_turn {
+    my ($self) = @_;
+
+    ## Backup previous window content
+    push @{ $self->pages }, $self->content;
+    $self->content([]);
+}
 
 sub last_page {
     my ($self) = @_;

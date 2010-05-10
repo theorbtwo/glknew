@@ -24,6 +24,7 @@ sub new {
   $self->{_callbacks} = { 
       select => \&default_select_callback,
       window_size => \&default_window_size_callback,
+      save_file => sub { $_[0]->send_to_game("TEST.txt\n"); },
       style_distinguish => sub { 0; },
       %$callbacks,
   };
@@ -94,7 +95,8 @@ sub send_to_game {
 sub wait_for_select {
   my ($self) = @_;
 
-  while (!$self->{in_select}) {
+  $self->{collecting_input} = 1;
+  while ($self->{collecting_input}) {
     #print "Doing readline from child's stdout\n";
     my $line = readline($self->{child_stdout});
     if (not defined $line) {
@@ -105,7 +107,7 @@ sub wait_for_select {
     $self->handle_stdout($line);
   }
 
-  delete $self->{in_select};
+  delete $self->{collecting_input};
 
   return $self;
 }
@@ -242,7 +244,11 @@ sub handle_stdout {
 
       $self->{_callbacks}{select}->($self, $1, $2, $3);
 
+    }
 
+    ## We may care about the usage/filemode bits later..
+    when (/\?\?\?glk_fileref_create_by_prompt usage=1 \(SavedGame\), filemode=1 \(Write\)/) {
+        $self->{_callbacks}{save_file}->($self);
     }
 
     default {
@@ -309,10 +315,6 @@ sub default_select_callback {
     }
     ## newline so status window line is seen..
     print "\n";
-
-
-    ## Backup previous window content
-    push @{ $win->{pages} }, delete $win->{content};
   }
 
   $self->{current_select} = {
@@ -321,7 +323,7 @@ sub default_select_callback {
       input_charset => $input_charset,
   };
 
-  $self->{in_select} = 1;
+  $self->{collecting_input} = 0;
 
 }
 
