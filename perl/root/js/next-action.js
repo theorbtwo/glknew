@@ -37,7 +37,6 @@ jQuery(document).ready(function(){
                             var key;
                             for (key in data.show_forms) {
                                 if(typeof data.show_forms[key] !== 'function') {
-                                    alert(key);
                                     if(data.show_forms[key] == 1) {
                                         jQuery('#' + key).show();
                                     } else {

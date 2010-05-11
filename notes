@@ -61,7 +61,7 @@ universal
  - Chrome: hitting up or down in a charinput box makes the autocomplete thingy show up. - DONE
 
  - saving
-  - type "save", Game responds by running "save_file_name" callback, exits loop, and user is shown save form instead of normal input form (contains "username" and "save game" fields)
+  - type "save", Game responds by running "save_file_name" callback, exits loop, and user is shown save form instead of normal input form (contains "username" and "save game" fields) - DONE
  - Re-use input form, by making username universal?
   - add hidden username field / user sessions?
 
