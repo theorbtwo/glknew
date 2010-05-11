@@ -115,6 +115,10 @@ strid_t glk_stream_open_memory_base(void *buf, glui32 buflen, glui32 fmode, glui
      it when we do have a dispatch_register. */
   if (dispatch_register) {
     stream->dispatch_rock = dispatch_register((void *)stream, gidisp_Class_Stream);
+    stream->did_dispatch_register = 1;
+  } else {
+    printf("Making memory stream before dispatch_register\n");
+    stream->did_dispatch_register = 0;
   }
 
   /* We (apparently) need to tell the user of the library that we now
@@ -132,6 +136,16 @@ strid_t glk_stream_open_memory_base(void *buf, glui32 buflen, glui32 fmode, glui
     }
   }
 
+  if (!first_stream) {
+    first_stream = stream;
+  } else {
+    strid_t prev_stream = first_stream;
+    while (prev_stream->next != NULL)
+      prev_stream = prev_stream->next;
+    prev_stream->next = stream;
+  }
+  stream->next = NULL;
+    
   printf("DEBUG: opened memory stream str=%p\n", stream);
   return stream;
 }

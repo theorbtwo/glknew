@@ -731,7 +731,9 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     printf("%u, ", arglist[slot].uint); slot++; argument++;
     printf("\n");
   }else if (strcmp(prototype, "2Qb<[2IuIu]:") == 0) {
-    printf("stream %p type %d, ", arglist[slot].opaqueref, ((struct glk_stream_struct*)(arglist[slot].opaqueref))->type); slot++; argument++;
+    /* printf("stream %p type %d, ", arglist[slot].opaqueref, ((struct
+    glk_stream_struct*)(arglist[slot].opaqueref))->type); slot++;
+    argument++; */
     if (arglist[slot].ptrflag) {
       slot++;
       printf("out ref  {");
@@ -810,6 +812,12 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     glk_set_window(arglist[0].opaqueref);
     break;
     
+  case 0x0040: /* stream_iterate */
+    if (arglist[1].ptrflag) 
+      arglist[4].opaqueref = glk_stream_iterate(arglist[0].opaqueref, &arglist[2].uint);
+    else
+      arglist[3].opaqueref = glk_stream_iterate(arglist[0].opaqueref, NULL);
+    break;
   case 0x0042: /* stream_open_file */
     arglist[4].opaqueref = glk_stream_open_file(arglist[0].opaqueref, arglist[1].uint, 
                                                 arglist[2].uint);
@@ -982,12 +990,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     break;
   case 0x0030: /* window_get_sibling */
     arglist[2].opaqueref = glk_window_get_sibling(arglist[0].opaqueref);
-    break;
-  case 0x0040: /* stream_iterate */
-    if (arglist[1].ptrflag) 
-      arglist[4].opaqueref = glk_stream_iterate(arglist[0].opaqueref, &arglist[2].uint);
-    else
-      arglist[3].opaqueref = glk_stream_iterate(arglist[0].opaqueref, NULL);
     break;
   case 0x0041: /* stream_get_rock */
     arglist[2].uint = glk_stream_get_rock(arglist[0].opaqueref);

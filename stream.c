@@ -1,5 +1,40 @@
 #include "glknew.h"
 
+/* The first stream in the linked-list we keep around for
+   stream_iterate. */
+strid_t first_stream;
+
+strid_t glk_stream_iterate(strid_t prevstr, glui32 *rockptr) {
+  glui32 dummy;
+
+  printf("DEBUG: glk_stream_iterate starting with prevstr=%p\n", prevstr);
+
+  if (!rockptr) {
+    rockptr = &dummy;
+  }
+
+  strid_t canidate = first_stream;
+  if (prevstr == NULL) {
+    canidate = first_stream;
+  } else {
+    canidate = prevstr->next;
+  }
+
+  while (canidate && !canidate->did_dispatch_register) {
+    canidate = canidate->next;
+  }
+  
+  if (!canidate) {
+    printf("Got to end of stream list\n");
+    *rockptr = 0;
+    return NULL;
+  }
+  
+  printf("returning %p, ->rock=0x%x\n", canidate, canidate->rock);
+  *rockptr = canidate->rock;
+  return canidate;
+}
+
 /* A bunch of functions that simply dispatch depending on the stream
    type they refer to (or, rather, depending on the vtable of the
    stream).
