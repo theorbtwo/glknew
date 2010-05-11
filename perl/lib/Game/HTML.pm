@@ -114,7 +114,7 @@ sub get_forms {
     }
     my $input = "Input <span id='prompt_type'>$game->{current_select}{input_type}</span><input id='prompt' type='text' name='text' /><input id='input_type' type='hidden' name='input_type' value=\'$game->{current_select}{input_type}\'";
       
-    $forms = "<form class='form' id='input' method='post' action='/game/continue'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/><input id='keycode_input' type='hidden' name='keycode' value=''/>$input</form>";
+    $forms = "<form class='form' id='input' method='post' action='/game/continue'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/><input id='keycode_input' type='hidden' name='keycode' value=''/><input id='keycode_ident' type='hidden' name='keycode_ident' value=''/>$input</form>";
 
     $forms .= "<form class='form' id='save' style='display: none;' method='post' action='/game/savefile'><span><label for='username'>Username<input type='text' id='username' name='username'/></label></span><br/><span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/><input type='hidden' name='game_id' value='$gameid' /><input type='submit' value='Save'/>";
 
@@ -168,20 +168,21 @@ sub get_initial_windows {
 sub get_continue_windows {
     my ($self) = @_;
 
+    ## FIXME, why is last_page returning undef? Bad response Can't use an undefined value as an ARRAY reference at lib/Game/HTML.pm line 173, <GEN11> line 16505.
     my @windows = map { 
-        my $status = 'append';
-        if ($_->{wintype} eq 'TextGrid') {
-            $status = 'clear';
-        } elsif ($_->last_page->[0]{clear}) {
-            $status = 'clear';
-        };
-        +{ 
-          winid => "winid" . $_->{id}, 
-          content => get_own_formatted_text($_),
-          status => $status,
-         } 
+      my $status = 'append';
+      if ($_->{wintype} eq 'TextGrid') {
+        $status = 'clear';
+      } elsif ($_->last_page && $_->last_page->[0]{clear}) {
+        $status = 'clear';
+      };
+      +{ 
+        winid => "winid" . $_->{id}, 
+        content => get_own_formatted_text($_),
+        status => $status,
+       } 
     } (values %{ $self->{game_obj}->{windows} });
-
+    
     return \@windows;
 }
 

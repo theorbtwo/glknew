@@ -5,6 +5,7 @@ jQuery(document).ready(function(){
 
                 if(jQuery('#prompt_type').text() == 'char') {
                     jQuery('#keycode_input').val(event.which);
+                    jQuery('#keycode_ident').val(event.keyIdentifier);
                     event.preventDefault;
                     jQuery('#input').submit();
                     return false;
@@ -21,6 +22,7 @@ jQuery(document).ready(function(){
                         success: function(data) {
                             jQuery.each(data.windows, function(ind, value) { 
                                     var win_div = jQuery("#"+value.winid);
+                                    if(!win_div).length return;
                                     if(value.status == 'clear') {
                                         win_div.text('');
                                     }

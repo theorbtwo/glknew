@@ -96,8 +96,8 @@ BEGIN {
           return $self->continue_game($game, 1);
         }, 
 
-        sub (/game/continue + ?text~&input_type=&game_id=&window_id=&keycode~) {
-          my ($self, $text, $input_type, $game_id, $window_id, $keycode) = @_;
+        sub (/game/continue + ?text~&input_type=&game_id=&window_id=&keycode~&keycode_ident~) {
+          my ($self, $text, $input_type, $game_id, $window_id, $keycode, $keycode_ident) = @_;
 #          my $char = $keycode if($input_type eq 'char');
 
           $SIG{__DIE__} = sub {
@@ -105,7 +105,7 @@ BEGIN {
             print "DIED! $@\n";
           };
 
-#          warn Dumper(@_[1..$#_]);
+          warn Dumper([ @_[1..$#_] ]);
 
           my $run_select = 1;
           my $game = $games[$game_id];
@@ -114,10 +114,11 @@ BEGIN {
           } elsif(exists($self->config->{js_keycodes}{$keycode}) and not length $text) {
               $game->send("evtype_CharInput keycode_" . $self->config->{js_keycodes}{$keycode} . "\n");
           } elsif (length $keycode and not length $text) {
-            if($keycode >=65 and $keycode <= 90) {
+            if($keycode >=32 and $keycode <= 126) {
                 $game->send("evtype_CharInput $keycode\n");
             } else {
                 warn "Sent keycode out of range: $keycode\n";
+                $run_select = 0;
             }
           } elsif (not length $text and not length $keycode) {
             # Do nothing.
