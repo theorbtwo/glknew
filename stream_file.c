@@ -106,9 +106,11 @@ strid_t glk_stream_open_file(frefid_t fileref, glui32 fmode,
   stream->u.file.fd = fd;
   stream->readcount = 0;
   stream->writecount = 0;
-  
+
+  stream->did_dispatch_register = 0;
   if (dispatch_register) {
     stream->dispatch_rock = dispatch_register((void *)stream, gidisp_Class_Stream);
+    stream->did_dispatch_register = 1;
   }
   
   if (!first_stream) {

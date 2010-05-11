@@ -13,26 +13,26 @@ strid_t glk_stream_iterate(strid_t prevstr, glui32 *rockptr) {
     rockptr = &dummy;
   }
 
-  strid_t canidate = first_stream;
+  strid_t candidate = first_stream;
   if (prevstr == NULL) {
-    canidate = first_stream;
+    candidate = first_stream;
   } else {
-    canidate = prevstr->next;
+    candidate = prevstr->next;
   }
 
-  while (canidate && !canidate->did_dispatch_register) {
-    canidate = canidate->next;
+  while (candidate && !candidate->did_dispatch_register) {
+    candidate = candidate->next;
   }
   
-  if (!canidate) {
+  if (!candidate) {
     printf("Got to end of stream list\n");
     *rockptr = 0;
     return NULL;
   }
   
-  printf("returning %p, ->rock=0x%x\n", canidate, canidate->rock);
-  *rockptr = canidate->rock;
-  return canidate;
+  printf("returning %p, ->rock=0x%x\n", candidate, candidate->rock);
+  *rockptr = candidate->rock;
+  return candidate;
 }
 
 /* A bunch of functions that simply dispatch depending on the stream
@@ -195,6 +195,17 @@ void glk_stream_close(strid_t str, stream_result_t *result) {
   if (result) {
     result->readcount = str->readcount;
     result->writecount = str->writecount;
+  }
+
+  /* remove stream from linked list */
+  if (first_stream == str) {
+    first_stream = NULL;
+  } else {
+    strid_t candidate = first_stream;
+    while (candidate->next != str) {
+      candidate = candidate->next;
+    }
+    candidate->next = str->next;
   }
 
   /* FIXME: This probably belongs in stream_memory.c */

@@ -68,9 +68,10 @@ sub setup_ipc_open3 {
 
   $self->{child_stderr} = gensym;
   # BIG FAT WARNING: open3 modifies it's arguments!
+  Dump(\%ENV);
   if ($ENV{USE_VALGRIND}) {
     open3($self->{child_stdin}, $self->{child_stdout}, $self->{child_stderr},
-          '/usr/bin/valgrind', '--track-origins=yes', $self->{_git_binary}, $self->{_game_file}) or die "Couldn't start child process; $!";
+          '/usr/bin/valgrind', '--track-origins=yes', '--log-fd=1', $self->{_git_binary}, $self->{_game_file}) or die "Couldn't start child process; $!";
   } else {
     open3($self->{child_stdin}, $self->{child_stdout}, $self->{child_stderr},
           $self->{_git_binary}, $self->{_game_file}) or die "Couldn't start child process; $!";

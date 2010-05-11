@@ -41,8 +41,10 @@ strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui
   /* FIXME: 1: There should be a better way.
      FIXME: 2: The spec suggests that we should save this up, and call
      it when we do have a dispatch_register. */
+  stream->did_dispatch_register = 0;
   if (dispatch_register) {
     stream->dispatch_rock = dispatch_register((void *)stream, gidisp_Class_Stream);
+    stream->did_dispatch_register = 1;
   }
 
   if (!first_stream) {
