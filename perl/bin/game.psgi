@@ -91,7 +91,7 @@ BEGIN {
             s{[\0\/]}{}g for ($username, $save_file); 
 
             my $game = $games[$game_id];
-            $game->send_save_file($username, $save_file);
+            $game->send_prompt_file($username, $save_file);
 
           return $self->continue_game($game, 1);
         }, 

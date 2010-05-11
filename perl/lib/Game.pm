@@ -24,7 +24,7 @@ sub new {
   $self->{_callbacks} = { 
       select => \&default_select_callback,
       window_size => \&default_window_size_callback,
-      save_file => sub { $_[0]->send_to_game("TEST.txt\n"); },
+      prompt_file => sub { $_[0]->send_to_game("TEST.txt\n"); },
       style_distinguish => sub { 0; },
       %$callbacks,
   };
@@ -247,8 +247,10 @@ sub handle_stdout {
     }
 
     ## We may care about the usage/filemode bits later..
-    when (/\?\?\?glk_fileref_create_by_prompt usage=1 \(SavedGame\), filemode=1 \(Write\)/) {
-        $self->{_callbacks}{save_file}->($self);
+    when (/\?\?\?glk_fileref_create_by_prompt usage=\d+ \(([\w, ]+)\), filemode=\d+ \((\w+)\)/) {
+      my ($usages, $mode) = ($1, $2);
+      $usages = { map {+($_ => 1)} split /, /, $usages };
+      $self->{_callbacks}{prompt_file}->($self, $usages, $mode);
     }
 
     default {
