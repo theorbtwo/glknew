@@ -24,7 +24,7 @@ sub new {
   $self->{_callbacks} = { 
       select => \&default_select_callback,
       window_size => \&default_window_size_callback,
-      save_file => sub { $_[0]->send_to_game("TEST.txt\n"); },
+      prompt_file => sub { $_[0]->send_to_game("TEST.txt\n"); },
       style_distinguish => sub { 0; },
       %$callbacks,
   };
@@ -70,7 +70,7 @@ sub setup_ipc_open3 {
   # BIG FAT WARNING: open3 modifies it's arguments!
   if ($ENV{USE_VALGRIND}) {
     open3($self->{child_stdin}, $self->{child_stdout}, $self->{child_stderr},
-          '/usr/bin/valgrind', $self->{_git_binary}, $self->{_game_file}) or die "Couldn't start child process; $!";
+          '/usr/bin/valgrind', '--track-origins=yes', $self->{_git_binary}, $self->{_game_file}) or die "Couldn't start child process; $!";
   } else {
     open3($self->{child_stdin}, $self->{child_stdout}, $self->{child_stderr},
           $self->{_git_binary}, $self->{_game_file}) or die "Couldn't start child process; $!";
@@ -138,7 +138,10 @@ sub handle_stdout {
   my $winid_r = qr/(0x[0-9A-Fa-f]+)/;
 
   for (split m/\cM?\cJ/, $from_game) {
-#    print "Line: ##$_##\n";
+    if ($ENV{GLKNEW_TRACE}) {
+      print "Line: ##$_##\n";
+    }
+
     when ('GLK new!') {
       # garbage.
     }
@@ -244,8 +247,10 @@ sub handle_stdout {
     }
 
     ## We may care about the usage/filemode bits later..
-    when (/\?\?\?glk_fileref_create_by_prompt usage=1 \(SavedGame\), filemode=1 \(Write\)/) {
-        $self->{_callbacks}{save_file}->($self);
+    when (/\?\?\?glk_fileref_create_by_prompt usage=\d+ \(([\w, ]+)\), filemode=\d+ \((\w+)\)/) {
+      my ($usages, $mode) = ($1, $2);
+      $usages = { map {+($_ => 1)} split /, /, $usages };
+      $self->{_callbacks}{prompt_file}->($self, $usages, $mode);
     }
 
     default {

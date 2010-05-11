@@ -21,6 +21,11 @@ glui32 glk_gestalt_ext(glui32 sel, glui32 val, glui32 *arr,
        return 1, the init code will try to set them up. */
     return 0;
 
+  case gestalt_Timer:
+    /* I am unlikely to support these in the future; the client-server
+       model just doesn't fit them well. */
+    return 0;
+
   default:
     printf("Unhandled gestalt sel=%u, val=%u, arr=%p, arrlen=%u\n", sel, val, arr, arrlen);
     return 0;

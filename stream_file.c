@@ -111,6 +111,16 @@ strid_t glk_stream_open_file(frefid_t fileref, glui32 fmode,
     stream->dispatch_rock = dispatch_register((void *)stream, gidisp_Class_Stream);
   }
   
+  if (!first_stream) {
+    first_stream = stream;
+  } else {
+    strid_t prev_stream = first_stream;
+    while (prev_stream->next != NULL)
+      prev_stream = prev_stream->next;
+    prev_stream->next = stream;
+    stream->next = NULL;
+  }
+
   return stream;
 }
 

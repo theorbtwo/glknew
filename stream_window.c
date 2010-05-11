@@ -45,6 +45,16 @@ strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui
     stream->dispatch_rock = dispatch_register((void *)stream, gidisp_Class_Stream);
   }
 
+  if (!first_stream) {
+    first_stream = stream;
+  } else {
+    strid_t prev_stream = first_stream;
+    while (prev_stream->next != NULL)
+      prev_stream = prev_stream->next;
+    prev_stream->next = stream;
+  }
+  stream->next = NULL;
+
   printf("DEBUG: Created stream for window %p at %p\n", win, stream);
   printf("DEBUG: Stream window: %p\n", stream->u.win.win);
 

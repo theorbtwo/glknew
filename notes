@@ -10,10 +10,10 @@ acg
 alabaster
  - Attempt to muck about with game's own config file still not working (doesn't like opening file that isn't preexiting?)
  - Graphics
+  - graphics window is invisible; javascript will not create new windows that didn't exist.
   - window_fill_rect  - extern void glk_window_fill_rect(winid_t win, glui32 color, glsi32 left, glsi32 top, glui32 width, glui32 height);
   - image_get_info    - extern glui32 glk_image_get_info(glui32 image, glui32 *width, glui32 *height);
   - image_draw_scaled - extern glui32 glk_image_draw_scaled(winid_t win, glui32 image, glsi32 val1, glsi32 val2, glui32 width, glui32 height);
-
 
 advent
  - DONE: help menu, putting a \x0A to a TextGrid doesn't move the cursor

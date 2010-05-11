@@ -22,7 +22,7 @@ sub new {
                          $interp_path,
                          { 
                           style_distinguish => \&style_distinguish,
-                          save_file => sub { $self->prep_save_file() },
+                          prompt_file => sub { $self->prep_prompt_file() },
                          });
     $game->user_info($game_id);
     $self->{game_obj} = $game;
@@ -46,7 +46,7 @@ sub send {
   $self->{game_obj}->send_to_game($input);
 }
 
-sub send_save_file {
+sub send_prompt_file {
   my ($self, $username, $savefile) = @_;
 
   my $game_dir = catfile($self->{save_file_dir}, $username);
@@ -54,17 +54,20 @@ sub send_save_file {
   my $game_file = catfile($game_dir, $savefile);
 
   $self->send("$game_file\n");
-
 }
 
-sub prep_save_file {
-    my ($self, $file_dir) = @_;
+sub prep_prompt_file {
+    my ($self, $usage, $mode) = @_;
 
     ## get_form sends several forms, some are hidden, we set a value that json will use to unhide the save file form.
     $self->set_form_visible('save');
 
-    ## file is a line input.. although we're not using this on-screen yet anyway
-    $self->{game_obj}->{current_select}{input_type} = 'line';
+    ## this doesn't actually get used, but we want to set it to something to avoid uninit warning.
+    $self->{game_obj}->{current_select}{input_type} = 'file';
+    # hr, keys are {Data, SavedGame, Transcript, InputRecord}, Text?
+    $self->{game_obj}->{current_select}{file_usage} = $usage;
+    # Write, Read, ReadWrite, WriteAppend
+    $self->{game_obj}->{current_select}{file_mode} = $mode;
     
     ## Escape loop so we can send the form to the browser
     $self->{game_obj}{collecting_input} = 0;

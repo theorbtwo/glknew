@@ -52,17 +52,22 @@ struct glk_stream_struct_vtable {
 
 /* Finally, an individual stream. */
 struct glk_stream_struct {
+  /* Linked list of all streams, for iterate. */
+  struct glk_stream_struct *next;
+
   struct glk_stream_struct_vtable *vtable;
   
   style *current_style;
   
   glui32 rock;
   gidispatch_rock_t dispatch_rock;
+  glui32 did_dispatch_register;
   glui32 fmode;
   glui32 type;
 
   glui32 readcount;
   glui32 writecount;
+
 
   union glk_stream_struct_u u;
 };
@@ -70,5 +75,7 @@ struct glk_stream_struct {
 extern strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui32 rock);
 
 extern strid_t glk_stream_open_memory_base(void *buf, glui32 buflen, glui32 fmode, glui32 rock, glui32 width);
+
+extern strid_t first_stream;
 
 #endif
