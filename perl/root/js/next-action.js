@@ -1,4 +1,6 @@
 
+var Game = {};
+
 jQuery(document).ready(function(){
         jQuery('#prompt').keydown(function(event) {
                 // if key pressed in input box, and in char mode, trigger submit.
