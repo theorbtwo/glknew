@@ -1,6 +1,23 @@
 
 var Game = {};
 
+jQuery.extend( 
+  Game,
+  {
+      scrollBuffers: function() {
+          jQuery('.TextBuffer').each( function (ind, tb) {
+                  tb = jQuery(tb);
+                  var move_top = tb.find('span.move-top').last();
+                  tb.scrollTop(0);
+
+                  //alert('pos:' + move_end.position().top + 'offset: ' + move_end.offset().top + 'win off:' + win_div.offset().top);
+                  tb.scrollTop(move_top.offset().top - tb.offset().top);
+              }
+              );
+      }
+  }
+);
+
 jQuery(document).ready(
   function(){
     jQuery('#prompt').keydown(
@@ -38,23 +55,25 @@ jQuery(document).ready(
 
               jQuery('#throbber').hide();
               jQuery('#status').text('');
-              jQuery.each(data.windows,
-                          function(ind, value) {
-                            var win_div = jQuery("#"+value.winid);
-                            if(!win_div.length) return;
-                            if(value.status == 'clear') {
-                              win_div.text('');
-                            }
-                            win_div.append(value.content);
-                            //  alert(win_div.height());
 
-                            var move_top = win_div.find('span.move-top').last();
-                            win_div.scrollTop(0);
-
-                            //alert('pos:' + move_end.position().top + 'offset: ' + move_end.offset().top + 'win off:' + win_div.offset().top);
-                            win_div.scrollTop(move_top.offset().top - win_div.offset().top);
-                          });
-              // { save => 1, input => 0} display state of forms
+              // On redraw, windows is a string, now an array!!
+              if(data.redraw) {
+                  jQuery('#all-windows').html(data.windows);
+              } else {
+                  jQuery.each(data.windows,
+                              function(ind, value) {
+                                  var win_div = jQuery("#"+value.winid);
+                                  if(!win_div.length) return;
+                                  if(value.status == 'clear') {
+                                      win_div.text('');
+                                  }
+                                  win_div.append(value.content);
+                                  //  alert(win_div.height());
+                                  
+                              });
+              }
+              Game.scrollBuffers();
+                  // { save => 1, input => 0} display state of forms
               var key;
               for (key in data.show_forms) {
                 if(typeof data.show_forms[key] !== 'function') {

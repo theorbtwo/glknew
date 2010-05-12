@@ -189,11 +189,21 @@ BEGIN {
         $game->continue
           if $run_select;
 
-        my $json = JSON::encode_json({ 
-                                      windows => $game->get_continue_windows(),
-                                      input_type => $game->get_input_type(),
-                                      show_forms => $game->get_form_states(),
+        my $json;
+        if($game->has_new_windows) {
+            $json = JSON::encode_json({
+                                       redraw => 1,
+                                       windows => $game->get_initial_windows(),
+                                       input_type => $game->get_input_type(),
+                                       show_forms => $game->get_form_states(),
+                                      });
+        } else {
+            $json = JSON::encode_json({ 
+                                       windows => $game->get_continue_windows(),
+                                       input_type => $game->get_input_type(),
+                                       show_forms => $game->get_form_states(),
                                      });
+        }
         print "Sending JSON: $json\n";
 
         [ 200, 

@@ -116,7 +116,7 @@ sub get_forms {
       
     $forms = "<form class='form' id='input' method='post' action='/game/continue'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/><input id='keycode_input' type='hidden' name='keycode' value=''/><input id='keycode_ident' type='hidden' name='keycode_ident' value=''/>$input</form>";
 
-    $forms .= "<form class='form' id='save' style='display: none;' method='post' action='/game/savefile'><span><label for='username'>Username<input type='text' id='username' name='username'/></label></span><br/><span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/><input type='hidden' name='game_id' value='$gameid' /><input type='submit' value='Save'/></form>";
+    $forms .= "<form class='form' id='save' style='display: none;' method='post' action='/game/savefile'><span><label for='username'>Username<input type='text' id='username' name='username'/></label></span><br/><span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/><input type='hidden' name='game_id' value='$gameid' /><input type='submit' value='Submit'/></form>";
 
     $forms .= "<img src='/img/ajaxload.gif' style='display: none' id='throbber' /><span id='status'></span>";
 
@@ -126,7 +126,9 @@ sub get_forms {
 sub make_page {
   my ($self, $content, $title) = @_;
 
-  $content ||= $self->get_initial_windows() . $self->get_forms;
+  $content ||= ("<div id='all-windows'>" 
+                . $self->get_initial_windows() . '</div>' 
+                . $self->get_forms);
   my $js = '<script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>' 
     . '<script type="text/javascript" src="/js/next-action.js"></script>';
 
@@ -159,6 +161,19 @@ html {
   height: 100%;
 }
 </style>\n";
+}
+
+# 1 iff any of the windows of this game have ->drawn == 0
+sub has_new_windows {
+  my ($self) = @_;
+
+  for my $win (values %{$self->{game_obj}{windows}}) {
+    if (!$win->drawn) {
+      return 1;
+    }
+  }
+
+  return;
 }
 
 sub get_initial_windows {
@@ -206,6 +221,10 @@ sub get_formatted_text {
   for my $child (@{$win->{children}}) {
       $formatted = layout_child_window($child, $formatted);
   }
+
+  ## Currently this only gets called when we drawn entire windows
+  ## set state of window here:
+  $win->drawn(1);
 
   return $formatted;
 }
@@ -261,10 +280,14 @@ END
  </div>
 END
   } elsif ($side eq 'left' and $kind eq 'proportional' and $axis eq 'x') {
+    # Take off 1% from each side in order to give the layout alog some
+    # breathing-room.
+    my $lsize = $child->{size}-1;
+    my $rsize = (100-$child->{size})-1;
       $parent_text = <<END;
 <div style="width:100%;">
- <div style='width:$child->{size}%;'>$child_text</div>
- <div style="float:right;">$parent_text</div>
+ <div style="float:left;  width:$lsize%">$child_text</div>
+ <div style="float:right; width:$risze%">$parent_text</div>
 </div>
 <br style="clear:both"/>
 END
