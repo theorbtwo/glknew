@@ -8,7 +8,7 @@ jQuery(document).ready(
         if(jQuery('#prompt_type').text() == 'char') {
           jQuery('#keycode_input').val(event.which);
           jQuery('#keycode_ident').val(event.keyIdentifier);
-          event.preventDefault;
+
           jQuery('#input').submit();
           return false;
         }
@@ -27,6 +27,13 @@ jQuery(document).ready(
             url: jQuery(this).attr('action'),
             data: fields,
             success: function(data) {
+              if (!data) {
+                jQuery('#status').text('success with empty data?');
+                jQuery('#throbber').hide();
+                alert("Empty response?");
+                return;
+              }
+
               jQuery('#throbber').hide();
               jQuery('#status').text('');
               jQuery.each(data.windows,
