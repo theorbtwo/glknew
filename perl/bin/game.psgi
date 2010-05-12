@@ -86,6 +86,17 @@ BEGIN {
             return $self->static_file("css/$file", "text/css");
         },
 
+       sub (/img/**) {
+            my $file=$_[1];
+            my $ct;
+            if ($file =~ m/\.gif$/) {
+              $ct = 'image/gif';
+            }
+            die "Don't know how to get content-type for $file"
+              unless $ct;
+            return $self->static_file("img/$file", $ct);
+        },
+
         sub (/game/savefile + ?username=&save_file=&game_id=) {
             my ($self, $username, $save_file, $game_id) = @_;           
             s{[\0\/]}{}g for ($username, $save_file); 

@@ -116,7 +116,9 @@ sub get_forms {
       
     $forms = "<form class='form' id='input' method='post' action='/game/continue'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/><input id='keycode_input' type='hidden' name='keycode' value=''/><input id='keycode_ident' type='hidden' name='keycode_ident' value=''/>$input</form>";
 
-    $forms .= "<form class='form' id='save' style='display: none;' method='post' action='/game/savefile'><span><label for='username'>Username<input type='text' id='username' name='username'/></label></span><br/><span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/><input type='hidden' name='game_id' value='$gameid' /><input type='submit' value='Save'/>";
+    $forms .= "<form class='form' id='save' style='display: none;' method='post' action='/game/savefile'><span><label for='username'>Username<input type='text' id='username' name='username'/></label></span><br/><span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/><input type='hidden' name='game_id' value='$gameid' /><input type='submit' value='Save'/></form>";
+
+    $forms .= "<img src='/img/ajaxload.gif' style='display: none' id='throbber' /><span id='status'></span>";
 
     return $forms;
 }
