@@ -287,7 +287,7 @@ END
       $parent_text = <<END;
 <div style="width:100%;">
  <div style="float:left;  width:$lsize%">$child_text</div>
- <div style="float:right; width:$risze%">$parent_text</div>
+ <div style="float:right; width:$rsize%">$parent_text</div>
 </div>
 <br style="clear:both"/>
 END
