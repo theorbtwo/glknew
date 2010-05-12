@@ -100,12 +100,12 @@ BEGIN {
           my ($self, $text, $input_type, $game_id, $window_id, $keycode, $keycode_ident) = @_;
 #          my $char = $keycode if($input_type eq 'char');
 
-          $SIG{__DIE__} = sub {
-            # Breaks my heart to do this, it really does...
-            print "DIED! $@\n";
-          };
-
-          warn Dumper([ @_[1..$#_] ]);
+          #$SIG{__DIE__} = sub {
+          #  # Breaks my heart to do this, it really does...
+          #  print STDERR "DIED! $@\n";
+          #};
+          #
+          warn Dumper(['continue: text, input_type, game_id, window_id, keycode, keycode_ident: ', @_[1..$#_] ]);
 
           my $run_select = 1;
           my $game = $games[$game_id];
@@ -150,6 +150,7 @@ BEGIN {
                          curses        => [$nitfol, '/mnt/shared/projects/games/flash-if/curses.z5', 'Curses'],
                          emy           => [$agility, '/mnt/shared/projects/games/flash-if/Emy Discovers Life/DISCOVER', 'Emy Discovers Life'],
                          sd3           => [$tads2, '/mnt/shared/projects/games/flash-if/sd3/SD3.gam', 'School Dreams 3: School Dreams Forever'],
+                         zork1         => [$nitfol, '/mnt/shared/projects/games/flash-if/zork1/DATA/ZORK1.DAT', 'Zork I'],
                         );
             my $game_info = $games{$game_name};
 

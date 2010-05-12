@@ -7,7 +7,7 @@ use warnings;
 use Game;
 use File::Spec::Functions;
 use File::Path 'mkpath';
-use Data::Dumper;
+use Data::Dump::Streamer 'Dump', 'Dumper';
 ## This is the HTML layer over Game, which is the perl skin over glknew, which is.. C all the way down.
 
 sub new {
@@ -465,10 +465,14 @@ sub get_style {
 }
 
 sub style_distinguish {
-    my ($self, $winid, $style1, $style2) = @_;
-    my $game = $self->{game_obj};
+    my ($game, $winid, $style1, $style2) = @_;
+    my $win = $game->{windows}{$winid};
 
-    my ($style_css_1, $style_css_2) = map  { get_style( $game->{styles}{ $game->{windows}{$winid}{wintype} }{$style1} ) } ($style1, $style2);
+    warn Dumper \@_;
+    warn Dumper $game;
+    warn Dumper $win;
+
+    my ($style_css_1, $style_css_2) = map  { get_style( $game->{styles}{ $win->{wintype} }{$_} ) } ($style1, $style2);
 
     $game->send_to_game($style_css_1 eq $style_css_2 ? "0\n" : "1\n");
 }

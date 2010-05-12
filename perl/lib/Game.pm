@@ -51,7 +51,7 @@ sub setup_initial_styles {
                                     Size => 2};
     $self->{styles}{$wt}{Subheader} = {Weight => 1,
                                        Size => 1};
-    $self->{styles}{$wt}{Alert} = {Color => 0xFF0000};
+    $self->{styles}{$wt}{Alert} = {TextColor => 0xFF0000};
     $self->{styles}{$wt}{Note}  = {Oblique => 1};
     
     for my $s (qw<Normal Emphasized Preformatted Header Subheader Alert Note BlockQuote Input User1 User2>) {
