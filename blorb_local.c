@@ -14,6 +14,6 @@ giblorb_err_t giblorb_set_resource_map(strid_t file) {
   return err;
 }
 
-extern giblorb_map_t *giblorb_get_resource_map(void) {
+giblorb_map_t *giblorb_get_resource_map(void) {
   return map;
 }

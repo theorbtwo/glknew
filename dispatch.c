@@ -687,68 +687,62 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
   printf("DEBUG: dispatch call name=%s, prototype=%s, numargs=%u -- ", gidispatch_function->name, prototype, (unsigned int)numargs);
   
   if (strcmp(prototype, "4IuIuIuIs") == 0) {
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("%d", arglist[slot].sint); slot++; argument++;
-    printf("\n");
-  }else if (strcmp(prototype, "3IuIu:Iu") == 0) {
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("return %u", arglist[slot].uint); slot++; argument++;
-    printf("\n");
-  }else if (strcmp(prototype, "3Qa<Iu:Qa") == 0) {
-    printf("window %p, ", arglist[slot].opaqueref); slot++; argument++;
-    printf("out ref %u, ", arglist[slot].uint); slot++; argument++;
-    printf("return window %p, ", arglist[slot].opaqueref); slot++; argument++;
-    printf("\n");
-  }else if (strcmp(prototype, "3Qc<Iu:Qc") == 0) {
-    printf("fileref, "); slot++; argument++;
-    printf("out ref %u, ", arglist[slot].uint); slot++; argument++;
-    printf("return fileref, "); slot++; argument++;
-    printf("\n");
-  }else if (strcmp(prototype, "1Qa:") == 0) {
-    printf("window %p, ", arglist[slot].opaqueref); slot++; argument++;
-    printf("\n");
-  }else if (strcmp(prototype, "6QaIuIuIuIu:Qa") == 0) {
-    printf("window %p, ", arglist[slot].opaqueref); slot++; argument++;
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("return window %p, ", arglist[slot].opaqueref); slot++; argument++;
-    printf("\n");
-  }else if (strcmp(prototype, "4IuIuIuIs:") == 0) {
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("%d, ", arglist[slot].sint); slot++; argument++;
-    printf("\n");
-  }else if (strcmp(prototype, "1Qb:") == 0) {
-    printf("stream %p type %d, ", arglist[slot].opaqueref, ((struct glk_stream_struct*)(arglist[slot].opaqueref))->type); slot++; argument++;
-    printf("\n");
-  }else if (strcmp(prototype, "1Iu:") == 0) {
-    printf("%u, ", arglist[slot].uint); slot++; argument++;
-    printf("\n");
-  }else if (strcmp(prototype, "2Qb<[2IuIu]:") == 0) {
-    /* printf("stream %p type %d, ", arglist[slot].opaqueref, ((struct
-    glk_stream_struct*)(arglist[slot].opaqueref))->type); slot++;
-    argument++; */
-    if (arglist[slot].ptrflag) {
-      slot++;
-      printf("out ref  {");
-      printf("%u, ", arglist[slot].uint); slot++;
-      printf("%u", arglist[slot].uint); slot++;
-      printf("}, ");
-      argument++;
-    } else {
-      slot++;
-    }
-    printf("\n");
+    printf("%u, %u, %u, %d\n", arglist[0].uint, arglist[1].uint, arglist[2].uint, arglist[3].sint);
+  } else if (strcmp(prototype, "3IuIu:Iu") == 0) {
+    printf("%u, %u, returning a glui32\n", arglist[0].uint, arglist[1].uint);
+  } else if (strcmp(prototype, "3Qa<Iu:Qa") == 0) {
+    printf("win at %p, outref to a glui32, returning a winid_t\n", arglist[0].opaqueref);
+  } else if (strcmp(prototype, "3Qc<Iu:Qc") == 0) {
+    printf("fileref at %p, outref to a glui32, returning a frefid_t\n", arglist[0].opaqueref);
+  } else if (strcmp(prototype, "1Qa:") == 0) {
+    printf("win at %p\n", arglist[0].opaqueref);
+  } else if (strcmp(prototype, "6QaIuIuIuIu:Qa") == 0) {
+    printf("win at %p, %u, %u, %u, %u, returning a winid_t\n", arglist[0].opaqueref, arglist[1].uint, arglist[2].uint, arglist[3].uint, arglist[4].uint);
+  } else if (strcmp(prototype, "4IuIuIuIs:") == 0) {
+    printf("%u, %u, %u, %d\n", arglist[0].uint, arglist[1].uint, arglist[2].uint, arglist[3].sint);
+  } else if (strcmp(prototype, "1Qb:") == 0) {
+    printf("stream at %p\n", arglist[0].opaqueref);
+  } else if (strcmp(prototype, "1Iu:") == 0) {
+    printf("%u\n", arglist[0].uint);
+  } else if (strcmp(prototype, "2Qb<[2IuIu]:") == 0) {
+    printf("stream at %p, some struct stuff here\n", arglist[0].opaqueref);
+  } else if (strcmp(prototype, "3IuIuIu:") == 0) {
+    printf("%u, %u, %u\n", arglist[0].uint, arglist[1].uint, arglist[2].uint);
+  } else if (strcmp(prototype, "1:Qb") == 0) {
+    printf("returning a strid_t\n");
+  } else if (strcmp(prototype, "4&+#!IuIuIu:Qb") == 0) {
+    printf("retained, nonnull, array of glui32 at %p for length %u, %u, %u, returning a strid_t\n", arglist[1].array, arglist[2].uint, arglist[3].uint, arglist[4].uint);
+  } else if (strcmp(prototype, "2Qc:Iu") == 0) {
+    printf("fileref at %p, returning a glui32\n", arglist[0].opaqueref);
+  } else if (strcmp(prototype, "1<+[4IuQaIuIu]:") == 0) {
+    printf("some struct stuff here, nonnull\n");
+  } else if (strcmp(prototype, "1:Qb") == 0) {
+    printf("returning a strid_t\n");
+  } else if (strcmp(prototype, "2Qb:Is") == 0) {
+    printf("stream at %p, returning a glsi32\n", arglist[0].opaqueref);
+  } else if (strcmp(prototype, "2Qc:Iu") == 0) {
+    printf("fileref at %p, returning a glui32\n", arglist[0].opaqueref);
+  } else if (strcmp(prototype, "3Qa&+#!CnIu:") == 0) {
+    printf("win at %p, retained, nonnull, array of char at %p for length %u, %u\n", arglist[0].opaqueref, arglist[2].array, arglist[3].uint, arglist[4].uint);
+  } else if (strcmp(prototype, "3Qb<Iu:Qb") == 0) {
+    printf("stream at %p, outref to a glui32, returning a strid_t\n", arglist[0].opaqueref);
+  } else if (strcmp(prototype, "4&+#!CnIuIu:Qb") == 0) {
+    printf("retained, nonnull, array of char at %p for length %u, %u, %u, returning a strid_t\n", arglist[1].array, arglist[2].uint, arglist[3].uint, arglist[4].uint);
+  } else if (strcmp(prototype, "4&+#!IuIuIu:Qb") == 0) {
+    printf("retained, nonnull, array of glui32 at %p for length %u, %u, %u, returning a strid_t\n", arglist[1].array, arglist[2].uint, arglist[3].uint, arglist[4].uint);
+  } else if (strcmp(prototype, "4IuSIu:Qc") == 0) {
+    printf("%u, %s, %u, returning a frefid_t\n", arglist[0].uint, arglist[1].charstr, arglist[2].uint);
+  } else if (strcmp(prototype, "4QcIuIu:Qb") == 0) {
+    printf("fileref at %p, %u, %u, returning a strid_t\n", arglist[0].opaqueref, arglist[1].uint, arglist[2].uint);
+  } else if (strcmp(prototype, "3Qa<Iu<Iu:") == 0) {
+    printf("win at %p, outref to a glui32, outref to a glui32\n", arglist[0].opaqueref);
+  } else if (strcmp(prototype, "6QaIuIsIsIuIu:") == 0) {
+    printf("win at %p, %u, %d, %d, %u, %u\n", arglist[0].opaqueref, arglist[1].uint, arglist[2].sint, arglist[3].sint, arglist[4].uint, arglist[5].uint);
+  } else if (strcmp(prototype, "4Iu<Iu<Iu:Iu") == 0) {
+    printf("%u, outref to a glui32, outref to a glui32, returning a glui32\n", arglist[0].uint);
   } else {
-    printf("proto unhandled\n");
+    printf("unhandled prototype\n");
   }
-  
   
   switch (funcnum) {
   case 0x0004: /* gestalt */
@@ -902,6 +896,43 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     glk_request_char_event(arglist[0].opaqueref);
     break;
     
+  case 0x00E0: /* image_get_info */
+    {
+      int ix = 1;
+      glui32 *ptr1, *ptr2;
+      if (!arglist[ix].ptrflag) {
+        ptr1 = NULL;
+      }
+      else {
+        ix++;
+        ptr1 = &(arglist[ix].uint);
+      }
+      ix++;
+      if (!arglist[ix].ptrflag) {
+        ptr2 = NULL;
+      }
+      else {
+        ix++;
+        ptr2 = &(arglist[ix].uint);
+      }
+      ix++;
+      ix++;
+      arglist[ix].uint = glk_image_get_info(arglist[0].uint, ptr1, ptr2);
+    }
+    break;
+  case 0x00E2: /* image_draw_scaled */
+    arglist[7].uint = glk_image_draw_scaled(arglist[0].opaqueref, 
+                                            arglist[1].uint,
+                                            arglist[2].sint, arglist[3].sint,
+                                            arglist[4].uint, arglist[5].uint);
+    break;
+  case 0x00EA: /* window_fill_rect */
+    glk_window_fill_rect(arglist[0].opaqueref, arglist[1].uint,
+                         arglist[2].sint, arglist[3].sint,
+                         arglist[4].uint, arglist[5].uint);
+    break;
+
+
   case 0x0139: /* stream_open_memory_uni */
     if (arglist[0].ptrflag) 
       arglist[6].opaqueref = glk_stream_open_memory_uni(arglist[1].array, 
@@ -1131,40 +1162,10 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     break;
 
 #ifdef GLK_MODULE_IMAGE
-  case 0x00E0: /* image_get_info */
-    {
-      int ix = 1;
-      glui32 *ptr1, *ptr2;
-      if (!arglist[ix].ptrflag) {
-        ptr1 = NULL;
-      }
-      else {
-        ix++;
-        ptr1 = &(arglist[ix].uint);
-      }
-      ix++;
-      if (!arglist[ix].ptrflag) {
-        ptr2 = NULL;
-      }
-      else {
-        ix++;
-        ptr2 = &(arglist[ix].uint);
-      }
-      ix++;
-      ix++;
-      arglist[ix].uint = glk_image_get_info(arglist[0].uint, ptr1, ptr2);
-    }
-    break;
   case 0x00E1: /* image_draw */
     arglist[5].uint = glk_image_draw(arglist[0].opaqueref, 
                                      arglist[1].uint,
                                      arglist[2].sint, arglist[3].sint);
-    break;
-  case 0x00E2: /* image_draw_scaled */
-    arglist[7].uint = glk_image_draw_scaled(arglist[0].opaqueref, 
-                                            arglist[1].uint,
-                                            arglist[2].sint, arglist[3].sint,
-                                            arglist[4].uint, arglist[5].uint);
     break;
   case 0x00E8: /* window_flow_break */
     glk_window_flow_break(arglist[0].opaqueref);
@@ -1173,11 +1174,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     glk_window_erase_rect(arglist[0].opaqueref,
                           arglist[1].sint, arglist[2].sint,
                           arglist[3].uint, arglist[4].uint);
-    break;
-  case 0x00EA: /* window_fill_rect */
-    glk_window_fill_rect(arglist[0].opaqueref, arglist[1].uint,
-                         arglist[2].sint, arglist[3].sint,
-                         arglist[4].uint, arglist[5].uint);
     break;
   case 0x00EB: /* window_set_background_color */
     glk_window_set_background_color(arglist[0].opaqueref, arglist[1].uint);

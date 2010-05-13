@@ -101,24 +101,32 @@ sub get_forms {
     my $gameid = $game->user_info;
     my $forms;
     my $winid = $game->{current_select}{window}{id};
+    my $input_type = $game->{current_select}{input_type};
 
-    if ($game->{current_select}{input_type} eq 'line') {
-        # $form = "<input type='text' name='text' />";
-    } elsif ($game->{current_select}{input_type} eq 'char') {
-        # $form = "<i>want char</i><input type='text' name='char' />";
-    } elsif (not defined $game->{current_select}{input_type}) {
-        die "Don't know how to handle this callback -- \$game->{current_select}{input_type} not defined";
-    } else {
-        print STDERR Dumper($game->{current_select});
-        die "Don't know how to handle this callback -- \$game->{current_select}{input_type} eq \'$game->{current_select}{input_type}\'";
-    }
-    my $input = "Input <span id='prompt_type'>$game->{current_select}{input_type}</span><input id='prompt' type='text' name='text' /><input id='input_type' type='hidden' name='input_type' value=\'$game->{current_select}{input_type}\'";
-      
-    $forms = "<form class='form' id='input' method='post' action='/game/continue'><input type='hidden' name='game_id' value='$gameid' /><input type='hidden' name='window_id' value='winid$winid'/><input id='keycode_input' type='hidden' name='keycode' value=''/><input id='keycode_ident' type='hidden' name='keycode_ident' value=''/>$input</form>";
+    $forms = <<END;
+<form class='form' id='input' method='post' action='/game/continue'>
+ <input type='hidden' name='game_id' value='$gameid' />
+ <input type='hidden' name='window_id' value='winid$winid'/>
+ <input id='keycode_input' type='hidden' name='keycode' value=''/>
+ <input id='keycode_ident' type='hidden' name='keycode_ident' value=''/>
 
-    $forms .= "<form class='form' id='save' style='display: none;' method='post' action='/game/savefile'><span><label for='username'>Username<input type='text' id='username' name='username'/></label></span><br/><span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/><input type='hidden' name='game_id' value='$gameid' /><input type='submit' value='Submit'/></form>";
+ Input <span id='prompt_type'>$input_type</span>
+ <input id='prompt' type='text' name='text' />
+ <input id='input_type' type='hidden' name='input_type' value='$input_type' />
+</form>
+<form class='form' id='save' style='display: none;' method='post' action='/game/savefile'>
+ <span>
+  <label for='username'>Username<input type='text' id='username' name='username'/></label>
+ </span><br/>
+ <span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/>
+ <input type='hidden' name='game_id' value='$gameid' />
+ <input type='submit' value='Submit' />
+</form>
+<img src='/img/ajaxload.gif' style='display: none' id='throbber' /><span id='status'></span>
 
-    $forms .= "<img src='/img/ajaxload.gif' style='display: none' id='throbber' /><span id='status'></span>";
+END
+
+
 
     return $forms;
 }
