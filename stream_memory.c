@@ -24,7 +24,6 @@ static void memory_set_position(strid_t str, glsi32 pos, glui32 seekmode) {
 }
 
 static glsi32 memory_get_char_uni(strid_t str) {
-  printf("DEBUG: memory_get_char_uni str=%p\n", str);
   if (str->u.mem.pos > str->u.mem.buflen) {
     printf("DEBUG: pos > buflen: %d > %d\n", str->u.mem.pos, str->u.mem.buflen);
     return -1;
@@ -33,7 +32,6 @@ static glsi32 memory_get_char_uni(strid_t str) {
   if (str->u.mem.width == 1) {
     unsigned char *buf = str->u.mem.buf;
 
-    printf("DEBUG: Returning %x (narrow)\n", buf[str->u.mem.pos]);
     return buf[str->u.mem.pos++];
   } else if (str->u.mem.width == 4) {
     glui32 *buf = str->u.mem.buf;
