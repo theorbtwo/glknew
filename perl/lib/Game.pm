@@ -7,6 +7,7 @@ use 5.010_00;
 use Data::Dump::Streamer;
 
 use Game::Window;
+use Game::Window::Graphics;
 
 sub new {
   my ($class, $blorb_file, $git, $callbacks) = @_;
@@ -195,9 +196,13 @@ sub handle_stdout {
     
     when (/^>>>win: at $winid_r$/) {
       $self->{win_in_progress}{id} = $1;
-
-      my $win = $self->{windows}{$1} = Game::Window->new(delete $self->{win_in_progress});
-#      $self->{windows}{$1} = delete $self->{win_in_progress};
+      
+      my $win;
+      if ($self->{win_in_progress}{wintype} eq 'Graphics') {
+        $win = $self->{windows}{$1} = Game::Window::Graphics->new(delete $self->{win_in_progress});
+      } else {
+        $win = $self->{windows}{$1} = Game::Window->new(delete $self->{win_in_progress});
+      }
       push @{$win->{parent}{children}}, $self->{windows}{$1};
       $self->{root_win} = $win if($win->{is_root});
 
