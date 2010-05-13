@@ -436,11 +436,9 @@ sub get_own_formatted_text_TextBuffer {
 }
 
 sub get_own_formatted_text_Graphics {
-  if (wantarray) {
-    return "GRAPHICS GOES HERE!", 'clear';
-  } else {
-    return "GRAPHICS GOES HERE!";
-  }
+  my ($win) = @_;
+
+  return $win->get_own_formatted_text();
 }
 
 sub get_style {

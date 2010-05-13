@@ -69,7 +69,6 @@ sub setup_ipc_open3 {
 
   $self->{child_stderr} = gensym;
   # BIG FAT WARNING: open3 modifies it's arguments!
-  Dump(\%ENV);
   if ($ENV{USE_VALGRIND}) {
     open3($self->{child_stdin}, $self->{child_stdout}, $self->{child_stderr},
           '/usr/bin/valgrind', '--track-origins=yes', '--log-fd=1', $self->{_git_binary}, $self->{_game_file}) or die "Couldn't start child process; $!";
@@ -252,11 +251,20 @@ sub handle_stdout {
 
     }
 
-    ## We may care about the usage/filemode bits later..
     when (/\?\?\?glk_fileref_create_by_prompt usage=\d+ \(([\w, ]+)\), filemode=\d+ \((\w+)\)/) {
       my ($usages, $mode) = ($1, $2);
       $usages = { map {+($_ => 1)} split /, /, $usages };
       $self->{_callbacks}{prompt_file}->($self, $usages, $mode);
+    }
+
+    when (/>>>glk_window_fill_rect win=$winid_r, color=0x([0-9A-Fa-f]+), left=(\d+), top=(\d+), width=(\d+), height=(\d+)/) {
+      $self->{windows}{$1}->fill_rect($2, $3, $4, $5, $6);
+    }
+
+    when (/>>>image_draw_scaled win=$winid_r, filename=([\/\w-]+), x=(\d+), y=(\d+), width=(\d+), height=(\d+)/) {
+      my ($winid, $filename, $x, $y, $width, $height) = ($1, $2, $3, $4, $5, $6);
+
+      $self->{windows}{$winid}->draw_image($filename, $x, $y, $width, $height);
     }
 
     default {

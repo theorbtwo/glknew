@@ -62,7 +62,7 @@ glui32 glk_image_draw_scaled(winid_t win, glui32 image, glsi32 val1, glsi32 val2
   }
 
   if (win->wintype == wintype_Graphics) {
-    printf(">>>image_draw_scaped win=%p, filename=%s, x=%d, y=%d, width=%d, height=%d\n",
+    printf(">>>image_draw_scaled win=%p, filename=%s, x=%d, y=%d, width=%d, height=%d\n",
            win, filename, val1, val2, width, height);
 
     return TRUE;

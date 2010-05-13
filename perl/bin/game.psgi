@@ -97,6 +97,18 @@ BEGIN {
             return $self->static_file("img/$file", $ct);
         },
 
+        sub (/game/image/*) {
+            my ($self, $img_string) = @_;
+            
+            my $graphics = Game::Window::Graphics::fetch($img_string);
+
+            [ 200, 
+              [ 'Content-type' => 'image/png' ], 
+              [ $graphics->as_png]
+            ];
+            
+        },
+
         sub (/game/savefile + ?username=&save_file=&game_id=) {
             my ($self, $username, $save_file, $game_id) = @_;           
             s{[\0\/]}{}g for ($username, $save_file); 
