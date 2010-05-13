@@ -920,6 +920,11 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
       arglist[ix].uint = glk_image_get_info(arglist[0].uint, ptr1, ptr2);
     }
     break;
+  case 0x00E1: /* image_draw */
+    arglist[5].uint = glk_image_draw(arglist[0].opaqueref, 
+                                     arglist[1].uint,
+                                     arglist[2].sint, arglist[3].sint);
+    break;
   case 0x00E2: /* image_draw_scaled */
     arglist[7].uint = glk_image_draw_scaled(arglist[0].opaqueref, 
                                             arglist[1].uint,
@@ -1162,11 +1167,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     break;
 
 #ifdef GLK_MODULE_IMAGE
-  case 0x00E1: /* image_draw */
-    arglist[5].uint = glk_image_draw(arglist[0].opaqueref, 
-                                     arglist[1].uint,
-                                     arglist[2].sint, arglist[3].sint);
-    break;
   case 0x00E8: /* window_flow_break */
     glk_window_flow_break(arglist[0].opaqueref);
     break;

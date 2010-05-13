@@ -267,6 +267,12 @@ sub handle_stdout {
       $self->{windows}{$winid}->draw_image($filename, $x, $y, $width, $height);
     }
 
+    when (/>>>image_draw win=$winid_r, filename=([\/\w-]+), x=(\d+), y=(\d+)/) {
+      my ($winid, $filename, $x, $y) = ($1, $2, $3, $4);
+
+      $self->{windows}{$winid}->draw_image($filename, $x, $y);
+    }
+
     default {
       warn "Don't know how to handle input '$_'";
       last;
@@ -300,6 +306,12 @@ sub default_window_size_callback {
       }
     } else {
       die "methods unhandled in default_window_size_callback", Dump($win->{method});
+    }
+
+    if ($win->isa('Game::Window::Graphics')) {
+        # These constants are so that an 80x25 text window is the same size as a 640x480 graphics window.
+        $size[0] *= 8;
+        $size[1] *= 19.2;
     }
     
 

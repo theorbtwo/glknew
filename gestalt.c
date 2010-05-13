@@ -15,6 +15,9 @@ glui32 glk_gestalt_ext(glui32 sel, glui32 val, glui32 *arr,
        support, then the game complains. */
     return 1;
 
+  case gestalt_Graphics:
+    return 1;
+
   case gestalt_Sound:
     /* I would like to do this eventually, but not right now.  Blue
        Lacuna doesn't actually have any sounds, anyway -- though if you

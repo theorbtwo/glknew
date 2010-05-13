@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 void glk_window_fill_rect(winid_t win, glui32 color, glsi32 left, glsi32 top, glui32 width, glui32 height) {
-  printf(">>>glk_window_fill_rect win=%p, color=0x%x, left=%d, top=%d, width=%d, height=%d\n",
+  printf(">>>glk_window_fill_rect win=%p, color=0x%06x, left=%d, top=%d, width=%d, height=%d\n",
          win, color, left, top, width, height);
 }
 
@@ -39,6 +39,40 @@ glui32 glk_image_get_info(glui32 image, glui32 *width, glui32 *height) {
   }
 }
 
+glui32 glk_image_draw(winid_t win, glui32 image, glsi32 val1, glsi32 val2) {
+  /* FIXME: Let the system tell us what dir to use? */
+  char filename[] = "/tmp/glknew-image-XXXXXX";
+  int fd = mkstemp(filename);
+  int ret;
+  giblorb_err_t err;
+  giblorb_result_t res;
+
+  err = giblorb_load_resource(giblorb_get_resource_map(), giblorb_method_Memory, &res, giblorb_ID_Pict, image);
+
+  if (err) {
+    printf("DEBUG: Couldn't get pict id %d from blorb, err = %d\n", image, err);
+    return FALSE;
+  }
+
+  ret = write(fd, res.data.ptr, res.length);
+  if (ret != res.length) {
+    printf("Failed to write to temp file (%s) for glk_image_draw_scaled, wrote %d bytes of %d, errno=%d\n",
+           filename, ret, res.length, errno);
+    exit(31);
+  }
+
+  if (win->wintype == wintype_Graphics) {
+    printf(">>>image_draw_scaled win=%p, filename=%s, x=%d, y=%d\n",
+           win, filename, val1, val2);
+
+    return TRUE;
+  } else {
+    printf("DEBUG: Attempt to image_draw_scaled to something other then a Graphics window\n");
+    return FALSE;
+  }
+}
+
+/* FIXME: Merge core code with glk_image_draw, which is like this but not scaled. */
 glui32 glk_image_draw_scaled(winid_t win, glui32 image, glsi32 val1, glsi32 val2, glui32 width, glui32 height) {
   /* FIXME: Let the system tell us what dir to use? */
   char filename[] = "/tmp/glknew-image-XXXXXX";

@@ -31,8 +31,6 @@ sub DESTROY {
 sub fetch {
     my ($stringified) = @_;
 
-    warn Dumper \%images;
-
     return $images{$stringified};
 }
 
@@ -43,18 +41,22 @@ sub new_turn {
 sub draw_image {
   my ($self, $filename, $x, $y, $width, $height) = @_;
 
-  my $new_image = Imager->new(file => $filename) or die "Can't read $filename";
-  $new_image = $new_image->scale(xpixels => $width, ypixels => $height);
-  $self->imager->paste(left => $x, top => $y, img => $new_image);
+  my $new_image = Imager->new(file => $filename, channels => 4) or die "Can't read $filename";
+  if (defined $width or defined $height) {
+      $new_image = $new_image->scale(xpixels => $width, ypixels => $height);
+  }
+  $self->imager->paste(left => $x, top => $y, img => $new_image)
+    or die "Error in paste: ".$self->imager->errstr;
 
   $self->modified_since_new_turn(1);
-
 }
 
 sub fill_rect {
   my ($self, $color, $left, $top, $width, $height) = @_;
 
-  $self->imager->box(xmin => $left, ymin => $top, xmax=>($left+$width), ymax => ($top+$height), color => "#$color");
+  $self->imager->box(xmin => $left, ymin => $top, 
+                     xmax=>($left+$width), ymax => ($top+$height), color => "#$color", filled=>1)
+    or die "Error in ->box (color = #$color): ".$self->imager->errstr;
 
   $self->modified_since_new_turn(1);
 }
@@ -76,6 +78,8 @@ sub as_png {
 
     my $data;
 
+    Dump $self->imager;
+
     $self->imager->write(type => 'png', data => \$data)
       or die "cannot pngify: ".$self->imager->errstr;
 
@@ -85,7 +89,7 @@ sub as_png {
 sub _build_imager {
   my ($self) = @_;
 
-  return Imager->new();
+  return Imager->new(xsize => 160, ysize => 480);
 }
 
 no Moose;
