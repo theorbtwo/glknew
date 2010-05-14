@@ -14,12 +14,33 @@ jQuery.extend(
                   tb.scrollTop(move_top.offset().top - tb.offset().top);
               }
               );
+      },
+      sendWindowSize: function() {
+          jQuery('#all-windows div').each(function(ind, win_div) {
+                  var win_id = jQuery(win_div).attr('id');
+                  var fields = { win_id: win_id,
+                                 game_id: jQuery('input[name~=game_id]:first').val(),
+                                 width: jQuery(win_div).width(),
+                                 height: jQuery(win_div).height(),
+                  };
+                  jQuery.ajax(
+                    {
+                        url: '/ajax/window_size',
+                        data: fields,
+                        success: function() {},
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                          alert(XMLHttpRequest.responseText);
+                        }
+                    });
+                            
+              });
       }
   }
 );
 
 jQuery(document).ready(
   function(){
+    Game.sendWindowSize();
     jQuery('#prompt').keydown(
       function(event) {
         // if key pressed in input box, and in char mode, trigger submit.
@@ -59,6 +80,7 @@ jQuery(document).ready(
               // On redraw, windows is a string, now an array!!
               if(data.redraw) {
                   jQuery('#all-windows').html(data.windows);
+                  Game.sendWindowSize();
               } else {
                   jQuery.each(data.windows,
                               function(ind, value) {

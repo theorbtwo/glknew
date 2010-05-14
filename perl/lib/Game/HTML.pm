@@ -21,6 +21,7 @@ sub new {
     my $game = Game->new($game_path, 
                          $interp_path,
                          { 
+                          window_size => sub { $self->send_window_size(@_) },
                           style_distinguish => \&style_distinguish,
                           prompt_file => sub { $self->prep_prompt_file() },
                          });
@@ -196,15 +197,6 @@ sub get_continue_windows {
     ## FIXME, why is last_page returning undef? Bad response Can't use an undefined value as an ARRAY reference at lib/Game/HTML.pm line 173, <GEN11> line 16505.
     my @windows = map { 
       my ($text, $status) = get_own_formatted_text($_);
-      #my $status = 'append';
-      #if ($_->{wintype} eq 'TextGrid') {
-      #  $status = 'clear';
-      #} elsif ($_->last_page && $_->last_page->[0]{clear}) {
-      #  $status = 'clear';
-      #};
-      #if ($_->last_page) {
-      #  Dump $_->last_page;
-      #}
       +{ 
         winid => "winid" . $_->{id}, 
         content => $text,
@@ -519,6 +511,18 @@ sub get_style {
     return $style_str;
 }
 
+sub send_window_size {
+  my ($self, $game, $winid) = @_;
+
+  my $size = $game->{windows}{$winid}->window_size();
+  $self->send(join(' ', @$size) . "\n");
+}
+
+sub set_window_size {
+  my ($self, $winid, @size) = @_;
+
+  $self->{game_obj}{windows}{$winid}->window_size(\@size);
+}
 sub style_distinguish {
     my ($game, $winid, $style1, $style2) = @_;
     my $win = $game->{windows}{$winid};
