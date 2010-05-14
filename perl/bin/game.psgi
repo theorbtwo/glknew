@@ -112,6 +112,20 @@ BEGIN {
             
         },
 
+        sub (/ajax/window_size + ?game_id=&win_id=&width=&height=) {
+            my ($self, $game_id, $win_id, $width, $height) = @_;
+
+            warn Dumper(@_[1 .. $#_]);
+            my $game = $games[$game_id];
+            $win_id =~ s/^winid//;
+            $game->set_window_size($win_id,$width, $height);
+
+            [200, 
+              [ 'Content-type' => 'text/html' ], 
+              [ 1 ]
+             ];
+        },
+
         sub (/game/savefile + ?username=&save_file=&game_id=) {
             my ($self, $username, $save_file, $game_id) = @_;           
             s{[\0\/]}{}g for ($username, $save_file); 

@@ -6,6 +6,7 @@ has pages => (is => 'rw', isa => 'ArrayRef', required => 0, default => sub { [] 
 has method => (is => 'rw', isa => 'HashRef', required => 0, default => sub { {} } );
 has content => (is => 'rw', isa => 'ArrayRef', required => 0, default => sub { [] } );
 has drawn => (is => 'rw', isa => 'Bool', required => 0, default => sub { 0 } );
+has window_size => (is => 'rw', isa => 'ArrayRef', required => 0);
 
 sub BUILD { 
     my ($self, $attrs) = @_; 
