@@ -175,7 +175,7 @@ sub handle_stdout {
     }
 
     when (/^>>>win: method=([a-z, ]+)$/) {
-      $self->{win_in_progress}{method} = [split /, /, $1];
+      $self->{win_in_progress}{method} = {map {+($_ => 1)} split(/, /, $1)};
     }
 
     when (/^>>>win: size (\d+)$/) {
@@ -196,6 +196,8 @@ sub handle_stdout {
     when (/^>>>win: at $winid_r$/) {
       $self->{win_in_progress}{id} = $1;
       
+      Dump $self->{win_in_progress};
+
       my $win;
       if ($self->{win_in_progress}{wintype} eq 'Graphics') {
         $win = $self->{windows}{$1} = Game::Window::Graphics->new(delete $self->{win_in_progress});
@@ -210,7 +212,7 @@ sub handle_stdout {
     when (/>>>window_set_arrangement win=$winid_r, method=([a-z, ]+), size=(\d+), keywin=$winid_r/) {
         next if(!exists $self->{windows}{$1});
 
-        $self->{windows}{$1}{method} = $2;
+        $self->{windows}{$1}->method({map {($_=>1)} split(/, /, $2)});
         $self->{windows}{$1}{size} = $3;
 
         print "window_set_arrangement, ignoring keywin argument\n";
