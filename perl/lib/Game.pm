@@ -261,13 +261,13 @@ sub handle_stdout {
       $self->{windows}{$1}->fill_rect($2, $3, $4, $5, $6);
     }
 
-    when (/>>>image_draw_scaled win=$winid_r, filename=([\/\w-]+), x=(\d+), y=(\d+), width=(\d+), height=(\d+)/) {
+    when (/>>>image_draw_scaled win=$winid_r, filename=([\/\w-]+), x=(-?\d+), y=(-?\d+), width=(-?\d+), height=(-?\d+)/) {
       my ($winid, $filename, $x, $y, $width, $height) = ($1, $2, $3, $4, $5, $6);
 
       $self->{windows}{$winid}->draw_image($filename, $x, $y, $width, $height);
     }
 
-    when (/>>>image_draw win=$winid_r, filename=([\/\w-]+), x=(\d+), y=(\d+)/) {
+    when (/>>>image_draw win=$winid_r, filename=([\/\w-]+), x=(-?\d+), y=(-?\d+)/) {
       my ($winid, $filename, $x, $y) = ($1, $2, $3, $4);
 
       $self->{windows}{$winid}->draw_image($filename, $x, $y);
@@ -286,6 +286,7 @@ sub handle_stderr {
   die "Got STDERR from child process: '$text'";
 }
 
+# This entire thing is an increasingly ugly hack.
 sub default_window_size_callback {
     my ($self, $winid) = @_;
     my $win = $self->{windows}{$winid};
@@ -309,9 +310,11 @@ sub default_window_size_callback {
     }
 
     if ($win->isa('Game::Window::Graphics')) {
-        # These constants are so that an 80x25 text window is the same size as a 640x480 graphics window.
-        $size[0] *= 8;
-        $size[1] *= 19.2;
+      # These constants are so that an 80x25 text window is the same size as a 640x480 graphics window.
+      $size[0] *= 8
+        unless @{$win->method} ~~ ['fixed'] and (grep {$_ ~~ ['left', 'right']} @{$win->{method}});
+      $size[1] *= 19.2
+        unless @{$win->method} ~~ ['fixed'] and (grep {$_ ~~ ['above', 'below']} @{$win->{method}});
     }
     
 

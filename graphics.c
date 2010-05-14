@@ -56,18 +56,18 @@ glui32 glk_image_draw(winid_t win, glui32 image, glsi32 val1, glsi32 val2) {
 
   ret = write(fd, res.data.ptr, res.length);
   if (ret != res.length) {
-    printf("Failed to write to temp file (%s) for glk_image_draw_scaled, wrote %d bytes of %d, errno=%d\n",
+    printf("Failed to write to temp file (%s) for glk_image_draw, wrote %d bytes of %d, errno=%d\n",
            filename, ret, res.length, errno);
     exit(31);
   }
 
   if (win->wintype == wintype_Graphics) {
-    printf(">>>image_draw_scaled win=%p, filename=%s, x=%d, y=%d\n",
+    printf(">>>image_draw win=%p, filename=%s, x=%d, y=%d\n",
            win, filename, val1, val2);
 
     return TRUE;
   } else {
-    printf("DEBUG: Attempt to image_draw_scaled to something other then a Graphics window\n");
+    printf("DEBUG: Attempt to image_draw to something other then a Graphics window\n");
     return FALSE;
   }
 }

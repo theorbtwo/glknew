@@ -938,6 +938,9 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
     break;
 
 
+  case 0x0128: /* put_char_uni */
+    glk_put_char_uni(arglist[0].uint);
+    break;
   case 0x0139: /* stream_open_memory_uni */
     if (arglist[0].ptrflag) 
       arglist[6].opaqueref = glk_stream_open_memory_uni(arglist[1].array, 
@@ -1247,9 +1250,6 @@ void gidispatch_call(glui32 funcnum, glui32 numargs, gluniversal_t *arglist)
       arglist[6].uint = glk_buffer_to_title_case_uni(arglist[1].array, arglist[2].uint, arglist[3].uint, arglist[4].uint);
     else
       arglist[4].uint = glk_buffer_to_title_case_uni(NULL, 0, arglist[1].uint, arglist[2].uint);
-    break;
-  case 0x0128: /* put_char_uni */
-    glk_put_char_uni(arglist[0].uint);
     break;
   case 0x0129: /* put_string_uni */
     glk_put_string_uni(arglist[0].unicharstr);

@@ -103,7 +103,10 @@ BEGIN {
             my $graphics = Game::Window::Graphics::fetch($img_string);
 
             [ 200, 
-              [ 'Content-type' => 'image/png' ], 
+              [ 'Content-type' => 'image/png',
+                'Cache-control' => 'no-cache',
+                'Expires' => '-1'
+              ], 
               [ $graphics->as_png]
             ];
             

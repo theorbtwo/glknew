@@ -28,6 +28,12 @@ sub DESTROY {
     delete $images{$self};
 }
 
+sub _build_imager {
+  my ($self) = @_;
+
+  return Imager->new(xsize => 160, ysize => 480, channels => 4);
+}
+
 sub fetch {
     my ($stringified) = @_;
 
@@ -64,7 +70,9 @@ sub fill_rect {
 sub get_own_formatted_text {
     my ($self) = @_;
     
-    my $html = "<img src='/game/image/$self' />";
+    my @alpha = ('a'..'z', 'A'..'Z');
+    my $rand = join '', map {$alpha[rand @alpha]} 0..9;
+    my $html = "<img src='/game/image/$self?rand=$rand' />";
     
     if (wantarray) {
         return $html, 'clear';
@@ -84,12 +92,6 @@ sub as_png {
       or die "cannot pngify: ".$self->imager->errstr;
 
     return $data;
-}
-
-sub _build_imager {
-  my ($self) = @_;
-
-  return Imager->new(xsize => 160, ysize => 480);
 }
 
 no Moose;
