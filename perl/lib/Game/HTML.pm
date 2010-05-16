@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Game;
+use Carp 'cluck';
 use File::Spec::Functions;
 use File::Path 'mkpath';
 use Data::Dump::Streamer 'Dump', 'Dumper';
@@ -34,6 +35,7 @@ sub new {
 sub continue {
     my ($self) = @_;
 
+    cluck "Continuing";
     $self->set_form_visible('input');
     $self->{game_obj}{current_select} = {};
     $_->new_turn for(values %{ $self->{game_obj}{windows} });
@@ -164,6 +166,9 @@ sub default_styles {
     return "<style>
 .TextBuffer {
   overflow: auto; 
+  height: 400px;
+}
+.Graphics {
   height: 400px;
 }
 html {
@@ -545,7 +550,7 @@ sub set_window_size {
       $self->{game_obj}{current_select}{window}->id eq $winid) {
     $self->send(join(' ', @size));
 
-    $self->continue;
+#    $self->continue;
   }
 }
 

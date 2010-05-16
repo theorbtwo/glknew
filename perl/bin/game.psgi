@@ -149,6 +149,10 @@ BEGIN {
 
           my $run_select = 1;
           my $game = $games[$game_id];
+          if($input_type eq 'size') {
+              return $self->continue_game($game, $run_select);
+          }
+
           if (length $text and not length $keycode) {
             $game->send("evtype_LineInput $text\n");
           } elsif(exists($self->config->{js_keycodes}{$keycode}) and not length $text) {
