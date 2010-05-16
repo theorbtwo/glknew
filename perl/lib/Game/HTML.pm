@@ -240,18 +240,28 @@ sub layout_child_window {
   warn "Child: $child_text\n";
 
   my ($side, $kind, $axis);
-  for my $method (@{$child->{method}}) {
-    if ($method ~~ [qw<above below>]) {
-        $axis = 'y';
-        $side = $method;
-    } elsif ($method ~~ [qw<left right>]) {
-        $axis = 'x';
-        $side = $method;
-    } elsif ($method ~~ [qw<fixed proportional>]) {
-        $kind = $method;
-    } else {
-        die "Unhandled method $method";
-    }
+  my $method = $child->method;
+  if ($method->{above}) {
+    $axis = 'y';
+    $side = 'above';
+  }
+  if ($method->{below}) {
+    $axis = 'y';
+    $side = 'below';
+  }
+  if ($method->{left}) {
+    $axis = 'x';
+    $side = 'left';
+  }
+  if ($method->{right}) {
+    $axis = 'x';
+    $side = 'right';
+  }
+  if ($method->{fixed}) {
+    $kind = 'fixed';
+  }
+  if ($method->{proportional}) {
+    $kind = 'proportional';
   }
   
   # fixed vs proportional: are height/width attrs (as
@@ -515,14 +525,30 @@ sub send_window_size {
   my ($self, $game, $winid) = @_;
 
   my $size = $game->{windows}{$winid}->window_size();
+  if (!$size) {
+    $game->{collecting_input} = 0;
+    $game->{current_select} = {
+                               window => $game->{windows}{$winid},
+                               input_type => 'size'
+                              };
+    return;
+  }
   $self->send(join(' ', @$size) . "\n");
 }
 
 sub set_window_size {
   my ($self, $winid, @size) = @_;
 
+  
   $self->{game_obj}{windows}{$winid}->window_size(\@size);
+  if ($self->{game_obj}{current_select}{input_type} eq 'size' and
+      $self->{game_obj}{current_select}{window}->id eq $winid) {
+    $self->send(join(' ', @size));
+
+    $self->continue;
+  }
 }
+
 sub style_distinguish {
     my ($game, $winid, $style1, $style2) = @_;
     my $win = $game->{windows}{$winid};

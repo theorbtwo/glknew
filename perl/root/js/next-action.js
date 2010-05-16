@@ -1,7 +1,7 @@
 
 var Game = {};
 
-jQuery.extend( 
+jQuery.extend(
   Game,
   {
       scrollBuffers: function() {
@@ -18,10 +18,13 @@ jQuery.extend(
       sendWindowSize: function() {
           jQuery('#all-windows div').each(function(ind, win_div) {
                   var win_id = jQuery(win_div).attr('id');
+                  if (!win_id) {
+                    return;
+                  }
                   var fields = { win_id: win_id,
                                  game_id: jQuery('input[name~=game_id]:first').val(),
                                  width: jQuery(win_div).width(),
-                                 height: jQuery(win_div).height(),
+                                 height: jQuery(win_div).height()
                   };
                   jQuery.ajax(
                     {
@@ -32,7 +35,7 @@ jQuery.extend(
                           alert(XMLHttpRequest.responseText);
                         }
                     });
-                            
+
               });
       }
   }
@@ -91,7 +94,7 @@ jQuery(document).ready(
                                   }
                                   win_div.append(value.content);
                                   //  alert(win_div.height());
-                                  
+
                               });
               }
               Game.scrollBuffers();
