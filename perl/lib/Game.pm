@@ -196,7 +196,7 @@ sub handle_stdout {
     when (/^>>>win: at $winid_r$/) {
       $self->{win_in_progress}{id} = $1;
       
-      Dump $self->{win_in_progress};
+#      Dump $self->{win_in_progress};
 
       my $win;
       if ($self->{win_in_progress}{wintype} eq 'Graphics') {

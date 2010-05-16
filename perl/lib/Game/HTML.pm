@@ -35,10 +35,9 @@ sub new {
 sub continue {
     my ($self) = @_;
 
-    cluck "Continuing";
+#    cluck "Continuing";
     $self->set_form_visible('input');
     $self->{game_obj}{current_select} = {};
-    $_->new_turn for(values %{ $self->{game_obj}{windows} });
 
     $self->{game_obj}->wait_for_select;
 }
@@ -435,6 +434,10 @@ sub get_own_formatted_text_TextBuffer {
     $text = "<span class='move-top'></span>$text";
     
     #      print "Text with styles: $text\n";
+
+    ## Have sent this text, don't send it again.
+    $win->new_turn();
+
     if (wantarray) {
       return ($text, $status);
     } else {
@@ -550,7 +553,7 @@ sub set_window_size {
       $self->{game_obj}{current_select}{window}->id eq $winid) {
     $self->send(join(' ', @size));
 
-#    $self->continue;
+    $self->continue;
   }
 }
 
