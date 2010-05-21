@@ -167,9 +167,6 @@ sub default_styles {
   overflow: auto; 
   height: 400px;
 }
-.Graphics {
-  height: 400px;
-}
 html {
   height: 100%;
 }
@@ -532,26 +529,39 @@ sub get_style {
 sub send_window_size {
   my ($self, $game, $winid) = @_;
 
-  my $size = $game->{windows}{$winid}->window_size();
-  if (!$size) {
+  my $win = $self->{game_obj}{windows}{$winid};
+  if (!$win->window_size) {
     $game->{collecting_input} = 0;
     $game->{current_select} = {
-                               window => $game->{windows}{$winid},
+                               window => $win,
                                input_type => 'size'
                               };
     return;
   }
-  $self->send(join(' ', @$size) . "\n");
+  my ($width, $height) = @{ $win->window_size() };
+
+  ## Browser returns values in pixels, for text windows we apply fudge factors
+  ## to return it in chars.
+  # These constants are so that an 80x25 text window is the same size as a 640x480 graphics window.
+
+  warn "Size before: $width x $height";
+  if(!$win->isa('Game::Window::Graphics')) {
+      $width  = int($width  / 8);
+      $height = int($height / 19.2);
+  }
+  warn "Size after: $width x $height";
+  
+  $self->send("$width $height\n");
 }
 
 sub set_window_size {
   my ($self, $winid, @size) = @_;
 
-  
   $self->{game_obj}{windows}{$winid}->window_size(\@size);
   if ($self->{game_obj}{current_select}{input_type} eq 'size' and
       $self->{game_obj}{current_select}{window}->id eq $winid) {
-    $self->send(join(' ', @size));
+
+    $self->send_window_size($self->{game_obj}, $winid);
 
     $self->continue;
   }

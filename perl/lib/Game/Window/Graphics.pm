@@ -7,8 +7,8 @@ extends 'Game::Window';
 
 use Imager;
 
-has width  => (is => 'rw', isa => 'Int', required => 0);
-has height => (is => 'rw', isa => 'Int', required => 0);
+# FIXME: We repeat our parent in the definition of window_size, because we cannot add a trigger when '+'ing.
+has window_size => (is => 'rw', isa => 'ArrayRef', required => 0, trigger => \&window_size_trigger);
 has imager => (is => 'ro', isa => 'Imager', required => 0, lazy_build => 1);
 has modified_since_new_turn => (is => 'rw', isa => 'Bool', required => 0, default => sub { 1 } );
 
@@ -38,6 +38,19 @@ sub fetch {
     my ($stringified) = @_;
 
     return $images{$stringified};
+}
+
+sub window_size_trigger {
+  my ($self, $size, $old_size) = @_;
+
+  if ($old_size->[0] == $size->[0] and
+      $old_size->[1] == $size->[1]) {
+      return;
+  }
+
+  # Resize the imager to match the window size.
+  $self->imager($self->imager->scale(xpixels=>$size->[0],
+                                     ypixels=>$size->[1]));
 }
 
 sub new_turn {
