@@ -56,6 +56,17 @@ sd3:
 js keycodes:
 http://unixpapa.com/js/key.html
 
+workflow:
+ glk:window_size?
+ game: send_window_size (callback)
+  if no size, exit glk loop, return data (redraw windows?) to browser
+    set current_select to window data for this window, input_type='size'
+    sends redraw / complete html data, windows with no content.. ?
+    browser sends new window sizes, set_window_size calls continue?
+     - removed as this then skips the 2nd/3rd set..
+
+  else send window size data
+
 universal
  - TextBuffer window grows instead of scrolling. - DONE
  - Nicer char input?

@@ -121,10 +121,7 @@ BEGIN {
             $win_id =~ s/^winid//;
             $game->set_window_size($win_id,$width, $height);
 
-            [200, 
-              [ 'Content-type' => 'text/html' ], 
-              [ 1 ]
-             ];
+            return $self->continue_game($game, 0);
         },
 
         sub (/game/savefile + ?username=&save_file=&game_id=) {
@@ -150,6 +147,7 @@ BEGIN {
 
           my $run_select = 1;
           my $game = $games[$game_id];
+
           if (length $text and not length $keycode) {
             $game->send("evtype_LineInput $text\n");
           } elsif(exists($self->config->{js_keycodes}{$keycode}) and not length $text) {
