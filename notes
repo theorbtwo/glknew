@@ -1,3 +1,12 @@
+From user testing:
+ - Make scrollbar more obvious -- see, for ex, just after answering art or love in blue lacuna
+ - In blue lacuna, ret with no input should do 'look'.
+ - Double-check if blue lacuna should have a status bar visible during the prelude.
+ - make 'go' button for the mouse-obsessed.
+ - make restore have a list of available games.
+ - have a production URL
+ - google ads?
+
 blue-lacuna
  - help menu is not usable, because there is no way to press enter.
   - JS to capture key onchange of input textfield, and if Return/cursor key etc, send "evtype_CharInput Return\n"

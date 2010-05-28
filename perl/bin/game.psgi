@@ -106,6 +106,7 @@ BEGIN {
               [ 'Content-type' => 'image/png',
                 'Cache-control' => 'no-cache',
                 'Expires' => '-1'
+
               ], 
               [ $graphics->as_png]
             ];
@@ -188,8 +189,8 @@ BEGIN {
                          acg           => [$git, '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx', 'Adventurer\'s Consumer Guide'],
                          king          => [$git, '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb', 'The King of Shreds and Patches'],
                          curses        => [$nitfol, '/mnt/shared/projects/games/flash-if/curses.z5', 'Curses'],
-                         emy           => [$agility, '/mnt/shared/projects/games/flash-if/Emy Discovers Life/DISCOVER', 'Emy Discovers Life'],
-                         sd3           => [$tads2, '/mnt/shared/projects/games/flash-if/sd3/SD3.gam', 'School Dreams 3: School Dreams Forever'],
+                         #emy           => [$agility, '/mnt/shared/projects/games/flash-if/Emy Discovers Life/DISCOVER', 'Emy Discovers Life'],
+                         #sd3           => [$tads2, '/mnt/shared/projects/games/flash-if/sd3/SD3.gam', 'School Dreams 3: School Dreams Forever'],
                          zork1         => [$nitfol, '/mnt/shared/projects/games/flash-if/zork1/DATA/ZORK1.DAT', 'Zork I'],
                         );
             my $game_info = $games{$game_name};

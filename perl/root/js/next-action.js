@@ -8,10 +8,11 @@ jQuery.extend(
           jQuery('.TextBuffer').each( function (ind, tb) {
                   tb = jQuery(tb);
                   var move_top = tb.find('span.move-top').last();
-                  tb.scrollTop(0);
+                  move_top.scrollIntoView();
+                  //tb.scrollTop(0);
 
                   //alert('pos:' + move_end.position().top + 'offset: ' + move_end.offset().top + 'win off:' + win_div.offset().top);
-                  tb.scrollTop(move_top.offset().top - tb.offset().top);
+                  //tb.scrollTop(move_top.offset().top - tb.offset().top);
               }
               );
       },
