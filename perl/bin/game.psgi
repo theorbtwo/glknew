@@ -119,7 +119,7 @@ BEGIN {
             warn Dumper(@_[1 .. $#_]);
             my $game = $games[$game_id];
             $win_id =~ s/^winid//;
-            $game->set_window_size($win_id,$width, $height);
+            $game->set_window_size($win_id, $width, $height);
 
             return $self->continue_game($game, 0);
         },

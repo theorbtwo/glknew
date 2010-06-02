@@ -279,7 +279,7 @@ sub layout_child_window {
   if ($side eq 'above' and $kind eq 'fixed' and $axis eq 'y') {
       $parent_text = <<END;
  <div>
-   $child_text
+   <div style="height: $child->{size} px;">$child_text</div>
    $parent_text
  </div>
 END
@@ -287,7 +287,7 @@ END
       $parent_text = <<END;
  <div>
    $parent_text
-   $child_text
+   <div style="height: $child->{size} px;">$child_text</div>
  </div>
 END
   } elsif ($side eq 'left' and $kind eq 'proportional' and $axis eq 'x') {
@@ -297,8 +297,8 @@ END
     my $rsize = (100-$child->{size})-1;
       $parent_text = <<END;
 <div style="width:100%;">
- <div style="float:left;  width:$lsize%">$child_text</div>
- <div style="float:right; width:$rsize%">$parent_text</div>
+ <div style="float:left;  width:$lsize%;">$child_text</div>
+ <div style="float:right; width:$rsize%;">$parent_text</div>
 </div>
 <br style="clear:both"/>
 END
@@ -530,7 +530,7 @@ sub send_window_size {
   my ($self, $game, $winid) = @_;
 
   my $win = $self->{game_obj}{windows}{$winid};
-  if (!$win->window_size) {
+  if ($win->window_size_is_fake) {
     $game->{collecting_input} = 0;
     $game->{current_select} = {
                                window => $win,
@@ -556,8 +556,14 @@ sub send_window_size {
 
 sub set_window_size {
   my ($self, $winid, @size) = @_;
+  my $win = $self->{game_obj}{windows}{$winid};
+  
+  my $old_size = $win->window_size;
+  $size[0] ||= $old_size->[0];
+  $size[1] ||= $old_size->[1];
+  $win->window_size(\@size);
+  $win->window_size_is_fake(0);
 
-  $self->{game_obj}{windows}{$winid}->window_size(\@size);
   if ($self->{game_obj}{current_select}{input_type} eq 'size' and
       $self->{game_obj}{current_select}{window}->id eq $winid) {
 

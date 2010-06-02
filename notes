@@ -30,9 +30,12 @@ advent
  - DONE: help menu: gets cleared "for us" after 'n'.
 
 king
- - Graphics?
+ - <div style="height: 1 px"><div class='TextGrid' id='winid0x95e83f0'> -- get needs to know about height/width in chars vs pixels.
+ - redraw implicitly clears TextBuffer?
+ - DONE - Graphics - DONE
  - Block vs inline elements for styles -- centred text not working, text background color only set directly behind text.
- - Size info on graphic windows.
+ - DONE - Size info on graphic windows. - DONE
+ - Inline graphics in textbuffers
 
 curses
  - Gets the windows confused somehow?

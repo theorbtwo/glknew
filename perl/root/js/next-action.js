@@ -8,11 +8,10 @@ jQuery.extend(
           jQuery('.TextBuffer').each( function (ind, tb) {
                   tb = jQuery(tb);
                   var move_top = tb.find('span.move-top').last();
-                  move_top.scrollIntoView();
-                  //tb.scrollTop(0);
+                  tb.scrollTop(0);
+                  tb.scrollTop(move_top.offset().top - tb.offset().top);
 
                   //alert('pos:' + move_end.position().top + 'offset: ' + move_end.offset().top + 'win off:' + win_div.offset().top);
-                  //tb.scrollTop(move_top.offset().top - tb.offset().top);
               }
               );
       },
@@ -33,8 +32,8 @@ jQuery.extend(
                         data: fields,
                         success: Game.windowUpdateSuccess,
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
-                            // alert(XMLHttpRequest.responseText);
-                            jQuery(body).html(responseText);
+                            alert(XMLHttpRequest.responseText);
+                            jQuery('body').html(XMLHttpRequest.responseText);
                         }
                     });
 
@@ -47,14 +46,15 @@ jQuery.extend(
               alert("Empty response?");
               return;
           }
-          
+
           jQuery('#throbber').hide();
           jQuery('#status').text('');
-          
-          // On redraw, windows is a string, now an array!!
+
+          // On redraw, windows is a string, on non-redraw, it's an array.
           if(data.redraw) {
               jQuery('#all-windows').html(data.windows);
-              Game.sendWindowSize();
+
+            Game.sendWindowSize();
           } else {
               jQuery.each(data.windows,
                           function(ind, value) {
@@ -65,7 +65,7 @@ jQuery.extend(
                               }
                               win_div.append(value.content);
                               //  alert(win_div.height());
-                              
+
                           });
               }
           Game.scrollBuffers();
@@ -84,7 +84,7 @@ jQuery.extend(
           jQuery('#input_type').val(data.input_type);
           jQuery('#prompt').val('');
           jQuery('#keycode_input').val('');
-      }          
+      }
   }
 );
 
@@ -93,9 +93,9 @@ jQuery(document).ready(
     Game.sendWindowSize();
 
     jQuery(window).resize(function() {
-            // This may get sent many times when dragging.
-            Game.sendWindowSize();
-        });
+                            // This may get sent many times when dragging.
+                            Game.sendWindowSize();
+                          });
 
     jQuery('#prompt').keydown(
       function(event) {
@@ -125,7 +125,7 @@ jQuery(document).ready(
             success: Game.windowUpdateSuccess,
             dataType: 'json',
             error: function(XMLHttpRequest, textStatus, errorThrown) {
-                  //alert(XMLHttpRequest.responseText);
+                  alert(XMLHttpRequest.responseText);
                   jQuery(body).html(responseText);
             }
           });
