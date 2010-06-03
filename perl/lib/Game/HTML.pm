@@ -189,7 +189,7 @@ sub has_new_windows {
 sub get_initial_windows {
   my ($self) = @_;
     
-  return get_formatted_text($self->{game_obj}->root_window);
+  return get_formatted_text($self->{game_obj}->root_window, 1);
 }
 
 sub get_continue_windows {
@@ -213,14 +213,14 @@ sub get_continue_windows {
 ## IN Window object
 ## OUT Laid out window text plus all child windows
 sub get_formatted_text {
-  my ($win) = @_;
+  my ($win, $full_content) = @_;
 
-  my $win_text = $win->get_own_formatted_text;
+  my $win_text = $win->get_own_formatted_text($full_content);
   my $win_div  = "<div class='$win->{wintype}' id='winid$win->{id}'> $win_text </div>" ;
 
   my $formatted = $win_div;
   for my $child (@{$win->{children}}) {
-      $formatted = layout_child_window($child, $formatted);
+      $formatted = layout_child_window($child, $formatted, $full_content);
   }
 
   ## Currently this only gets called when we drawn entire windows
@@ -234,9 +234,9 @@ sub get_formatted_text {
 ## IN: Child window, Parents text so-far
 ## OUT: New text containing parent + child text
 sub layout_child_window {
-  my ($child, $parent_text) = @_;
+  my ($child, $parent_text, $full_content) = @_;
 
-  my $child_text = get_formatted_text($child);
+  my $child_text = get_formatted_text($child, $full_content);
   warn Dumper($child->{method});
   warn "Child: $child_text\n";
 
@@ -291,7 +291,7 @@ END
  </div>
 END
   } elsif ($side eq 'left' and $kind eq 'proportional' and $axis eq 'x') {
-    # Take off 1% from each side in order to give the layout alog some
+    # Take off 1% from each side in order to give the layout algo some
     # breathing-room.
     my $lsize = $child->{size}-1;
     my $rsize = (100-$child->{size})-1;

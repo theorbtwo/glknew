@@ -11,10 +11,10 @@ From user testing:
  - after save, set scrollheight
 
 blue-lacuna
- - help menu is not usable, because there is no way to press enter.
-  - JS to capture key onchange of input textfield, and if Return/cursor key etc, send "evtype_CharInput Return\n"
-  - see event.c line 131.
- - topics subwindow always reads "Topics: topic, this / more information is often displayed here".
+ - DONE - help menu is not usable, because there is no way to press enter.
+  - DONE - JS to capture key onchange of input textfield, and if Return/cursor key etc, send "evtype_CharInput Return\n"
+  - DONE - see event.c line 131.
+ - Mucking about with style of hinty window doesn't work, because the window is never deleted
 
 acg
  - Working!
@@ -43,6 +43,12 @@ king
 
 curses
  - Gets the windows confused somehow?
+ - Spews error messages
+
+zork1
+ - Gets the windows / streams confused somehow?
+ - No visible output
+ - After typing a line into the apparently empty screen, you can see output, but with no newlines in the game's output, and extra red error messages: "[ERROR: save]: incorrect stack size assessment (0) 22800 (1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10)"
 
 emy
  - Done: initial working!
@@ -75,20 +81,19 @@ workflow:
   else send window size data
 
 universal
- - TextBuffer window grows instead of scrolling. - DONE
- - Nicer char input?
- - No way of pressing ret during char input makes most help menus unusable.
- - <title> tags. - DONE
- - expand Game::Window to cover all window attrs
+ - DONE - TextBuffer window grows instead of scrolling. - DONE
+ - DONE - No way of pressing ret during char input makes most help menus unusable.
+ - DONE - <title> tags. - DONE
+ - DONE? - expand Game::Window to cover all window attrs
  - add Game::Style ?
- - ajax: return json/content per window, instead of just one - DONE
- - continue, return content without divs/classes etc. - DONE
- - make TextGrid excempt from pages garbage?
- - make get_own_formatted_text part of Game::Window::*?  Likewise ->move_cursor, etc?
- - Chrome: hitting up or down in a charinput box makes the autocomplete thingy show up. - DONE
+ - DONE - ajax: return json/content per window, instead of just one - DONE
+ - DONE - continue, return content without divs/classes etc. - DONE
+ - DONE - make TextGrid excempt from pages garbage?
+ - DONE - make get_own_formatted_text part of Game::Window::*?  Likewise ->move_cursor, etc?
+ - DONE - Chrome: hitting up or down in a charinput box makes the autocomplete thingy show up. - DONE
 
  - saving
-  - type "save", Game responds by running "save_file_name" callback, exits loop, and user is shown save form instead of normal input form (contains "username" and "save game" fields) - DONE
+  - DONE - type "save", Game responds by running "save_file_name" callback, exits loop, and user is shown save form instead of normal input form (contains "username" and "save game" fields)
  - Re-use input form, by making username universal?
   - add hidden username field / user sessions?
 
