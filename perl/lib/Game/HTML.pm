@@ -197,7 +197,7 @@ sub get_continue_windows {
 
     ## FIXME, why is last_page returning undef? Bad response Can't use an undefined value as an ARRAY reference at lib/Game/HTML.pm line 173, <GEN11> line 16505.
     my @windows = map { 
-      my ($text, $status) = get_own_formatted_text($_);
+      my ($text, $status) = $_->get_own_formatted_text;
       +{ 
         winid => "winid" . $_->{id}, 
         content => $text,
@@ -215,7 +215,7 @@ sub get_continue_windows {
 sub get_formatted_text {
   my ($win) = @_;
 
-  my $win_text = get_own_formatted_text($win);
+  my $win_text = $win->get_own_formatted_text;
   my $win_div  = "<div class='$win->{wintype}' id='winid$win->{id}'> $win_text </div>" ;
 
   my $formatted = $win_div;
@@ -309,145 +309,6 @@ END
   return $parent_text;
 }
     
-# FIXME: Split this properly by wintype?  Make them objects, of different classes?
-sub get_own_formatted_text {
-    my ($win) = @_;
-      
-    my $dispatch = {
-                    TextGrid   => \&get_own_formatted_text_TextGrid,
-                    TextBuffer => \&get_own_formatted_text_TextBuffer,
-                    Graphics   => \&get_own_formatted_text_Graphics,
-                   };
-    if (not exists $dispatch->{$win->{wintype}}) {
-        die "Don't know how to dispatch get_own_formatted_text for wintype $win->{wintype}";
-    }
-      
-    return $dispatch->{$win->{wintype}}->($win);
-}
-
-# FIXME: How much of this belongs in Game.pm?
-sub get_own_formatted_text_TextGrid {
-    my ($win) = @_;
-
-    my ($cursor) = [0, 0];
-    my $state;
-    
-    my $style = undef;
-    for my $e (map {@$_} @{$win->pages}, $win->content) {
-        if (exists $e->{cursor_to}) {
-            $cursor = [$e->{cursor_to}[1], $e->{cursor_to}[0]];
-        } elsif (exists $e->{char} and $e->{char} eq "\n") {
-            $cursor->[0]++;
-            $cursor->[1]=0;
-        } elsif (exists $e->{char}) {
-            # always char and style.
-            $state->[$cursor->[0]][$cursor->[1]]{char}  = $e->{char};
-            $state->[$cursor->[0]][$cursor->[1]]{style} = $e->{style};
-            $cursor->[1]++;
-        } elsif (exists $e->{clear}) {
-            $state = [];
-        } else {
-            die "Unhandled content element: ", Dumper($e);
-        }
-    }
-    
-    my $text = "<tt>";
-    my %styles_needed;
-    for my $line (@$state) {
-        for my $new_e (@$line) {
-            if (!$new_e) {
-                $text .= '&nbsp;';
-                next;
-            }
-            
-            if ($new_e->{char} eq '<') {
-                $text .= '&lt;';
-            } elsif ($new_e->{char} eq '&') {
-                $text .= '&amp;';
-            } elsif ($new_e->{char} eq ' ') {
-                $text .= '&nbsp;';
-            } else {
-                $text .= $new_e->{char};
-            }
-        }
-        $text .= "<br />\n";
-    }
-    $text .= "</tt>\n";
-    $text = "<span class='move-top'></span>$text";
-    
-    if (wantarray) {
-      return $text, 'clear';
-    } else {
-      return $text;
-    }
-}
-
-sub get_own_formatted_text_TextBuffer {
-    my ($win) = @_;
-    
-    my $text = '';
-    my $prev_style = {};
-    my $status = 'append';
-    
-    my %styles_needed;
-    
-    for my $e (@{$win->content}) {
-        my ($style, $char) = @{$e}{'style', 'char'};
-        if(defined $style) {
-            if ($prev_style != $style) {
-                if(%$prev_style) {
-                    $text .= '</span>';
-                }
-                $text .="<span class='$win->{wintype}-$style->{name}'>";
-                $styles_needed{"$win->{wintype}-$style->{name}"} = $style;
-            }
-            if ($char eq '<') {
-                $text .= '&lt;';
-            } else {
-                $text .= $char;
-            }
-            
-            $prev_style = $style;
-        } elsif(exists $e->{clear}) {
-          $text = '';
-          $prev_style = {};
-          $status = 'clear';
-        } else {
-          warn "Wierd shit in TextBuffer: ".Dumper($e);
-        }
-    }
-    
-    # FIXME: We should only output styles if they have changed.  In
-    # fact, maybe we should just output a full set of styles at the
-    # creation time of every window, and let them be.
-    my $styles = '';
-    for my $name (sort keys %styles_needed) {
-        # Copy so we can freely modify it here.
-        my $style = { %{$styles_needed{$name}} };
-        
-        $styles .= get_style($style);
-    }
-    $text = "<style type='text/css'>$styles</style>\n$text";
-    $text = "<span class='move-top'></span>$text";
-    
-    #      print "Text with styles: $text\n";
-
-    ## Have sent this text, don't send it again.
-    $win->new_turn();
-
-    if (wantarray) {
-      return ($text, $status);
-    } else {
-      return $text;
-    }
-}
-
-sub get_own_formatted_text_Graphics {
-  my ($win) = @_;
-
-  return $win->get_own_formatted_text();
-}
-
 sub get_style {
     my ($style) = @_;
     

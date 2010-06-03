@@ -6,8 +6,9 @@ use Symbol 'gensym';
 use 5.010_00;
 use Data::Dump::Streamer;
 
-use Game::Window;
 use Game::Window::Graphics;
+use Game::Window::TextBuffer;
+use Game::Window::TextGrid;
 
 sub new {
   my ($class, $blorb_file, $git, $callbacks) = @_;
@@ -199,14 +200,9 @@ sub handle_stdout {
 #      Dump $self->{win_in_progress};
 
       my $win;
-      if ($self->{win_in_progress}{wintype} eq 'Graphics') {
-        $win = $self->{windows}{$1} = Game::Window::Graphics->new(delete $self->{win_in_progress});
-      } else {
-        $win = $self->{windows}{$1} = Game::Window->new(delete $self->{win_in_progress});
-      }
+      $win = $self->{windows}{$1} = "Game::Window::$self->{win_in_progress}{wintype}"->new(delete $self->{win_in_progress});
       push @{$win->{parent}{children}}, $self->{windows}{$1};
       $self->{root_win} = $win if($win->{is_root});
-
     }
 
     when (/>>>window_set_arrangement win=$winid_r, method=([a-z, ]+), size=(\d+), keywin=$winid_r/) {
@@ -224,12 +220,12 @@ sub handle_stdout {
     }
 
     when (/^>>>put_char_uni for window $winid_r, character U\+([0-9A-Fa-f]+)(, '.')?$/) {
-      push @{$self->{windows}{$1}{content}}, { style => $self->{windows}{$1}{current_style}, char => chr hex $2};
+      $self->{windows}{$1}->put_char(chr hex $2);
     }
 
     when (/^>>>window_move_cursor win=$winid_r, xpos=(\d+), ypos=(\d+)$/) {
-      push @{$self->{windows}{$1}{content}}, {cursor_to => [$2, $3]};
-      
+      $self->{windows}{$1}->move_cursor($2, $3);
+      # push @{$self->{windows}{$1}{content}}, {cursor_to => [$2, $3]};
     }
 
     when (/^>>>glk_set_style_stream Window=$winid_r to style=(\d+) \(([A-Za-z0-9]+)\)$/) {
@@ -242,7 +238,8 @@ sub handle_stdout {
     }
 
     when (/^>>>window_clear win=$winid_r$/) {
-      push @{ $self->{windows}{$1}{content} }, { clear => 1 };
+      $self->{windows}{$1}->clear;
+      # push @{ $self->{windows}{$1}{content} }, { clear => 1 };
     }
 
     when (/^\?\?\?select, window=$winid_r, want (char|line)_(latin1|uni)$/) {

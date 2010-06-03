@@ -6,6 +6,9 @@ From user testing:
  - make restore have a list of available games.
  - have a production URL
  - google ads?
+ - empty input line before sending ajax, stack up calls?
+ - set focus on input box, on load + redraw
+ - after save, set scrollheight
 
 blue-lacuna
  - help menu is not usable, because there is no way to press enter.
@@ -17,12 +20,13 @@ acg
  - Working!
 
 alabaster
+ - The Imager remains 42 px high, because the browser keeps the Graphics div at minimal height.
  - Attempt to muck about with game's own config file still not working (doesn't like opening file that isn't preexiting?)
  - Graphics
-  - graphics window is invisible; javascript will not create new windows that didn't exist.
-  - window_fill_rect  - extern void glk_window_fill_rect(winid_t win, glui32 color, glsi32 left, glsi32 top, glui32 width, glui32 height);
-  - image_get_info    - extern glui32 glk_image_get_info(glui32 image, glui32 *width, glui32 *height);
-  - image_draw_scaled - extern glui32 glk_image_draw_scaled(winid_t win, glui32 image, glsi32 val1, glsi32 val2, glui32 width, glui32 height);
+  - DONE - graphics window is invisible; javascript will not create new windows that didn't exist.
+  - DONE - window_fill_rect  - extern void glk_window_fill_rect(winid_t win, glui32 color, glsi32 left, glsi32 top, glui32 width, glui32 height);
+  - DONE - image_get_info    - extern glui32 glk_image_get_info(glui32 image, glui32 *width, glui32 *height);
+  - DONE - image_draw_scaled - extern glui32 glk_image_draw_scaled(winid_t win, glui32 image, glsi32 val1, glsi32 val2, glui32 width, glui32 height);
 
 advent
  - DONE: help menu, putting a \x0A to a TextGrid doesn't move the cursor
