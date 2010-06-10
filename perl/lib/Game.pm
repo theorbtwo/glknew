@@ -206,12 +206,16 @@ sub handle_stdout {
     }
 
     when (/>>>window_set_arrangement win=$winid_r, method=([a-z, ]+), size=(\d+), keywin=$winid_r/) {
-        next if(!exists $self->{windows}{$1});
+      if(!exists $self->{windows}{$1}) {
+        die "Attempt to arrange non-existant winid $1";
+      }
+      my $win = $self->{windows}{$1};
+      
+      $win->method({map {($_=>1)} split(/, /, $2)});
+      $win->size($3);
+      $win->drawn(0);
 
-        $self->{windows}{$1}->method({map {($_=>1)} split(/, /, $2)});
-        $self->{windows}{$1}{size} = $3;
-
-        print "window_set_arrangement, ignoring keywin argument\n";
+      print "window_set_arrangement, ignoring keywin argument\n";
     }
 
     when (/^\?\?\?window_get_size win=$winid_r/) {

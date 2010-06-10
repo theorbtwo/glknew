@@ -37,6 +37,7 @@ strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui
   stream->u.win.win = win;
   stream->readcount = 0;
   stream->writecount = 0;
+  stream->next = NULL;
   
   /* FIXME: 1: There should be a better way.
      FIXME: 2: The spec suggests that we should save this up, and call

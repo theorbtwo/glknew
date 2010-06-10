@@ -226,7 +226,7 @@ BEGIN {
                                        show_forms => $game->get_form_states(),
                                       });
         } else {
-            $json = JSON::encode_json({ 
+            $json = JSON::encode_json({
                                        windows => $game->get_continue_windows(),
                                        input_type => $game->get_input_type(),
                                        show_forms => $game->get_form_states(),

@@ -179,6 +179,7 @@ sub has_new_windows {
 
   for my $win (values %{$self->{game_obj}{windows}}) {
     if (!$win->drawn) {
+      warn "has_new_windows because of window ".$win->id;
       return 1;
     }
   }
@@ -188,7 +189,7 @@ sub has_new_windows {
 
 sub get_initial_windows {
   my ($self) = @_;
-    
+  
   return get_formatted_text($self->{game_obj}->root_window, 1);
 }
 
@@ -196,13 +197,13 @@ sub get_continue_windows {
     my ($self) = @_;
 
     ## FIXME, why is last_page returning undef? Bad response Can't use an undefined value as an ARRAY reference at lib/Game/HTML.pm line 173, <GEN11> line 16505.
-    my @windows = map { 
+    my @windows = map {
       my ($text, $status) = $_->get_own_formatted_text;
-      +{ 
-        winid => "winid" . $_->{id}, 
+      +{
+        winid => "winid" . $_->{id},
         content => $text,
         status => $status,
-       } 
+       }
     } (values %{ $self->{game_obj}->{windows} });
     
     return \@windows;
@@ -437,10 +438,6 @@ sub set_window_size {
 sub style_distinguish {
     my ($game, $winid, $style1, $style2) = @_;
     my $win = $game->{windows}{$winid};
-
-    warn Dumper \@_;
-    warn Dumper $game;
-    warn Dumper $win;
 
     my ($style_css_1, $style_css_2) = map  { get_style( $game->{styles}{ $win->{wintype} }{$_} ) } ($style1, $style2);
 

@@ -10,6 +10,15 @@ From user testing:
  - set focus on input box, on load + redraw
  - after save, set scrollheight
 
+king
+ - <div style="height: 1 px"><div class='TextGrid' id='winid0x95e83f0'> -- get needs to know about height/width in chars vs pixels.
+ - Block vs inline elements for styles -- centred text not working, text background color only set directly behind text.
+ - Inline graphics in textbuffers
+ - Exiting the printworks more then once will end up with multiple graphics windows, since we do not support close.
+ - DONE - Size info on graphic windows. - DONE
+ - DONE - redraw implicitly clears TextBuffer?
+ - DONE - Graphics - DONE
+
 blue-lacuna
  - DONE - help menu is not usable, because there is no way to press enter.
   - DONE - JS to capture key onchange of input textfield, and if Return/cursor key etc, send "evtype_CharInput Return\n"
@@ -32,14 +41,6 @@ advent
  - DONE: help menu, putting a \x0A to a TextGrid doesn't move the cursor
  - help menu: window_set_arrangement and window_get_parent don't work via dispatch.
  - DONE: help menu: gets cleared "for us" after 'n'.
-
-king
- - <div style="height: 1 px"><div class='TextGrid' id='winid0x95e83f0'> -- get needs to know about height/width in chars vs pixels.
- - redraw implicitly clears TextBuffer?
- - DONE - Graphics - DONE
- - Block vs inline elements for styles -- centred text not working, text background color only set directly behind text.
- - DONE - Size info on graphic windows. - DONE
- - Inline graphics in textbuffers
 
 curses
  - Gets the windows confused somehow?
@@ -91,6 +92,7 @@ universal
  - DONE - make TextGrid excempt from pages garbage?
  - DONE - make get_own_formatted_text part of Game::Window::*?  Likewise ->move_cursor, etc?
  - DONE - Chrome: hitting up or down in a charinput box makes the autocomplete thingy show up. - DONE
+ - Graphics windows force the browser to re-get the image every turn, even if it has not changed.
 
  - saving
   - DONE - type "save", Game responds by running "save_file_name" callback, exits loop, and user is shown save form instead of normal input form (contains "username" and "save game" fields)
