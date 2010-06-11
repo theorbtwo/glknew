@@ -70,6 +70,23 @@ jQuery.extend(
               }
           Game.scrollBuffers();
           // { save => 1, input => 0} display state of forms
+
+          if(data.input_type === 'restore') {
+            var select = jQuery('#restore select');
+            var files = data.extra_form_data.files;
+
+            // Clear off any leftovers from last time.
+            select.html('');
+            select.attr('size', files.length);
+
+            jQuery.each(files, function(i, name) {
+              // FIXME: Properly quote the filename, both places.  Use less string-oriented API?
+              select.append('<option value="'+name+'" label="'+name+'" >'+name+"</option>");
+            });
+
+            jQuery('#restore #restore_username').val(data.extra_form_data.username);
+          }
+
           var key;
           for (key in data.show_forms) {
               if(typeof data.show_forms[key] !== 'function') {
@@ -102,6 +119,11 @@ jQuery(document).ready(
         // if key pressed in input box, and in char mode, trigger submit.
 
         if(jQuery('#prompt_type').text() == 'char') {
+          // Ignore alt
+          if (event.which == 18) {
+            return true;
+          }
+
           jQuery('#keycode_input').val(event.which);
           jQuery('#keycode_ident').val(event.keyIdentifier);
 

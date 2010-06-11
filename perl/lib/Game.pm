@@ -254,6 +254,7 @@ sub handle_stdout {
 
     }
 
+    #       ? ? ?glk_fileref_create_by_prompt usage=1    (SavedGame ), filemode=2    (Read  )
     when (/\?\?\?glk_fileref_create_by_prompt usage=\d+ \(([\w, ]+)\), filemode=\d+ \((\w+)\)/) {
       my ($usages, $mode) = ($1, $2);
       $usages = { map {+($_ => 1)} split /, /, $usages };

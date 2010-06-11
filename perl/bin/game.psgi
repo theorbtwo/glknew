@@ -125,14 +125,24 @@ BEGIN {
         },
 
         sub (/game/savefile + ?username=&save_file=&game_id=) {
-            my ($self, $username, $save_file, $game_id) = @_;           
+            my ($self, $username, $save_file, $game_id) = @_;
             s{[\0\/]}{}g for ($username, $save_file); 
 
             my $game = $games[$game_id];
             $game->send_prompt_file($username, $save_file);
 
           return $self->continue_game($game, 1);
-        }, 
+        },
+
+        sub (/game/login + ?username2=&game_id=) {
+          my ($self, $username, $game_id) = @_;
+
+          my $game = $games[$game_id];
+          $game->{username} = $username;
+
+          $game->prep_prompt_file($game);
+          return $self->continue_game($game, 0);
+        },
 
         sub (/game/continue + ?text~&input_type=&game_id=&window_id=&keycode~&keycode_ident~) {
           my ($self, $text, $input_type, $game_id, $window_id, $keycode, $keycode_ident) = @_;
@@ -187,8 +197,8 @@ BEGIN {
                          acg           => [$git, '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx', 'Adventurer\'s Consumer Guide'],
                          king          => [$git, '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb', 'The King of Shreds and Patches'],
                          curses        => [$nitfol, '/mnt/shared/projects/games/flash-if/curses.z5', 'Curses'],
-                         #emy           => [$agility, '/mnt/shared/projects/games/flash-if/Emy Discovers Life/DISCOVER', 'Emy Discovers Life'],
-                         #sd3           => [$tads2, '/mnt/shared/projects/games/flash-if/sd3/SD3.gam', 'School Dreams 3: School Dreams Forever'],
+                         emy           => [$agility, '/mnt/shared/projects/games/flash-if/Emy Discovers Life/DISCOVER', 'Emy Discovers Life'],
+                         sd3           => [$tads2, '/mnt/shared/projects/games/flash-if/sd3/SD3.gam', 'School Dreams 3: School Dreams Forever'],
                          zork1         => [$nitfol, '/mnt/shared/projects/games/flash-if/zork1/DATA/ZORK1.DAT', 'Zork I'],
                         );
             my $game_info = $games{$game_name};
@@ -217,21 +227,18 @@ BEGIN {
         $game->continue
           if $run_select;
 
-        my $json;
+        my $json = {
+                    input_type => $game->get_input_type(),
+                    show_forms => $game->get_form_states(),
+                    extra_form_data => $game->extra_form_data(),
+                   };
         if($game->has_new_windows) {
-            $json = JSON::encode_json({
-                                       redraw => 1,
-                                       windows => $game->get_initial_windows(),
-                                       input_type => $game->get_input_type(),
-                                       show_forms => $game->get_form_states(),
-                                      });
+          $json->{redraw} = 1;
+          $json->{windows} = $game->get_initial_windows();
         } else {
-            $json = JSON::encode_json({
-                                       windows => $game->get_continue_windows(),
-                                       input_type => $game->get_input_type(),
-                                       show_forms => $game->get_form_states(),
-                                     });
+          $json->{windows} = $game->get_continue_windows();
         }
+        $json = JSON::encode_json($json);
         print "Sending JSON: $json\n";
 
         [ 200, 

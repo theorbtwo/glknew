@@ -8,6 +8,7 @@ use Game;
 use Carp 'cluck';
 use File::Spec::Functions;
 use File::Path 'mkpath';
+use Path::Class;
 use Data::Dump::Streamer 'Dump', 'Dumper';
 ## This is the HTML layer over Game, which is the perl skin over glknew, which is.. C all the way down.
 
@@ -16,15 +17,15 @@ sub new {
     my $self = bless({ 
                       save_file_dir => $save_file_dir,
                       ## keys here correspond to HTML ids of forms in get_forms
-                      form_states => { input => 1, save => 0 },
+                      form_states => { input => 1, save => 0, login => 0, restore => 0 },
                      }, $class);
 
     my $game = Game->new($game_path, 
                          $interp_path,
-                         { 
+                         {
                           window_size => sub { $self->send_window_size(@_) },
                           style_distinguish => \&style_distinguish,
-                          prompt_file => sub { $self->prep_prompt_file() },
+                          prompt_file => sub { $self->prep_prompt_file(@_) },
                          });
     $game->user_info($game_id);
     $self->{game_obj} = $game;
@@ -48,9 +49,23 @@ sub send {
   $self->{game_obj}->send_to_game($input);
 }
 
+sub save_file_dir {
+  my ($self) = @_;
+
+  if (!$self->{username}) {
+    die "Called save_dir before username set";
+  }
+
+  my $game_dir = catfile($self->{save_file_dir}, $self->{username});
+  mkpath($game_dir);
+
+  return $game_dir;
+}
+
 sub send_prompt_file {
   my ($self, $username, $savefile) = @_;
 
+  # FIXME: Make this use save_dir after save uses common login form with restore.
   my $game_dir = catfile($self->{save_file_dir}, $username);
   mkpath($game_dir);
   my $game_file = catfile($game_dir, $savefile);
@@ -59,20 +74,47 @@ sub send_prompt_file {
 }
 
 sub prep_prompt_file {
-    my ($self, $usage, $mode) = @_;
+    my ($self, $game, $usage, $mode) = @_;
 
-    ## get_form sends several forms, some are hidden, we set a value that json will use to unhide the save file form.
-    $self->set_form_visible('save');
+    $usage ||= $self->{game_obj}{current_select}{usage};
+    $mode  ||= $self->{game_obj}{current_select}{mode};
 
-    ## this doesn't actually get used, but we want to set it to something to avoid uninit warning.
-    $self->{game_obj}->{current_select}{input_type} = 'file';
-    # hr, keys are {Data, SavedGame, Transcript, InputRecord}, Text?
-    $self->{game_obj}->{current_select}{file_usage} = $usage;
-    # Write, Read, ReadWrite, WriteAppend
-    $self->{game_obj}->{current_select}{file_mode} = $mode;
-    
-    ## Escape loop so we can send the form to the browser
+    Dump [$usage, $mode];
+
+    # No matter what, we're going to want to stop the event loop here.
     $self->{game_obj}{collecting_input} = 0;
+    
+    if ($mode =~ m/Read/) {
+      if (!$self->{username}) {
+        $self->set_form_visible('login');
+        $self->{game_obj}{current_select}{input_type} = 'login';
+        $self->{game_obj}{current_select}{usage} = $usage;
+        $self->{game_obj}{current_select}{mode} = $mode;
+      } else {
+        $self->set_form_visible('restore');
+        my $dir = Path::Class::Dir->new($self->save_file_dir);
+        my @files = grep {!$_->is_dir} $dir->children;
+        $self->{game_obj}{current_select}{input_type} = 'restore';
+        $self->{game_obj}{current_select}{extra_form_data}{files} = [map {$_->basename} @files];
+        # FIXME: Remove this ugly hack.
+        $self->{game_obj}{current_select}{extra_form_data}{username} = $self->{username};
+      }
+    } else {
+      # Save.  FIXME: Seperate login and filename modes for this, too?
+
+      ## get_form sends several forms, some are hidden, we set a value that json will use to unhide the save file form.
+      $self->set_form_visible('save');
+      
+      ## this doesn't actually get used, but we want to set it to something to avoid uninit warning.
+      $self->{game_obj}->{current_select}{input_type} = 'file';
+      # hr, keys are {Data, SavedGame, Transcript, InputRecord}, Text?
+      $self->{game_obj}->{current_select}{file_usage} = $usage;
+      # Write, Read, ReadWrite, WriteAppend
+      $self->{game_obj}->{current_select}{file_mode} = $mode;
+      
+      ## Escape loop so we can send the form to the browser
+      $self->{game_obj}{collecting_input} = 0;
+    }
 }
 
 sub set_form_visible {
@@ -96,6 +138,10 @@ sub get_input_type {
     return $self->{game_obj}->{current_select}{input_type};
 }
 
+sub extra_form_data {
+  $_[0]->{game_obj}{current_select}{extra_form_data};
+}
+
 sub get_forms {
     my ($self) = @_;
     my ($game) = $self->{game_obj};
@@ -116,13 +162,28 @@ sub get_forms {
  <input id='prompt' type='text' name='text' />
  <input id='input_type' type='hidden' name='input_type' value='$input_type' />
 </form>
+<form class='form' id='login' stype='display: none;' method='post' action='/game/login'>
+ <div>
+  <label for='username2'>Username<input type='text' id='username2' name='username2' /></label>
+ </div>
+ <input type='hidden' name='game_id' value='$gameid' />
+ <input type='submit' value='Login' />
+</form>
 <form class='form' id='save' style='display: none;' method='post' action='/game/savefile'>
  <span>
   <label for='username'>Username<input type='text' id='username' name='username'/></label>
  </span><br/>
  <span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/>
  <input type='hidden' name='game_id' value='$gameid' />
- <input type='submit' value='Submit' />
+ <input type='submit' value='Save' />
+</form>
+<form class='form' id='restore' style='display: none;' method='post' action='/game/savefile'>
+ <select name='save_file'>
+  <!-- js will fill in option tags here -->
+ </select>
+ <input type='hidden' name='username' id='restore_username' value='javascriptshouldfillthisin' />
+ <input type='hidden' name='game_id' value='$gameid' />
+ <input type='submit' value='Restore' />
 </form>
 <img src='/img/ajaxload.gif' style='display: none' id='throbber' /><span id='status'></span>
 
