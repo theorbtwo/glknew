@@ -131,7 +131,7 @@ BEGIN {
             my $game = $games[$game_id];
             $game->send_prompt_file($username, $save_file);
 
-          return $self->continue_game($game, 1);
+            return $self->continue_game($game, 1);
         },
 
         sub (/game/login + ?username2=&game_id=) {

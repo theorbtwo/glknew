@@ -66,9 +66,7 @@ sub send_prompt_file {
   my ($self, $username, $savefile) = @_;
 
   # FIXME: Make this use save_dir after save uses common login form with restore.
-  my $game_dir = catfile($self->{save_file_dir}, $username);
-  mkpath($game_dir);
-  my $game_file = catfile($game_dir, $savefile);
+  my $game_file = catfile($self->save_file_dir, $savefile);
 
   $self->send("$game_file\n");
 }
@@ -76,44 +74,51 @@ sub send_prompt_file {
 sub prep_prompt_file {
     my ($self, $game, $usage, $mode) = @_;
 
+    # HR, one of the group and optionally the second {Data, SavedGame, Transcript, InputRecord}, Text?
     $usage ||= $self->{game_obj}{current_select}{usage};
+
+    # String, one of Write, Read, ReadWrite, WriteAppend
     $mode  ||= $self->{game_obj}{current_select}{mode};
 
     Dump [$usage, $mode];
 
     # No matter what, we're going to want to stop the event loop here.
     $self->{game_obj}{collecting_input} = 0;
-    
+
+    # If we don't yet know who the user is, find out.
+    if (!$self->{username}) {
+      $self->set_form_visible('login');
+      $self->{game_obj}{current_select}{input_type} = 'login';
+      $self->{game_obj}{current_select}{usage} = $usage;
+      $self->{game_obj}{current_select}{mode} = $mode;
+      return;
+    }
+
+    # Only now do we actually need to care about if we are saving or restoring.
     if ($mode =~ m/Read/) {
-      if (!$self->{username}) {
-        $self->set_form_visible('login');
-        $self->{game_obj}{current_select}{input_type} = 'login';
-        $self->{game_obj}{current_select}{usage} = $usage;
-        $self->{game_obj}{current_select}{mode} = $mode;
-      } else {
-        $self->set_form_visible('restore');
-        my $dir = Path::Class::Dir->new($self->save_file_dir);
-        my @files = grep {!$_->is_dir} $dir->children;
-        $self->{game_obj}{current_select}{input_type} = 'restore';
-        $self->{game_obj}{current_select}{extra_form_data}{files} = [map {$_->basename} @files];
-        # FIXME: Remove this ugly hack.
-        $self->{game_obj}{current_select}{extra_form_data}{username} = $self->{username};
-      }
+      # Restore
+
+      $self->set_form_visible('restore');
+      $self->{game_obj}{current_select}{input_type} = 'restore';
+
+      my $dir = Path::Class::Dir->new($self->save_file_dir);
+      my @files = grep {!$_->is_dir} $dir->children;
+      $self->{game_obj}{current_select}{extra_form_data}{files} = [map {$_->basename} @files];
+      # FIXME: Remove this ugly hack.
+      $self->{game_obj}{current_select}{extra_form_data}{username} = $self->{username};
     } else {
       # Save.  FIXME: Seperate login and filename modes for this, too?
 
       ## get_form sends several forms, some are hidden, we set a value that json will use to unhide the save file form.
       $self->set_form_visible('save');
-      
       ## this doesn't actually get used, but we want to set it to something to avoid uninit warning.
       $self->{game_obj}->{current_select}{input_type} = 'file';
-      # hr, keys are {Data, SavedGame, Transcript, InputRecord}, Text?
-      $self->{game_obj}->{current_select}{file_usage} = $usage;
-      # Write, Read, ReadWrite, WriteAppend
-      $self->{game_obj}->{current_select}{file_mode} = $mode;
       
-      ## Escape loop so we can send the form to the browser
-      $self->{game_obj}{collecting_input} = 0;
+      # FIXME: Audit if this actually gets used, and remove if we don't need it.
+      $self->{game_obj}->{current_select}{file_usage} = $usage;
+      $self->{game_obj}->{current_select}{file_mode} = $mode;
+      # FIXME: Remove this ugly hack.
+      $self->{game_obj}{current_select}{extra_form_data}{username} = $self->{username};
     }
 }
 
@@ -170,9 +175,7 @@ sub get_forms {
  <input type='submit' value='Login' />
 </form>
 <form class='form' id='save' style='display: none;' method='post' action='/game/savefile'>
- <span>
-  <label for='username'>Username<input type='text' id='username' name='username'/></label>
- </span><br/>
+ <input type='hidden' id='username' name='username'/>
  <span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/>
  <input type='hidden' name='game_id' value='$gameid' />
  <input type='submit' value='Save' />
