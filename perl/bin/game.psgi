@@ -15,6 +15,9 @@ BEGIN {
     use JSON;
     use File::Spec::Functions;
     use Data::Dump::Streamer 'Dumper';
+    use LWPx::ParanoidAgent;
+    use Cache::FileCache;
+    use Net::OpenID::Consumer;
 
     my @games = ();
 
@@ -54,8 +57,9 @@ BEGIN {
                                      120 => 'Func10',
                                      121 => 'Func11',
                                      122 => 'Func12',
-                                    }
-   );
+                                    },
+                     root_url => 'http://lilith:5000/',
+                   );
 
     sub static_file {
         my ($self, $file, $type) = @_;
@@ -69,6 +73,23 @@ BEGIN {
 
         return [ 200, [ 'Content-type' => $type ], [ $file_content ] ];
  
+    }
+
+    sub openid_consumer {
+      my ($self, $query_parms) = @_;
+      
+      # FIXME: We should mine this out of $self, so it matches the URL that the user needs: lilith, lilith.local, external?
+      return Net::OpenID::Consumer->new(
+                                        ua => LWPx::ParanoidAgent->new,
+                                        cache => Cache::FileCache->new({namespace => __PACKAGE__}),
+                                        # args => hr of get parameters,
+                                        # FIXME: At least don't have this in a public git repo, you noncewit.
+                                        consumer_secret => 'oasiejgoag',
+                                        # FIXME: The URL for the root of this plackup thingy.  Should be far more dynamic then this.
+                                        required_root => $self->config->{root_url},
+                                        # All the query paramaters to the current URL (that aren't handled "by hand").
+                                        args => $query_parms,
+                                       );
     }
 
     dispatch {
@@ -110,7 +131,6 @@ BEGIN {
               ], 
               [ $graphics->as_png]
             ];
-            
         },
 
         sub (/ajax/window_size + ?game_id=&win_id=&width=&height=) {
@@ -124,26 +144,82 @@ BEGIN {
             return $self->continue_game($game, 0);
         },
 
-        sub (/game/savefile + ?username=&save_file=&game_id=) {
-            my ($self, $username, $save_file, $game_id) = @_;
-            s{[\0\/]}{}g for ($username, $save_file); 
+        sub (/game/savefile + ?save_file=&game_id=) {
+            my ($self, $save_file, $game_id) = @_;
+            $save_file =~ s{[\0\/]}{_}g;
 
             my $game = $games[$game_id];
-            $game->send_prompt_file($username, $save_file);
+            $game->send_prompt_file($save_file);
 
             return $self->continue_game($game, 1);
         },
 
         sub (/game/login + ?username2=&game_id=) {
-          my ($self, $username, $game_id) = @_;
+          my ($self, $claimed_oid_url, $game_id) = @_;
 
           my $game = $games[$game_id];
-          $game->{username} = $username;
 
-          $game->prep_prompt_file($game);
-          return $self->continue_game($game, 0);
+          my $csr = $self->openid_consumer;
+          my $claimed_identity = $csr->claimed_identity($claimed_oid_url);
+          my $check_url = $claimed_identity->check_url(
+                                                       return_to  => $self->config->{root_url}."game/logged_in?game_id=$game_id",
+                                                       trust_root => $self->config->{root_url},
+                                                      );
+          [
+           302,
+           [ 'Location' => $check_url ],
+           [ "What?  Why didn't you follow the 301 redirect?" ]
+          ];
         },
 
+
+        sub (/game/logged_in + ?game_id=&*) {
+          my ($self, $game_id, $kitchen_sink) = @_;
+
+          my $game = $games[$game_id];
+          my $csr = $self->openid_consumer($kitchen_sink);
+          
+          # FIXME: We should figure out how to handle these without loosing the player's progress.
+          return $csr->handle_server_response
+            (
+             not_openid => sub {
+               die "Not an OpenID message";
+             },
+             setup_required => sub {
+               my ($setup_url) = @_;
+               
+               return [
+                       302,
+                       [ 'Location' => $setup_url ],
+                       [ "What?  Why didn't you follow the 301 redirect?" ]
+                      ];
+             },
+             cancelled => sub {
+               # FIXME: This case *really*
+               # should be handled without
+               # falling over completely, so
+               # the user can retry.  Make the C layer return NULL somehow?
+               die "User canceled on us while attempting to log them in";
+             },
+             verified => sub {
+               my ($validated_id) = @_;
+               $game->{user_identity} = $validated_id;
+               
+               $game->prep_prompt_file($game);
+
+               # This duplicates code in /game/new/*
+               [200,
+                ['Content-type' => 'text/html',],
+                [$game->make_page(undef, "FIXME: Make title correct after login dance")]
+               ];
+             },
+             error => sub {
+               my ($error) = @_;
+               die $error;
+             }
+            );
+        },
+          
         sub (/game/continue + ?text~&input_type=&game_id=&window_id=&keycode~&keycode_ident~) {
           my ($self, $text, $input_type, $game_id, $window_id, $keycode, $keycode_ident) = @_;
 #          my $char = $keycode if($input_type eq 'char');

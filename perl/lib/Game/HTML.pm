@@ -10,7 +10,9 @@ use File::Spec::Functions;
 use File::Path 'mkpath';
 use Path::Class;
 use Data::Dump::Streamer 'Dump', 'Dumper';
+use Net::OpenID::Consumer;
 ## This is the HTML layer over Game, which is the perl skin over glknew, which is.. C all the way down.
+
 
 sub new {
     my ($class, $game_id, $game_path, $interp_path, $save_file_dir) = @_;
@@ -52,18 +54,25 @@ sub send {
 sub save_file_dir {
   my ($self) = @_;
 
-  if (!$self->{username}) {
-    die "Called save_dir before username set";
+  if (!$self->{user_identity}) {
+    die "Called save_dir before user_identity set";
   }
 
-  my $game_dir = catfile($self->{save_file_dir}, $self->{username});
+  my $usernamelet = $self->{user_identity}->url;
+  $usernamelet =~ s/\0/fuckyounull/g;
+  $usernamelet =~ s!^http://!!;
+  $usernamelet =~ s!/\.\.!/dotdot!g;
+
+  my $game_dir = catfile($self->{save_file_dir}, $usernamelet);
   mkpath($game_dir);
 
   return $game_dir;
 }
 
 sub send_prompt_file {
-  my ($self, $username, $savefile) = @_;
+  my ($self, $savefile) = @_;
+
+  die "Too many parameters to send_prompt_file" if @_ == 3;
 
   # FIXME: Make this use save_dir after save uses common login form with restore.
   my $game_file = catfile($self->save_file_dir, $savefile);
@@ -86,7 +95,7 @@ sub prep_prompt_file {
     $self->{game_obj}{collecting_input} = 0;
 
     # If we don't yet know who the user is, find out.
-    if (!$self->{username}) {
+    if (!$self->{user_identity}) {
       $self->set_form_visible('login');
       $self->{game_obj}{current_select}{input_type} = 'login';
       $self->{game_obj}{current_select}{usage} = $usage;
@@ -104,8 +113,6 @@ sub prep_prompt_file {
       my $dir = Path::Class::Dir->new($self->save_file_dir);
       my @files = grep {!$_->is_dir} $dir->children;
       $self->{game_obj}{current_select}{extra_form_data}{files} = [map {$_->basename} @files];
-      # FIXME: Remove this ugly hack.
-      $self->{game_obj}{current_select}{extra_form_data}{username} = $self->{username};
     } else {
       # Save.  FIXME: Seperate login and filename modes for this, too?
 
@@ -117,8 +124,6 @@ sub prep_prompt_file {
       # FIXME: Audit if this actually gets used, and remove if we don't need it.
       $self->{game_obj}->{current_select}{file_usage} = $usage;
       $self->{game_obj}->{current_select}{file_mode} = $mode;
-      # FIXME: Remove this ugly hack.
-      $self->{game_obj}{current_select}{extra_form_data}{username} = $self->{username};
     }
 }
 
@@ -157,7 +162,7 @@ sub get_forms {
     my $input_type = $game->{current_select}{input_type};
 
     $forms = <<END;
-<form class='form' id='input' method='post' action='/game/continue'>
+<form class='ajaxform' id='input' method='post' action='/game/continue'>
  <input type='hidden' name='game_id' value='$gameid' />
  <input type='hidden' name='window_id' value='winid$winid'/>
  <input id='keycode_input' type='hidden' name='keycode' value=''/>
@@ -167,24 +172,22 @@ sub get_forms {
  <input id='prompt' type='text' name='text' />
  <input id='input_type' type='hidden' name='input_type' value='$input_type' />
 </form>
-<form class='form' id='login' stype='display: none;' method='post' action='/game/login'>
+<form class='form' id='login' stype='display: none;' method='get' action='/game/login'>
  <div>
-  <label for='username2'>Username<input type='text' id='username2' name='username2' /></label>
+  <label for='username2'>OpenID URL<input type='text' id='username2' name='username2' /></label>
  </div>
  <input type='hidden' name='game_id' value='$gameid' />
  <input type='submit' value='Login' />
 </form>
-<form class='form' id='save' style='display: none;' method='post' action='/game/savefile'>
- <input type='hidden' id='username' name='username'/>
+<form class='ajaxform' id='save' style='display: none;' method='post' action='/game/savefile'>
  <span><label for='save_file'>Filename<input type='text' id='save_file' name='save_file'/></label></span><br/>
  <input type='hidden' name='game_id' value='$gameid' />
  <input type='submit' value='Save' />
 </form>
-<form class='form' id='restore' style='display: none;' method='post' action='/game/savefile'>
+<form class='ajaxform' id='restore' style='display: none;' method='post' action='/game/savefile'>
  <select name='save_file'>
   <!-- js will fill in option tags here -->
  </select>
- <input type='hidden' name='username' id='restore_username' value='javascriptshouldfillthisin' />
  <input type='hidden' name='game_id' value='$gameid' />
  <input type='submit' value='Restore' />
 </form>

@@ -33,7 +33,7 @@ jQuery.extend(
                         success: Game.windowUpdateSuccess,
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
                             alert(XMLHttpRequest.responseText);
-                            jQuery('body').html(XMLHttpRequest.responseText);
+                            jQuery('body').html("<tt>"+XMLHttpRequest.responseText+"</tt>");
                         }
                     });
 
@@ -134,7 +134,7 @@ jQuery(document).ready(
       });
 
 
-    jQuery("form").submit(
+    jQuery(".ajaxform").submit(
       function() {
         jQuery('#throbber').show();
         jQuery('#status').text('Sending...');
@@ -148,7 +148,7 @@ jQuery(document).ready(
             dataType: 'json',
             error: function(XMLHttpRequest, textStatus, errorThrown) {
                   alert(XMLHttpRequest.responseText);
-                  jQuery(body).html(responseText);
+                  jQuery('body').html("<tt>"+XMLHttpRequest.responseText+"</tt>");
             }
           });
         return false;
