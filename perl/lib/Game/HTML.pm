@@ -83,13 +83,13 @@ sub send_prompt_file {
 sub prep_prompt_file {
     my ($self, $game, $usage, $mode) = @_;
 
-    # HR, one of the group and optionally the second {Data, SavedGame, Transcript, InputRecord}, Text?
+    # HR, one of the group and optionally the second {ata, SavedGame, Transcript, InputRecord}, Text?
     $usage ||= $self->{game_obj}{current_select}{usage};
 
     # String, one of Write, Read, ReadWrite, WriteAppend
     $mode  ||= $self->{game_obj}{current_select}{mode};
 
-    Dump [$usage, $mode];
+    print STDERR Dumper[$usage, $mode];
 
     # No matter what, we're going to want to stop the event loop here.
     $self->{game_obj}{collecting_input} = 0;
@@ -450,7 +450,7 @@ sub get_style {
     }
     
     $style_str .= "}\n";
-    #        print "Adding style: $style_str\n";
+    #        print STDERR "Adding style: $style_str\n";
     
     return $style_str;
 }

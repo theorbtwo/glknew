@@ -2,7 +2,9 @@ package Game;
 use warnings;
 use strict;
 use IPC::Open3;
-use Symbol 'gensym';
+use IPC::Run 'start';
+use Symbol 'geniosym';
+use IO::Handle;
 use 5.010_00;
 use Data::Dump::Streamer;
 
@@ -37,7 +39,8 @@ sub new {
   $self->{leftovers} = '';
 
   $self->setup_initial_styles();
-  $self->setup_ipc_open3();
+#  $self->setup_ipc_open3();
+  $self->setup_ipc_run();
 
   return $self;
 }
@@ -68,7 +71,12 @@ sub setup_initial_styles {
 sub setup_ipc_open3 {
   my ($self) = @_;
 
-  $self->{child_stderr} = gensym;
+  $self->{$_} = geniosym for qw<child_stdin child_stdout>;
+  # Sepcifing stderr as something which is currently undef will result
+  # in stderr being the same as stdout... which, it turns out, is just
+  # what we want in this case, since it avoids the bother of having to
+  # multiplex two read streams.
+  #$self->{child_stderr} = gensym;
   # BIG FAT WARNING: open3 modifies it's arguments!
   if ($ENV{USE_VALGRIND}) {
     open3($self->{child_stdin}, $self->{child_stdout}, $self->{child_stderr},
@@ -84,13 +92,36 @@ sub setup_ipc_open3 {
   }
 }
 
+sub setup_ipc_run {
+  my ($self) = shift;
+
+  $self->{$_} = geniosym for qw<child_stdin child_stdout child_stderr>;
+  if ($ENV{USE_VALGRIND}) {
+    start([ '/usr/bin/valgrind', '--track-origins=yes', '--log-fd=1', $self->{_git_binary}, $self->{_game_file}],
+         '<pipe', $self->{child_stdin}, 
+          '>pipe', $self->{child_stdout}, 
+          '2>pipe', $self->{child_stderr}) or die "Couldn't start child process; $!";
+  } else {
+    start([ $self->{_git_binary}, $self->{_game_file}],
+         '<pipe', $self->{child_stdin}, 
+          '>pipe', $self->{child_stdout}, 
+          '2>pipe', $self->{child_stderr}) or die "Couldn't start child process; $!";
+  }
+  for (@{$self}{qw/child_stdin child_stdout child_stderr/}) {
+    my $was = select($_);
+    $|=1;
+    select($was);
+  }
+
+}
+
 sub send_to_game {
   my ($self, $line) = @_;
 
   if ($line !~ m/\n$/) {
     $line = "$line\n";
   }
-  print "Sending: '$line'\n";
+  print STDERR "Sending: '$line'\n";
   $self->{child_stdin}->print($line);
 }
 
@@ -99,13 +130,13 @@ sub wait_for_select {
 
   $self->{collecting_input} = 1;
   while ($self->{collecting_input}) {
-    #print "Doing readline from child's stdout\n";
+    #print STDERR "Doing readline from child's stdout\n";
     my $line = readline($self->{child_stdout});
     if (not defined $line) {
       die "Subprocess died?  $!";
     }
 
-    #print "Doing readline from child's stdout, got '$line'\n";
+    #print STDERR "Doing readline from child's stdout, got '$line'\n";
     $self->handle_stdout($line);
   }
 
@@ -117,7 +148,7 @@ sub wait_for_select {
 sub handle_stdout {
   my ($self, $from_game) = @_;
 
-#  Dump $from_game;
+#  print STDERR Dumper$from_game;
 
   # Because IPC::Run doesn't simply split into nice chunks for me, we
   # need to do so ourselves.  Remove any partial chunks at the end of
@@ -132,7 +163,7 @@ sub handle_stdout {
     $self->{leftovers} = $from_game;
     return;
   }
-  #print "Leftovers: $self->{leftovers}\n";
+  #print STDERR "Leftovers: $self->{leftovers}\n";
 
   # Very funny.  For some reason, I'm getting CRLF line-ends, dispite running this under linux, and having a printf("\n") generating it.
   # I also rather wonder why I am getting multiple lines at once.
@@ -141,7 +172,7 @@ sub handle_stdout {
 
   for (split m/\cM?\cJ/, $from_game) {
     if ($ENV{GLKNEW_TRACE}) {
-      print "Line: ##$_##\n";
+      print STDERR "Line: ##$_##\n";
     }
 
     when ('GLK new!') {
@@ -197,7 +228,7 @@ sub handle_stdout {
     when (/^>>>win: at $winid_r$/) {
       $self->{win_in_progress}{id} = $1;
       
-#      Dump $self->{win_in_progress};
+#      print STDERR Dumper$self->{win_in_progress};
 
       my $win;
       $win = $self->{windows}{$1} = "Game::Window::$self->{win_in_progress}{wintype}"->new(delete $self->{win_in_progress});
@@ -215,7 +246,7 @@ sub handle_stdout {
       $win->size($3);
       $win->drawn(0);
 
-      print "window_set_arrangement, ignoring keywin argument\n";
+      print STDERR "window_set_arrangement, ignoring keywin argument\n";
     }
 
     when (/^\?\?\?window_get_size win=$winid_r/) {
@@ -248,7 +279,7 @@ sub handle_stdout {
 
     when (/^\?\?\?select, window=$winid_r, want (char|line)_(latin1|uni)$/) {
       local $self->{harness} = 'SKIPPING HARNESS';
-#      Dump $self;
+#      print STDERR Dumper$self;
 
       $self->{_callbacks}{select}->($self, $1, $2, $3);
 
@@ -294,7 +325,7 @@ sub handle_stderr {
 sub default_window_size_callback {
     my ($self, $winid) = @_;
     my $win = $self->{windows}{$winid};
-    # Dump $win;
+    # print STDERR Dumper$win;
 
     my @size = (80, 25);
     if ('fixed' ~~ @{ $win->{method} }) {
@@ -331,25 +362,25 @@ sub default_select_callback {
 
   for my $win_p (keys %{$self->{windows}}) {
     my $win = $self->{windows}{$win_p};
-#    Dump $win;
-    print "----\n";
-    print "$win_p\n";
+#    print STDERR Dumper$win;
+    print STDERR "----\n";
+    print STDERR "$win_p\n";
     
     my $prev_style = {};
     for my $e (@{$win->{content}}) {
       my ($style, $char) = @{$e}{'style', 'char'};
       if(defined $style) {
           if ($prev_style != $style) {
-              print ("<div class='$style->{name}'>");
+              print STDERR ("<div class='$style->{name}'>");
           }
-          print $char;
+          print STDERR $char;
           $prev_style = $style;
       } elsif(exists $e->{cursor_to}) {
-          print "Move cursor to: ", join(':', @{ $e->{cursor_to} }), "\n";
+          print STDERR "Move cursor to: ", join(':', @{ $e->{cursor_to} }), "\n";
       }
     }
     ## newline so status window line is seen..
-    print "\n";
+    print STDERR "\n";
   }
 
   $self->{current_select} = {
