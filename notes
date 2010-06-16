@@ -1,3 +1,14 @@
+How to restore, from new.
+ - advent: line input "restore\n"
+ - blue-lacnua: char input "r"
+ - alabaster: line "yes\n", char space, line "restore\n"
+ - acg: line "restore\n"
+ - king: char "r"
+ - curses: N/A
+ - zork1: N/A
+ - emy: char space, line "restore\n"
+ - sd3: line "foo\n", line "restore\n"
+
 From user testing:
  - Make scrollbar more obvious -- see, for ex, just after answering art or love in blue lacuna
  - In blue lacuna, ret with no input should do 'look'.
