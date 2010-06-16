@@ -105,3 +105,15 @@ universal
  - Handle game titles with html metacharacters.
  - s/Game/GlkNew/ in all module names?
 
+ - front page:
+  - Initial: List of game links to click on for new game - TT/View including looking up list of games?
+   - Also links to github checkout / github issues list
+  - Need to extract the "list of games" data somewhere both Game::Catalyst and Game::Everything else will see it? maybe into the conf file for the app? (and load with config::any elsewhere or pass in)
+ - Allow user to login and display customised front page, including users games player with resume links?
+ - Need to extract "games for this user" code so cat can see it.. or make available outside a Game::HTML object?
+ - How to "restore" a game from a link to the save file?
+ - is this the same save/re-open code that allows us to stop relying on the @games array globally?
+
+ - get rid of @games array.
+  - need to test how each game starts/can be restored.. generally, send "r" or "restore" as first command on select?
+  - what about games that ask for window size first?
