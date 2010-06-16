@@ -112,7 +112,7 @@ sub as_png {
 
     my $data;
 
-    Dump $self->imager;
+    print STDERR Dumper $self->imager;
 
     $self->imager->write(type => 'png', data => \$data)
       or die "cannot pngify: ".$self->imager->errstr;
