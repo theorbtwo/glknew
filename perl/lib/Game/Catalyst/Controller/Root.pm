@@ -239,33 +239,16 @@ sub game_new :Path('/game/new') :Args(1) {
   # FIXME: rename game_name, it's actually a shortname.  Title is the "real" name...
   my ($self, $c, $game_name) = @_;
   
-  my $git = $c->config->{git_binary};
-  # FIXME: Why are these such a random mix of in config and not, based on absolute paths and not, in their own subdirectories and not...
-  my $nitfol = "/mnt/shared/projects/games/flash-if/nitfol-0.5/newnitfol";
-  my $agility = "/mnt/shared/projects/games/flash-if/garglk-read-only/terps/agility/glkagil";
-  my $tads2 = "/mnt/shared/projects/games/flash-if/tads2/glk/newtads";
-  
-  # Note that this key is used both as a URI element and a filename element.  For simplicity, keep element names lacking in URI metacharacters, please.
-  # The title, OTOH, can be any arbitrary string.
-  my %games = (
-               advent        => [$git, $c->config->{home}."/t/var/Advent.ulx", 'Adventure!'],
-               'blue-lacuna' => [$git, '/mnt/shared/projects/games/flash-if/blue-lacuna/BlueLacuna-r3.gblorb', 'Blue Lacuna'],
-               alabaster     => [$git, '/mnt/shared/projects/games/flash-if/Alabaster/Alabaster.gblorb', 'Alabaster'],
-               acg           => [$git, '/mnt/shared/projects/games/flash-if/ACG/ACG.ulx', 'Adventurer\'s Consumer Guide'],
-               king          => [$git, '/mnt/shared/projects/games/flash-if/The King of Shreds and Patches.gblorb', 'The King of Shreds and Patches'],
-               curses        => [$nitfol, '/mnt/shared/projects/games/flash-if/curses.z5', 'Curses'],
-               zork1         => [$nitfol, '/mnt/shared/projects/games/flash-if/zork1/DATA/ZORK1.DAT', 'Zork I'],
-               emy           => [$agility, '/mnt/shared/projects/games/flash-if/Emy Discovers Life/DISCOVER', 'Emy Discovers Life'],
-               sd3           => [$tads2, '/mnt/shared/projects/games/flash-if/sd3/SD3.gam', 'School Dreams 3: School Dreams Forever'],
-              );
-  my $game_info = $games{$game_name};
-  
+  my $game_info = $c->game_data($game_name);
+
   if (!$game_info) {
     # FIXME: Make this more user-friendly.  For one thing, die kills the *entire server*, not just this user's session.
     die "Do not know game path for game $game_name -- supported: ".join(", ", keys %games);
   }
-  my ($interp_path, $game_path, $title) = @$game_info;
-  
+  my ($vm, $game_loc, $title) = @{$game_info}{qw/vm location title/};
+  my $interp_path = $c->config->{interpreters}{$vm};
+  my $game_path = $c->config->{game_path} . $game_loc;
+
   my $game_id = scalar @games;
   
   my $game = Game::HTML->new($game_id, $game_path, $interp_path, catfile($c->config->{save_file_dir}, $game_name));

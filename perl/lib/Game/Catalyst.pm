@@ -85,6 +85,13 @@ __PACKAGE__->config(
 # Start the application
 __PACKAGE__->setup();
 
+sub game_data {
+    my ($c, $shortname) = @_;
+
+    return $c->config->{games}{$shortname};
+}
+
+
 
 =head1 NAME
 
