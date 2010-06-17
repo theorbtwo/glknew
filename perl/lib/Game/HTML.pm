@@ -15,8 +15,9 @@ use Net::OpenID::Consumer;
 
 
 sub new {
-    my ($class, $game_id, $game_path, $interp_path, $save_file_dir) = @_;
-    my $self = bless({ 
+    my ($class, $game_id, $game_path, $interp_path, $save_file_dir, $title) = @_;
+    my $self = bless({
+                      title => $title,
                       save_file_dir => $save_file_dir,
                       ## keys here correspond to HTML ids of forms in get_forms
                       form_states => { input => 1, save => 0, login => 0, restore => 0 },
@@ -201,16 +202,17 @@ END
 }
 
 sub make_page {
-  my ($self, $content, $title) = @_;
+  my ($self) = @_;
 
-  $content ||= ("<div id='all-windows'>" 
-                . $self->get_initial_windows() . '</div>' 
+  my $title = $self->{title};
+  my $content = ("<div id='all-windows'>"
+                . $self->get_initial_windows() . '</div>'
                 . $self->get_forms);
   my $js = '<script type="text/javascript" src="/js/jquery-1.4.2.min.js"></script>' 
     . '<script type="text/javascript" src="/js/next-action.js"></script>';
 
   my $styles = default_styles();
-        
+  
   my $page = <<END;
 <? xml ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"

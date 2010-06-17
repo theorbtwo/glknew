@@ -1,6 +1,4 @@
 package Game;
-use warnings;
-use strict;
 use IPC::Open3;
 use IPC::Run 'start';
 use Symbol 'geniosym';
@@ -11,6 +9,7 @@ use Data::Dump::Streamer;
 use Game::Window::Graphics;
 use Game::Window::TextBuffer;
 use Game::Window::TextGrid;
+
 
 sub new {
   my ($class, $blorb_file, $git, $callbacks) = @_;

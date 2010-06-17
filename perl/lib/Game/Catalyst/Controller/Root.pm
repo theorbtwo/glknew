@@ -176,7 +176,7 @@ sub game_logged_in :Path('/game/logged_in') {
        
        # This duplicates code in /game/new/*
        # FIXME: What is the undef?
-       $c->res->body($game->make_page(undef, "FIXME: Make title correct after login dance"));
+       $c->res->body($game->make_page);
      },
      error => sub {
        my ($error) = @_;
@@ -243,19 +243,22 @@ sub game_new :Path('/game/new') :Args(1) {
 
   if (!$game_info) {
     # FIXME: Make this more user-friendly.  For one thing, die kills the *entire server*, not just this user's session.
-    die "Do not know game path for game $game_name -- supported: ".join(", ", keys %games);
+    # FIXME: Does this break the encapsulation?
+    die "Do not know game path for game $game_name -- supported: ".join(", ", keys %{$c->config->{games}});
   }
+
   my ($vm, $game_loc, $title) = @{$game_info}{qw/vm location title/};
+
   my $interp_path = $c->config->{interpreters}{$vm};
   my $game_path = $c->config->{game_path} . $game_loc;
 
   my $game_id = scalar @games;
   
-  my $game = Game::HTML->new($game_id, $game_path, $interp_path, catfile($c->config->{save_file_dir}, $game_name));
+  my $game = Game::HTML->new($game_id, $game_path, $interp_path, catfile($c->config->{save_file_dir}, $title));
   $games[$game_id] = $game;
   $game->continue();
   
-  $c->res->body($game->make_page(undef, $title));
+  $c->res->body($game->make_page);
 }
 
 =head2 end
