@@ -75,7 +75,6 @@ sub send_prompt_file {
 
   die "Too many parameters to send_prompt_file" if @_ == 3;
 
-  # FIXME: Make this use save_dir after save uses common login form with restore.
   my $game_file = catfile($self->save_file_dir, $savefile);
 
   $self->send("$game_file\n");
@@ -115,8 +114,6 @@ sub prep_prompt_file {
       my @files = grep {!$_->is_dir} $dir->children;
       $self->{game_obj}{current_select}{extra_form_data}{files} = [map {$_->basename} @files];
     } else {
-      # Save.  FIXME: Seperate login and filename modes for this, too?
-
       ## get_form sends several forms, some are hidden, we set a value that json will use to unhide the save file form.
       $self->set_form_visible('save');
       ## this doesn't actually get used, but we want to set it to something to avoid uninit warning.
