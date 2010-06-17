@@ -33,15 +33,20 @@ Game::Catalyst::Controller::Root - Root Controller for Game::Catalyst
 
 =head2 index
 
-The root page (/)
+The root page (/).  Should give a list of known games, and either a list of your saves or a login box.
 
 =cut
 
 sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
-
-    # Hello World
-    $c->response->body( $c->welcome_message );
+  my ($self, $c) = @_;
+  
+  my $g = $c->config->{games};
+  print STDERR Dumper $g;
+  # FIXME: Sort correctly -- case insensitive, ignoring leading articles.
+  for my $k (sort {$g->{$a}{title} cmp $g->{$b}{title}} keys %$g) {
+    push @{$c->stash->{known_games}}, $g->{$k};
+  }
+  $c->stash->{session} = $c->session;
 }
 
 =head2 default
@@ -124,19 +129,22 @@ browser to to validate it and get back to us.
 sub game_login :Path('/game/login') {
   my ($self, $c) = @_;
 
-  my $game = $games[$c->req->param('game_id')];
+  my $extra_param = '';
+  if (defined $c->req->param('game_id')) {
+    $extra_param = "?game_id=".$c->req->param('game_id');
+  }
   
   my $csr = $self->openid_consumer($c);
   # FIXME: Why does username2 have such a naff name?
   my $claimed_identity = $csr->claimed_identity($c->req->param('username2'));
   my $check_url = $claimed_identity->check_url(
-                                               return_to  => $c->req->base."game/logged_in?game_id=".$c->req->param('game_id'),
+                                               return_to  => $c->req->base."game/logged_in$extra_param",
                                                trust_root => $c->req->base,
                                               );
   return $c->res->redirect($check_url);
 }
 
-=head2 game_logged_in 
+=head2 game_logged_in
 
 The whateverweareuptoith stage of logging in.  This happens after
 game_login -- the authorizing server redirects the user here.  We
@@ -147,7 +155,10 @@ check their crypto, and go on to prompt them for a filename.
 sub game_logged_in :Path('/game/logged_in') {
   my ($self, $c) = @_;
 
-  my $game = $games[$c->req->param('game_id')];
+  my $game;
+  if (defined $c->req->param('game_id')) {
+    $game = $games[$c->req->param('game_id')];
+  }
   my $csr = $self->openid_consumer($c);
   
   # FIXME: We should figure out how to handle these without loosing the player's progress.
@@ -170,13 +181,23 @@ sub game_logged_in :Path('/game/logged_in') {
            },
      verified => sub {
        my ($validated_id) = @_;
-       $game->{user_identity} = $validated_id;
-       
-       $game->prep_prompt_file($game);
-       
-       # This duplicates code in /game/new/*
-       # FIXME: What is the undef?
-       $c->res->body($game->make_page);
+       if ($game) {
+         # The user logged in from inside the game, as part of saving or restoring.
+
+         # A net::OpenID::VerifiedIdentity
+         $game->{user_identity} = $validated_id;
+         
+         $game->prep_prompt_file($game);
+         
+         # This duplicates code in /game/new/*
+         # FIXME: What is the undef?
+         $c->res->body($game->make_page);
+       } else {
+         # The user was not inside a game, so redirect them on to the landing page.
+         $c->session->{user_identity} = $validated_id;
+
+         $c->res->redirect($c->uri_for('/'));
+       }
      },
      error => sub {
        my ($error) = @_;
@@ -225,6 +246,17 @@ sub game_continue :Path('/game/continue') {
   return $self->continue_game($c, $game, $run_select);
 }
 
+=head2 game_restore
+
+Restores a user's existing game, without having first created a game to restore "into".
+
+=cut
+
+sub game_restore :Path('/game/restore') :Args(2) {
+  my ($self, $c, $game_name, $save_name) = @_;
+  
+}
+
 =head2 game_new
 
 Takes the id of the game to be run, B<as a path segment>, and starts a new instance of it.
@@ -254,7 +286,7 @@ sub game_new :Path('/game/new') :Args(1) {
 
   my $game_id = scalar @games;
   
-  my $game = Game::HTML->new($game_id, $game_path, $interp_path, catfile($c->config->{save_file_dir}, $title));
+  my $game = Game::HTML->new($game_id, $game_path, $interp_path, catfile($c->config->{save_file_dir}, $game_name));
   $games[$game_id] = $game;
   $game->continue();
   

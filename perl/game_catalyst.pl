@@ -1,7 +1,7 @@
-{
+my $c = {
     name => 'Game::Catalyst',
 
-  # Note that this key is used both as a URI element and a filename element.  For simplicity, keep element names lacking in URI metacharacters, please.
+  # Note that this key is used both as a URI element and a filename element.  For simplicity, keep element names lacking in URI & HTML metacharacters, please.
   # The title, OTOH, can be any arbitrary string.
 
     games => {
@@ -9,30 +9,35 @@
             vm    => 'glulx',
             location => 'Advent.ulx',
             title => 'Adventure!',
+            restore => [["line", "restore\n"]],
         },
         'blue-lacuna' => {
             vm => 'glulx',
             location => 'blue-lacuna/BlueLacuna-r3.gblorb',
             title => 'Blue Lacuna',
+            restore => [["char", "r"]],
         },
         alabaster     => {
             vm => 'glulx',
             location => 'Alabaster/Alabaster.gblorb',
             title => 'Alabaster',
+            restore => [["line", "yes\n"], ["char", " "], ["line", "restore\n"]],
         },
         acg           => {
             vm => 'glulx',
-            location => 'ACG/ACG.ulx', 
+            location => 'ACG/ACG.ulx',
             title => 'Adventurer\'s Consumer Guide',
+            restore => [["line", "restore\n"]],
         },
         king          => {
             vm => 'glulx',
             location => 'The King of Shreds and Patches.gblorb',
             title => 'The King of Shreds and Patches',
+            restore => [["char", "r"]],
         },
         curses        => {
             vm => 'z-code',
-            location => 'curses.z5', 
+            location => 'curses.z5',
             title => 'Curses',
         },
         zork1         => {
@@ -42,14 +47,16 @@
         },
         emy           => {
             vmm => 'agt',
-            location => 'Emy Discovers Life/DISCOVER', 
+            location => 'Emy Discovers Life/DISCOVER',
             title => 'Emy Discovers Life',
+            restore => [['char', ' '], ['line', "restore\n"]],
         },
         sd3           => {
             vm => 'tads2',
-            location => 'sd3/SD3.gam', 
+            location => 'sd3/SD3.gam',
             title => 'School Dreams 3: School Dreams Forever',
-        },           
+            restore => [['line', "foo\n"], ["line", "restore\n"]],
+        },
     },
 
     interpreters => {
@@ -60,4 +67,10 @@
     },
 
     game_path => '/mnt/shared/projects/games/flash-if/',
+};
+
+for (keys %{$c->{games}}) {
+  $c->{games}{$_}{shortname} = $_;
 }
+
+return $c;
