@@ -1,0 +1,21 @@
+<html>
+ <head>
+  <title>GlkNew, the new-school interactive fiction engine</title>
+ </head>
+ <body>
+  <ul>
+   [% FOR e = known_games %]
+    <li><a href="game/new/[%e.shortname%]">[% e.title | html %]</a></li>
+   [% END %]
+  </ul>
+
+  [% IF NOT session.user_identity %]
+   <form id='login' method='post' action='/game/login'>
+    <div>
+     <label for='username2'>OpenID URL<input type='text' id='username2' name='username2' /></label>
+    </div>
+    <input type='submit' value='Login' />
+   </form>   
+  [% END %]
+ </body>
+</html>
