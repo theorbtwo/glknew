@@ -15,10 +15,11 @@ use Net::OpenID::Consumer;
 
 
 sub new {
-    my ($class, $game_id, $game_path, $interp_path, $save_file_dir, $title) = @_;
+    my ($class, $game_id, $game_path, $interp_path, $save_file_dir, $game_info) = @_;
     my $self = bless({
-                      title => $title,
-                      save_file_dir => $save_file_dir,
+                      title => $game_info->{title},
+                      save_file_dir => $save_file_dir, 
+                      game_info => $game_info,
                       ## keys here correspond to HTML ids of forms in get_forms
                       form_states => { input => 1, save => 0, login => 0, restore => 0 },
                      }, $class);
@@ -59,15 +60,19 @@ sub save_file_dir {
     die "Called save_dir before user_identity set";
   }
 
-  my $usernamelet = $self->{user_identity}->url;
-  $usernamelet =~ s/\0/fuckyounull/g;
-  $usernamelet =~ s!^http://!!;
-  $usernamelet =~ s!/\.\.!/dotdot!g;
+  return Game::Utils::save_file_dir($self->{game_info}{shortname}, 
+                                    $self->{save_file_dir},
+                                    $self->{user_identity});
 
-  my $game_dir = catfile($self->{save_file_dir}, $usernamelet);
-  mkpath($game_dir);
+#   my $usernamelet = $self->{user_identity}->url;
+#   $usernamelet =~ s/\0/fuckyounull/g;
+#   $usernamelet =~ s!^http://!!;
+#   $usernamelet =~ s!/\.\.!/dotdot!g;
 
-  return $game_dir;
+#   my $game_dir = catfile($self->{save_file_dir}, $usernamelet);
+#   mkpath($game_dir);
+
+#   return $game_dir;
 }
 
 sub send_prompt_file {
@@ -110,9 +115,12 @@ sub prep_prompt_file {
       $self->set_form_visible('restore');
       $self->{game_obj}{current_select}{input_type} = 'restore';
 
-      my $dir = Path::Class::Dir->new($self->save_file_dir);
-      my @files = grep {!$_->is_dir} $dir->children;
-      $self->{game_obj}{current_select}{extra_form_data}{files} = [map {$_->basename} @files];
+      my $files = Game::Utils::get_save_files([$self->{game_info}{shortname}],
+                                              $self->{save_file_dir},
+                                              $self->{user_identity});
+
+      $self->{game_obj}{current_select}{extra_form_data}{files} = [map {$_->basename} @{$files->{$self->{game_info}{shortname}}}];
+
     } else {
       ## get_form sends several forms, some are hidden, we set a value that json will use to unhide the save file form.
       $self->set_form_visible('save');

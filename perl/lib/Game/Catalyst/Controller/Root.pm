@@ -41,12 +41,18 @@ sub index :Path :Args(0) {
   my ($self, $c) = @_;
   
   my $g = $c->config->{games};
-  print STDERR Dumper $g;
+#  print STDERR Dumper $g;
   # FIXME: Sort correctly -- case insensitive, ignoring leading articles.
   for my $k (sort {$g->{$a}{title} cmp $g->{$b}{title}} keys %$g) {
     push @{$c->stash->{known_games}}, $g->{$k};
   }
-  $c->stash->{session} = $c->session;
+
+  if($c->session->{user_identity}) {
+      # A hashref keyed on game shortname, with arrayref of save file names
+      $c->stash->{save_games} = Game::Utils::get_save_games($c->session->{user_identity});
+  }
+
+ $c->stash->{session} = $c->session;
 }
 
 =head2 default
@@ -257,6 +263,19 @@ sub game_restore :Path('/game/restore') :Args(2) {
   
 }
 
+=head2 game_restore
+
+Restore a previously saved game.
+Prerequisites: User is logged in.
+
+=cut
+
+sub game_restore :Path('/game/restore'): Args(2) {
+    my ($self, $c, $game_shortname, $savefile) = @_;
+
+    
+}
+
 =head2 game_new
 
 Takes the id of the game to be run, B<as a path segment>, and starts a new instance of it.
@@ -286,7 +305,7 @@ sub game_new :Path('/game/new') :Args(1) {
 
   my $game_id = scalar @games;
   
-  my $game = Game::HTML->new($game_id, $game_path, $interp_path, catfile($c->config->{save_file_dir}, $game_name));
+  my $game = Game::HTML->new($game_id, $game_path, $interp_path, catfile($c->config->{save_file_dir}, $game_info));
   $games[$game_id] = $game;
   $game->continue();
   
