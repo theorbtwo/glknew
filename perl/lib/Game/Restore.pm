@@ -13,7 +13,7 @@ Bare-bones Game using class that just initiates enough to send the commands to r
 sub new {
     my ($class, $game_path, $interp_path, $save_file_dir, $game_info) = @_;
     my $self = bless({
-                      save_file_dir => $save_file_dir, 
+                      save_file_dir => $save_file_dir,
                       game_info => $game_info,
                       game_path => $game_path,
                       interp_path => $interp_path,
@@ -50,7 +50,7 @@ sub restore_game {
 
 =head2 restore_prompt_file_callback
 
-Called by Game.pm when the game is asking us to prompt the user for a filename. 
+Called by Game.pm when the game is asking us to prompt the user for a filename.
 
 =cut
 
@@ -58,7 +58,11 @@ sub restore_prompt_file_callback {
     # We don't actually need most of this bollocks at all.
     my ($self, $game, $usage, $mode) = @_;
     
-    $game->send_to_game($self->{save_file}, "\n");
+    my $fullpath = Game::Utils::save_file_dir($self->{game_info}{shortname},
+                                              $self->{save_file_dir},
+                                              $self->{user_identity}) . '/' . $self->{save_file};
+
+    $game->send_to_game($fullpath, "\n");
     $game->{collecting_input} = 0;
     
     return;

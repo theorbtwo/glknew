@@ -272,7 +272,7 @@ sub game_restore :Path('/game/restore') :Args(2) {
   ## with the Game::Restore's brains.
   my $game = setup_game('Game::HTML', $game_name, $c);
   $game->{game_obj} = $restoring_game->{game_obj};
-  $game->{game_obj}{_callbacks} = $game->callbacks;
+  $game->{game_obj}->set_callbacks($game->callbacks);
 
   my $game_id = scalar @games;
   $game->user_info($game_id);
@@ -340,7 +340,7 @@ sub setup_game {
   my $game_path = $c->config->{game_path} . $game_loc;
 
   my $game = $class->new($game_path, $interp_path, $c->config->{save_file_dir}, $game_info);
-  $game->{user_identity} = $c->session->{user_identity} 
+  $game->{user_identity} = $c->session->{user_identity}
     if(exists $c->session->{user_identity});
 
   return $game;

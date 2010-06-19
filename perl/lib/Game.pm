@@ -24,13 +24,7 @@ sub new {
   my $self = bless {}, $class;
   $self->{_game_file} = $blorb_file;
   $self->{_git_binary} = $git;
-  $self->{_callbacks} = { 
-      select => \&default_select_callback,
-      window_size => \&default_window_size_callback,
-      prompt_file => sub { $_[0]->send_to_game("TEST.txt\n"); },
-      style_distinguish => sub { 0; },
-      %$callbacks,
-  };
+  $self->set_callbacks(%$callbacks);
 
   my $input_str = '';
   $self->{input_str} = \$input_str;
@@ -40,6 +34,27 @@ sub new {
   $self->setup_initial_styles();
 #  $self->setup_ipc_open3();
   $self->setup_ipc_run();
+
+  return $self;
+}
+
+=head2 set_callbacks
+
+ Game->set_callbacks(select => \&yo_momma, fetch => \&fido);
+
+Resets the callbacks to the mentioned ones, plus the defaults.
+
+=cut
+
+sub set_callbacks {
+  my ($self, %callbacks) = @_;
+
+  $self->{_callbacks} = {
+      select => \&default_select_callback,
+      window_size => \&default_window_size_callback,
+      style_distinguish => sub { 0; },
+      %callbacks,
+  };
 
   return $self;
 }

@@ -21,7 +21,10 @@ my $c = {
             vm => 'glulx',
             location => 'Alabaster/Alabaster.gblorb',
             title => 'Alabaster',
-            restore => [["line", "yes\n"], ["char", " "], ["line", "restore\n"]],
+            restore => [["line", "yes\n"],
+                        ["char", " "],
+                        ['char', ' '],
+                        ["line", "restore\n"]],
         },
         acg           => {
             vm => 'glulx',
@@ -57,6 +60,11 @@ my $c = {
             title => 'School Dreams 3: School Dreams Forever',
             restore => [['line', "foo\n"], ["line", "restore\n"]],
         },
+        earlgrey => {
+                     vm => 'glulx',
+                     location => 'earlgrey.ulx',
+                     title => 'Earl Grey',
+                    },
     },
 
     interpreters => {
