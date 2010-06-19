@@ -16,26 +16,65 @@ use Net::OpenID::Consumer;
 
 
 sub new {
-    my ($class, $game_id, $game_path, $interp_path, $save_file_dir, $game_info) = @_;
+    my ($class, $game_path, $interp_path, $save_file_dir, $game_info) = @_;
     my $self = bless({
                       title => $game_info->{title},
                       save_file_dir => $save_file_dir, 
                       game_info => $game_info,
                       ## keys here correspond to HTML ids of forms in get_forms
                       form_states => { input => 1, save => 0, login => 0, restore => 0 },
+
+                      game_path => $game_path,
+                      interp_path => $interp_path,
                      }, $class);
 
-    my $game = Game->new($game_path, 
-                         $interp_path,
-                         {
-                          window_size => sub { $self->send_window_size(@_) },
-                          style_distinguish => \&style_distinguish,
-                          prompt_file => sub { $self->prep_prompt_file(@_) },
-                         });
-    $game->user_info($game_id);
-    $self->{game_obj} = $game;
+#     my $game = Game->new($game_path, 
+#                          $interp_path,
+#                          {
+#                           window_size => sub { $self->send_window_size(@_) },
+#                           style_distinguish => \&style_distinguish,
+#                           prompt_file => sub { $self->prep_prompt_file(@_) },
+#                          });
+#     $self->{game_obj} = $game;
 
     return $self;
+}
+
+=head2 callbacks
+
+ $callbacks = $html->callbacks;
+
+Get the hashref of Game-level callbacks that should be used for
+Game::HTML objects.  (So that you can get them when replacing the
+brains from an existing process.)
+
+=cut
+
+sub callbacks {
+  my ($self) = @_;
+  return {
+          window_size => sub { $self->send_window_size(@_) },
+          style_distinguish => \&style_distinguish,
+          prompt_file => sub { $self->prep_prompt_file(@_) },
+         };
+}
+
+sub start_process {
+    my ($self) = @_;
+
+    $self->{game_obj} = Game->new(delete $self->{game_path}, 
+                                  delete $self->{interp_path},
+                                  $self->callbacks);
+
+}
+
+sub user_info {
+  my ($self) = @_;
+  if (@_ > 1) {
+    $self->{user_info} = $_[1];
+  }
+  
+  return $self->{user_info};
 }
 
 sub continue {
@@ -153,7 +192,7 @@ sub get_forms {
     my ($self) = @_;
     my ($game) = $self->{game_obj};
 
-    my $gameid = $game->user_info;
+    my $gameid = $self->user_info;
     my $forms;
     my $winid = $game->{current_select}{window}{id};
     my $input_type = $game->{current_select}{input_type};

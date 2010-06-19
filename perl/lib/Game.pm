@@ -327,14 +327,14 @@ sub default_window_size_callback {
     # print STDERR Dumper$win;
 
     my @size = (80, 25);
-    if ('fixed' ~~ @{ $win->{method} }) {
-      if (grep {$_ ~~ ['above', 'below']} @{$win->{method}}) {
+    if ($win->{method}{fixed}) {
+      if ($win->{method}{above} || $win->{method}{below}) {
         $size[1] = $win->{size};
       } else {
         $size[0] = $win->{size};
       }
-    } elsif ('proportional' ~~ @{ $win->{method} }) {
-      if (grep {$_ ~~ ['above', 'below']} @{$win->{method}}) {
+    } elsif ($win->{method}{proportional}) {
+      if ($win->{method}{above} || $win->{method}{below}) {
         $size[1] = int($size[1] * $win->{size}/100);
       } else {
         $size[0] = int($size[0] * $win->{size}/100);
@@ -346,14 +346,12 @@ sub default_window_size_callback {
     if ($win->isa('Game::Window::Graphics')) {
       # These constants are so that an 80x25 text window is the same size as a 640x480 graphics window.
       $size[0] *= 8
-        unless @{$win->method} ~~ ['fixed'] and (grep {$_ ~~ ['left', 'right']} @{$win->{method}});
+        unless $win->{method}{fixed} and ($win->{method}{left} || $win->{method}{right});
       $size[1] *= 19.2
-        unless @{$win->method} ~~ ['fixed'] and (grep {$_ ~~ ['above', 'below']} @{$win->{method}});
+        unless $win->{method}{fixed} and ($win->{method}{above} || $win->{method}{below});
     }
     
-
     $self->send_to_game(join(' ', @size));
-
 }
 
 sub default_select_callback {
@@ -390,15 +388,6 @@ sub default_select_callback {
 
   $self->{collecting_input} = 0;
 
-}
-
-sub user_info {
-  my ($self) = @_;
-  if (@_ > 1) {
-    $self->{user_info} = $_[1];
-  }
-  
-  return $self->{user_info};
 }
 
 

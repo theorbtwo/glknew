@@ -2,6 +2,7 @@ package Game::Catalyst::Controller::Root;
 use Moose;
 use namespace::autoclean;
 use Game::HTML;
+use Game::Restore;
 use Game::Utils;
 use JSON;
 use File::Spec::Functions;
@@ -72,7 +73,7 @@ sub default :Path {
 
 Takes the game-generated images out of the game layer and into the browser.
 
-Note: The format of the img_string should be considered opaque by this code -- I don't like it all that much.
+Note: The format of the img_string should be considered opaque by this code -- I do not like it all that much.
 
 =cut
 
@@ -261,7 +262,24 @@ Prerequisites: User is logged in.
 
 sub game_restore :Path('/game/restore') :Args(2) {
   my ($self, $c, $game_name, $save_name) = @_;
-  
+
+  ## Make a new Game::Restore, to harvest the brains out of later.
+  my $restoring_game = setup_game('Game::Restore', $game_name, $c);
+  $restoring_game->start_process;
+  $restoring_game->restore_game($save_name);
+
+  ## Make a new Game::HTML, scoop out it's brains, and replace them
+  ## with the Game::Restore's brains.
+  my $game = setup_game('Game::HTML', $game_name, $c);
+  $game->{game_obj} = $restoring_game->{game_obj};
+  $game->{game_obj}{_callbacks} = $game->callbacks;
+
+  my $game_id = scalar @games;
+  $game->user_info($game_id);
+  $games[$game_id] = $game;
+
+  $game->continue;
+  $c->res->body($game->make_page);
 }
 
 =head2 game_new
@@ -278,23 +296,12 @@ sub game_new :Path('/game/new') :Args(1) {
   # FIXME: rename game_name, it's actually a shortname.  Title is the "real" name...
   my ($self, $c, $game_name) = @_;
   
-  my $game_info = $c->game_data($game_name);
-
-  if (!$game_info) {
-    # FIXME: Make this more user-friendly.  For one thing, die kills the *entire server*, not just this user's session.
-    # FIXME: Does this break the encapsulation?
-    die "Do not know game path for game $game_name -- supported: ".join(", ", keys %{$c->config->{games}});
-  }
-
-  my ($vm, $game_loc, $title) = @{$game_info}{qw/vm location title/};
-
-  my $interp_path = $c->config->{interpreters}{$vm};
-  my $game_path = $c->config->{game_path} . $game_loc;
+  my $game = setup_game('Game::HTML',$game_name, $c);
 
   my $game_id = scalar @games;
-  
-  my $game = Game::HTML->new($game_id, $game_path, $interp_path, catfile($c->config->{save_file_dir}, $game_info));
+  $game->user_info($game_id);
   $games[$game_id] = $game;
+  $game->start_process;
   $game->continue();
   
   $c->res->body($game->make_page);
@@ -309,6 +316,35 @@ Attempt to render a view, if needed.
 sub end : ActionClass('RenderView') {}
 
 =head2 Utility methods
+
+=head3 setup_game
+
+Create a Game::HTML object for the given game, setting interpreter, etc.
+
+=cut
+
+sub setup_game {
+  my ($class, $game_name, $c) = @_;
+
+  my $game_info = $c->game_data($game_name);
+
+  if (!$game_info) {
+    # FIXME: Make this more user-friendly.  For one thing, die kills the *entire server*, not just this user's session.
+    # FIXME: Does this break the encapsulation?
+    die "Do not know game path for game $game_name -- supported: ".join(", ", keys %{$c->config->{games}});
+  }
+
+  my ($vm, $game_loc, $title) = @{$game_info}{qw/vm location title/};
+
+  my $interp_path = $c->config->{interpreters}{$vm};
+  my $game_path = $c->config->{game_path} . $game_loc;
+
+  my $game = $class->new($game_path, $interp_path, $c->config->{save_file_dir}, $game_info);
+  $game->{user_identity} = $c->session->{user_identity} 
+    if(exists $c->session->{user_identity});
+
+  return $game;
+}
 
 =head3 openid_consumer
 
