@@ -2,6 +2,7 @@ package Game::Catalyst::Controller::Root;
 use Moose;
 use namespace::autoclean;
 use Game::HTML;
+use Game::Utils;
 use JSON;
 use File::Spec::Functions;
 use Data::Dump::Streamer 'Dumper';
@@ -45,14 +46,13 @@ sub index :Path :Args(0) {
   # FIXME: Sort correctly -- case insensitive, ignoring leading articles.
   for my $k (sort {$g->{$a}{title} cmp $g->{$b}{title}} keys %$g) {
     push @{$c->stash->{known_games}}, $g->{$k};
+    if($c->session->{user_identity}) {
+      $c->stash->{known_games}[-1]{save_games} = [Game::Utils::get_save_games($k, $c->config->{save_file_dir}, $c->session->{user_identity})];
+    }
   }
-
-  if($c->session->{user_identity}) {
-      # A hashref keyed on game shortname, with arrayref of save file names
-      $c->stash->{save_games} = Game::Utils::get_save_games($c->session->{user_identity});
-  }
-
- $c->stash->{session} = $c->session;
+  print STDERR Dumper $c->stash->{known_games};
+  
+  $c->stash->{session} = $c->session;
 }
 
 =head2 default
@@ -191,7 +191,7 @@ sub game_logged_in :Path('/game/logged_in') {
          # The user logged in from inside the game, as part of saving or restoring.
 
          # A net::OpenID::VerifiedIdentity
-         $game->{user_identity} = $validated_id;
+         $game->{user_identity} = $validated_id->url;
          
          $game->prep_prompt_file($game);
          
@@ -200,7 +200,7 @@ sub game_logged_in :Path('/game/logged_in') {
          $c->res->body($game->make_page);
        } else {
          # The user was not inside a game, so redirect them on to the landing page.
-         $c->session->{user_identity} = $validated_id;
+         $c->session->{user_identity} = $validated_id->url;
 
          $c->res->redirect($c->uri_for('/'));
        }
@@ -255,25 +255,13 @@ sub game_continue :Path('/game/continue') {
 =head2 game_restore
 
 Restores a user's existing game, without having first created a game to restore "into".
+Prerequisites: User is logged in.
 
 =cut
 
 sub game_restore :Path('/game/restore') :Args(2) {
   my ($self, $c, $game_name, $save_name) = @_;
   
-}
-
-=head2 game_restore
-
-Restore a previously saved game.
-Prerequisites: User is logged in.
-
-=cut
-
-sub game_restore :Path('/game/restore'): Args(2) {
-    my ($self, $c, $game_shortname, $savefile) = @_;
-
-    
 }
 
 =head2 game_new

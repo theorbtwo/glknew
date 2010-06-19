@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Game;
+use Game::Utils;
 use Carp 'cluck';
 use File::Spec::Functions;
 use File::Path 'mkpath';
@@ -60,19 +61,9 @@ sub save_file_dir {
     die "Called save_dir before user_identity set";
   }
 
-  return Game::Utils::save_file_dir($self->{game_info}{shortname}, 
+  return Game::Utils::save_file_dir($self->{game_info}{shortname},
                                     $self->{save_file_dir},
                                     $self->{user_identity});
-
-#   my $usernamelet = $self->{user_identity}->url;
-#   $usernamelet =~ s/\0/fuckyounull/g;
-#   $usernamelet =~ s!^http://!!;
-#   $usernamelet =~ s!/\.\.!/dotdot!g;
-
-#   my $game_dir = catfile($self->{save_file_dir}, $usernamelet);
-#   mkpath($game_dir);
-
-#   return $game_dir;
 }
 
 sub send_prompt_file {
@@ -115,11 +106,11 @@ sub prep_prompt_file {
       $self->set_form_visible('restore');
       $self->{game_obj}{current_select}{input_type} = 'restore';
 
-      my $files = Game::Utils::get_save_files([$self->{game_info}{shortname}],
+      my @files = Game::Utils::get_save_games($self->{game_info}{shortname},
                                               $self->{save_file_dir},
                                               $self->{user_identity});
 
-      $self->{game_obj}{current_select}{extra_form_data}{files} = [map {$_->basename} @{$files->{$self->{game_info}{shortname}}}];
+      $self->{game_obj}{current_select}{extra_form_data}{files} = \@files;
 
     } else {
       ## get_form sends several forms, some are hidden, we set a value that json will use to unhide the save file form.

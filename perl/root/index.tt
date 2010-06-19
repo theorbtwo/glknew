@@ -5,7 +5,15 @@
  <body>
   <ul>
    [% FOR e = known_games %]
-    <li><a href="game/new/[%e.shortname%]">[% e.title | html %]</a></li>
+    <li><a href="game/new/[%e.shortname%]">[% e.title | html
+    %]</a></li>
+    [% IF e.save_games %]
+     <ul>
+      [% FOR f = e.save_games %]
+       <li><a href="/game/restore/[%e.shortname|uri%]/[%f|uri%]">[%f|html%]</a></li>
+      [% END %]
+     </ul>
+    [% END %]
    [% END %]
   </ul>
 
