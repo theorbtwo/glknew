@@ -21,6 +21,9 @@ From user testing:
  - set focus on input box, on load + redraw
  - after save, set scrollheight
 
+earl grey
+ - Bottom "thinking" window ends up 400 pixels high, like all textbuffers.
+
 king
  - <div style="height: 1 px"><div class='TextGrid' id='winid0x95e83f0'> -- get needs to know about height/width in chars vs pixels.
  - Block vs inline elements for styles -- centred text not working, text background color only set directly behind text.
@@ -64,9 +67,15 @@ zork1
 
 emy
  - Done: initial working!
- - Save: needs "???glk_fileref_create_by_prompt usage=1 (SavedGame), filemode=1 (Write)"
+ - DONE: Save: needs "???glk_fileref_create_by_prompt usage=1 (SavedGame), filemode=1 (Write)"
+ - DONE: Save does not work.
+  - TEST FOR EMY SAVE:
+  - (echo 80 25; echo 80 25; echo 80 25; echo 'evtype_CharInput 32'; echo 80 25; echo 80 25; echo 'evtype_LineInput enter'; echo 80 25; echo 80 25; echo evtype_CharInput 110; echo 80 25; echo 80 25; echo evtype_LineInput save; echo /tmp/emy-test.sav) | /mnt/shared/projects/games/flash-if/garglk-read-only/terps/agility/glkagil ../../Emy\ Discovers\ Life/DISCOVER
+  - glkagil: os_glk.c:6268: gagt_get_user_file_glk: Assertion `retfd != -1 && retfd == glkfd' failed.
  - All writes go to one window?
  - Proper support for glk_style_measure
+
+
 
 sd3:
  - After a, b, c menu, doesn't scroll back to top.

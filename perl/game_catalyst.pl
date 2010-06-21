@@ -49,7 +49,7 @@ my $c = {
             title => 'Zork I',
         },
         emy           => {
-            vmm => 'agt',
+            vm => 'agt',
             location => 'Emy Discovers Life/DISCOVER',
             title => 'Emy Discovers Life',
             restore => [['char', ' '], ['line', "restore\n"]],
