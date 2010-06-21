@@ -1,4 +1,4 @@
-How to restore, from new.
+DONE: How to restore, from new.
  - advent: line input "restore\n"
  - blue-lacnua: char input "r"
  - alabaster: line "yes\n", char space, line "restore\n"
@@ -14,7 +14,7 @@ From user testing:
  - In blue lacuna, ret with no input should do 'look'.
  - Double-check if blue lacuna should have a status bar visible during the prelude.
  - make 'go' button for the mouse-obsessed.
- - make restore have a list of available games.
+ - DONE: make restore have a list of available games.
  - have a production URL
  - google ads?
  - empty input line before sending ajax, stack up calls?
@@ -50,7 +50,7 @@ alabaster
 
 advent
  - DONE: help menu, putting a \x0A to a TextGrid doesn't move the cursor
- - help menu: window_set_arrangement and window_get_parent don't work via dispatch.
+ - DONE: help menu: window_set_arrangement and window_get_parent don't work via dispatch.
  - DONE: help menu: gets cleared "for us" after 'n'.
 
 curses

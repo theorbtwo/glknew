@@ -400,12 +400,21 @@ END
     # breathing-room.
     my $lsize = $child->{size}-1;
     my $rsize = (100-$child->{size})-1;
-      $parent_text = <<END;
+    $parent_text = <<END;
 <div style="width:100%;">
  <div style="float:left;  width:$lsize%;">$child_text</div>
  <div style="float:right; width:$rsize%;">$parent_text</div>
 </div>
 <br style="clear:both"/>
+END
+  } elsif ($side eq 'below' and $kind eq 'proportional' and $axis eq 'y') {
+    my $bsize = $child->{size} - 1;
+    my $tsize = (100-$child->{size})-1;
+    $parent_text = <<END;
+<div style="width:100%;">
+ <div style="height: $tsize%;">$parent_text</div>
+ <div style="height: $bsize%;">$child_text</div>
+</div>
 END
   } else {
       die "Unhandled situation, side=$side, kind=$kind, axis=$axis";
