@@ -111,6 +111,16 @@ void glk_put_buffer_stream(strid_t str, char *buf, glui32 len) {
   }
 }
 
+void glk_put_buffer_uni(glui32 *buf, glui32 len) {
+  glk_put_buffer_stream_uni(current_stream, buf, len);
+}
+
+void glk_put_buffer_stream_uni(strid_t str, glui32 *buf, glui32 len) {
+  for (int i = 0; i < len; i++) {
+    glk_put_char_stream_uni(str, buf[i]);
+  }
+}
+
 void glk_put_char_uni(glui32 ch) {
   glk_put_char_stream_uni(current_stream, ch);
 }

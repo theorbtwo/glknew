@@ -21,6 +21,11 @@ void glk_request_char_event(winid_t win) {
   text_input_type_wanted = TEXT_INPUT_CHAR_LATIN1;
 }
 
+void glk_request_char_event_uni(winid_t win) {
+  input_window = win;
+  text_input_type_wanted = TEXT_INPUT_CHAR_UNI;
+}
+
 void glk_cancel_char_event(winid_t win) {
   input_window = NULL;
   text_input_type_wanted = TEXT_INPUT_NONE;

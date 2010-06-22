@@ -8,7 +8,7 @@ OBJS = dispatch.o dispatch_local.o \
 	blorb.o blorb_local.o \
 	stream.o stream_memory.o stream_file.o stream_window.o \
 	start.o garglk.o char.o gestalt.o style.o \
-	window.o event.o file.o graphics.o
+	window.o event.o file.o graphics.o sound.o
 HEADERS = *.h
 
 all: $(GLKLIB) Make.glknew
