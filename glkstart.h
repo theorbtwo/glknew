@@ -6,7 +6,7 @@
  *
  * Also, cheapglk's glkstart.h
  */
-#include "glknew.h"
+#include "glk.h"
 
 /* glkunix_arguments will be defined by the application; glk is
    expected to parse these command-line arguments

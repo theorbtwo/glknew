@@ -299,7 +299,6 @@ sub handle_stdout {
 #      print STDERR Dumper$self;
 
       $self->{_callbacks}{select}->($self, $1, $2, $3);
-
     }
 
     #       ? ? ?glk_fileref_create_by_prompt usage=1    (SavedGame ), filemode=2    (Read  )
