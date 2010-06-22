@@ -356,4 +356,80 @@ extern void glk_cancel_hyperlink_event(winid_t win);
 
 #endif /* GLK_MODULE_HYPERLINKS */
 
+/* glknew: These API extensions are from the garglk library, part of
+   the gargoyle project.  The gargoyle-modified interpreters will
+   function without them... kind of.  Agility, at least, will use an
+   ugly hack, that doesn't work against us at the moment.  It may or
+   may not be easier to have made the ugly hack work, but this way is
+   less hackish overall.  */
+/* XXX non-official Glk functions that may or may not exist */
+
+#define GARGLK 1
+
+extern char* garglk_fileref_get_name(frefid_t fref);
+
+extern void garglk_set_program_name(const char *name);
+extern void garglk_set_program_info(const char *info);
+extern void garglk_set_story_name(const char *name);
+extern void garglk_set_config(const char *name);
+
+/* not implemented */
+
+#define garglk_font_Roman           (0)
+#define garglk_font_Italic          (1)
+#define garglk_font_Bold            (2)
+#define garglk_font_BoldItalic      (3)
+#define garglk_font_MonoRoman       (4)
+#define garglk_font_MonoItalic      (5)
+#define garglk_font_MonoBold        (6)
+#define garglk_font_MonoBoldItalic  (7)
+
+#define garglk_color_White          (0)
+#define garglk_color_Red            (1)
+#define garglk_color_Green          (2)
+#define garglk_color_Blue           (3)
+#define garglk_color_Cyan           (4)
+#define garglk_color_Magenta        (5)
+#define garglk_color_Yellow         (6)
+#define garglk_color_Black          (7)
+
+extern void garglk_set_style_font(glui32 font);
+extern void garglk_set_style_stream_font(strid_t str, glui32 font);
+extern void garglk_set_style_color(glui32 bg, glui32 fg);
+extern void garglk_set_style_stream_color(strid_t str, glui32 bg, glui32 fg);
+
+/* JM: functions added to support Z-machine features that aren't in the Glk standard */
+
+/* garglk_set_line_terminators - amends the current line input request to include terminating
+ * key codes. any of the specified key codes will terminate input (without printing a newline),
+ * and the key code will be returned in the event record as val2. */
+extern void garglk_set_line_terminators(winid_t win, const glui32 *keycodes, glui32 numkeycodes);
+
+/* garglk_unput_string - removes the specified string from the end of the output buffer, if
+ * indeed it is there. */
+extern void garglk_unput_string(char *str);
+extern void garglk_unput_string_uni(glui32 *str);
+
+#define zcolor_Current      (0)
+#define zcolor_Default      (1)
+#define zcolor_Black        (2)
+#define zcolor_Red          (3)
+#define zcolor_Green        (4)
+#define zcolor_Yellow       (5)
+#define zcolor_Blue         (6)
+#define zcolor_Magenta      (7)
+#define zcolor_Cyan         (8)
+#define zcolor_White        (9)
+#define zcolor_LightGrey    (10)
+#define zcolor_MediumGrey   (11)
+#define zcolor_DarkGrey     (12)
+#define zcolor_NUMCOLORS    (13)
+
+extern void garglk_set_zcolors(glui32 fg, glui32 bg);
+extern void garglk_set_reversevideo(glui32 reverse);
+
+/* non standard keycodes */
+#define keycode_Erase    (0xffffef7f)
+
 #endif /* GLK_H */
+

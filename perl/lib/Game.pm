@@ -110,23 +110,26 @@ sub setup_ipc_run {
   my ($self) = shift;
 
   $self->{$_} = geniosym for qw<child_stdin child_stdout child_stderr>;
-  if ($ENV{USE_VALGRIND}) {
-    start([ '/usr/bin/valgrind', '--track-origins=yes', '--log-fd=1', $self->{_git_binary}, $self->{_game_file}],
-         '<pipe', $self->{child_stdin}, 
-          '>pipe', $self->{child_stdout}, 
-          '2>pipe', $self->{child_stderr}) or die "Couldn't start child process; $!";
-  } else {
-    start([ $self->{_git_binary}, $self->{_game_file}],
-         '<pipe', $self->{child_stdin}, 
-          '>pipe', $self->{child_stdout}, 
-          '2>pipe', $self->{child_stderr}) or die "Couldn't start child process; $!";
+  my @cmdline;
+
+  if ($self->{_git_binary} =~ m/agil/) {
+    @cmdline = '-gl'; # Display long status window.
   }
+  @cmdline = ($self->{_git_binary}, @cmdline, $self->{_game_file});
+  if ($ENV{USE_VALGRIND}) {
+    @cmdline = ('/usr/bin/valgrind', '--track-origins=yes', '--log-fd=1', @cmdline);
+  }
+
+  start(\@cmdline,
+        '<pipe', $self->{child_stdin}, 
+        '>pipe', $self->{child_stdout}, 
+        '2>pipe', $self->{child_stderr}) or die "Couldn't start child process; $!";
+  
   for (@{$self}{qw/child_stdin child_stdout child_stderr/}) {
     my $was = select($_);
     $|=1;
     select($was);
   }
-
 }
 
 sub send_to_game {
