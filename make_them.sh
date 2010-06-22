@@ -12,3 +12,6 @@ echo AGILITY
 
 echo TADS
 (cd ../tads2/glk; rm newtads ; make)
+
+echo SCARE
+(cd ../garglk-read-only/terps/scare/; rm glkscare; make glkscare)

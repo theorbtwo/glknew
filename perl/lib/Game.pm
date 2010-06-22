@@ -121,8 +121,8 @@ sub setup_ipc_run {
   }
 
   start(\@cmdline,
-        '<pipe', $self->{child_stdin}, 
-        '>pipe', $self->{child_stdout}, 
+        '<pipe', $self->{child_stdin},
+        '>pipe', $self->{child_stdout},
         '2>pipe', $self->{child_stderr}) or die "Couldn't start child process; $!";
   
   for (@{$self}{qw/child_stdin child_stdout child_stderr/}) {

@@ -68,15 +68,14 @@ struct glk_stream_struct_vtable stream_file_vtable = {
 /* This is probably woefully incomplete WRT unicode & textmode. */
 strid_t glk_stream_open_file(frefid_t fileref, glui32 fmode,
                              glui32 rock) {
-  struct glk_stream_struct *stream;
+  struct glk_stream_struct *stream = glk_stream_open_base(rock, fmode, STREAM_TYPE_FILE, &stream_file_vtable);
   int fd;
   int open_flags = 0;
   char filemode_name[FILEMODE_NAME_LEN];
   
-
   filemode_to_name(fmode, filemode_name);
   printf("DEBUG: glk_stream_open_file, fileref->name=%s fmode=%d (%s)\n", fileref->name, fmode, filemode_name);
-
+  
   if (fmode == filemode_Write) {
     open_flags |= O_CREAT | O_WRONLY;
   } else if (fmode == filemode_Read) {
@@ -94,35 +93,7 @@ strid_t glk_stream_open_file(frefid_t fileref, glui32 fmode,
     return NULL;
   }
 
-  stream = malloc(sizeof(struct glk_stream_struct));
-  if (!stream) {
-    return stream;
-  }
-  
-  stream->rock = rock;
-  stream->fmode = fmode;
-  stream->type = STREAM_TYPE_FILE;
-  stream->vtable = &stream_file_vtable;
   stream->u.file.fd = fd;
-  stream->readcount = 0;
-  stream->writecount = 0;
-  stream->next = 0;
-
-  stream->did_dispatch_register = 0;
-  if (dispatch_register) {
-    stream->dispatch_rock = dispatch_register((void *)stream, gidisp_Class_Stream);
-    stream->did_dispatch_register = 1;
-  }
-  
-  if (!first_stream) {
-    first_stream = stream;
-  } else {
-    strid_t prev_stream = first_stream;
-    while (prev_stream->next != NULL)
-      prev_stream = prev_stream->next;
-    prev_stream->next = stream;
-    stream->next = NULL;
-  }
 
   return stream;
 }

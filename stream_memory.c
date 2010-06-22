@@ -90,35 +90,13 @@ strid_t glk_stream_open_memory(char *buf, glui32 buflen, glui32 fmode, glui32 ro
 }
 
 strid_t glk_stream_open_memory_base(void *buf, glui32 buflen, glui32 fmode, glui32 rock, glui32 width) {
-  struct glk_stream_struct *stream;
+  struct glk_stream_struct *stream = glk_stream_open_base(rock, fmode, STREAM_TYPE_MEMORY, &stream_memory_vtable);
 
-  stream = malloc(sizeof(struct glk_stream_struct));
-  if (!stream) {
-    return stream;
-  }
-
-  stream->rock  = rock;
-  stream->fmode = fmode;
-  stream->type  = STREAM_TYPE_MEMORY;
-  stream->vtable = &stream_memory_vtable;
   stream->u.mem.buf = buf;
   stream->u.mem.buflen = buflen;
   stream->u.mem.width = width;
   stream->u.mem.pos = 0;
-  stream->readcount = 0;
-  stream->writecount = 0;
   
-  /* FIXME: 1: There should be a better way.
-     FIXME: 2: The spec suggests that we should save this up, and call
-     it when we do have a dispatch_register. */
-  if (dispatch_register) {
-    stream->dispatch_rock = dispatch_register((void *)stream, gidisp_Class_Stream);
-    stream->did_dispatch_register = 1;
-  } else {
-    printf("Making memory stream before dispatch_register\n");
-    stream->did_dispatch_register = 0;
-  }
-
   /* We (apparently) need to tell the user of the library that we now
      own the buffer, or it will free it behind our back. */
   /* FIXME: is the len parameter supposed to be the length in bytes,
@@ -134,16 +112,6 @@ strid_t glk_stream_open_memory_base(void *buf, glui32 buflen, glui32 fmode, glui
     }
   }
 
-  if (!first_stream) {
-    first_stream = stream;
-  } else {
-    strid_t prev_stream = first_stream;
-    while (prev_stream->next != NULL)
-      prev_stream = prev_stream->next;
-    prev_stream->next = stream;
-  }
-  stream->next = NULL;
-    
   printf("DEBUG: opened memory stream str=%p\n", stream);
   return stream;
 }

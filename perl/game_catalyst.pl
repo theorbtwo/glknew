@@ -65,6 +65,11 @@ my $c = {
                      location => 'earlgrey.ulx',
                      title => 'Earl Grey',
                     },
+        british_fox => {
+                        vm => 'taf',
+                        location => 'british_fox_and_the_celebrity_abductions.taf',
+                        title => 'British Fox and the Celebrity Abductions',
+                       },
     },
 
     interpreters => {
@@ -72,6 +77,7 @@ my $c = {
         tads2 => '/mnt/shared/projects/games/flash-if/tads2/glk/newtads',
         agt => '/mnt/shared/projects/games/flash-if/garglk-read-only/terps/agility/glkagil',
         'z-code' => '/mnt/shared/projects/games/flash-if/nitfol-0.5/newnitfol',
+        taf => '/mnt/shared/projects/games/flash-if/garglk-read-only/terps/scare/glkscare'
     },
 
     game_path => '/mnt/shared/projects/games/flash-if/',

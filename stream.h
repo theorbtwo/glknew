@@ -72,6 +72,8 @@ struct glk_stream_struct {
   union glk_stream_struct_u u;
 };
 
+extern strid_t glk_stream_open_base(glui32 rock, glui32 fmode, glui32 type, struct glk_stream_struct_vtable *vtable);
+
 extern strid_t glk_stream_open_window(struct glk_window_struct *win, glui32 fmode, glui32 rock);
 
 extern strid_t glk_stream_open_memory_base(void *buf, glui32 buflen, glui32 fmode, glui32 rock, glui32 width);

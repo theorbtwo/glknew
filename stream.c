@@ -187,6 +187,47 @@ glui32 glk_get_buffer_stream(strid_t str, char *buf, glui32 len) {
   return i;
 }
 
+strid_t glk_stream_open_base(glui32 rock, glui32 fmode, glui32 type, struct glk_stream_struct_vtable *vtable) {
+  struct glk_stream_struct *stream;
+
+  stream = malloc(sizeof(struct glk_stream_struct));
+  if (!stream) {
+    return stream;
+  }
+  
+  stream->rock = rock;
+  stream->fmode = fmode;
+  stream->type = type;
+  stream->vtable = vtable;
+  stream->readcount = 0;
+  stream->writecount = 0;
+
+  stream->did_dispatch_register = 0;
+  if (dispatch_register) {
+    stream->dispatch_rock = dispatch_register((void *)stream, gidisp_Class_Stream);
+    stream->did_dispatch_register = 1;
+  }
+  
+  if (!first_stream) {
+    printf("New stream %p is first_stream\n", stream);
+    first_stream = stream;
+    stream->next = NULL;
+  } else {
+    printf("New stream %p isn't first_stream\n", stream);
+    strid_t prev_stream = first_stream;
+    printf("Starting at prev_stream = %p\n", prev_stream);
+    while (prev_stream->next != NULL) {
+      prev_stream = prev_stream->next;
+      printf("prev_stream=%p\n", prev_stream);
+    }
+    printf("prev_stream=%p\n", prev_stream);
+    stream->next = prev_stream->next;
+    prev_stream->next = stream;
+  }
+
+  return stream;
+}
+
 /* http://www.eblong.com/zarf/glk/glk-spec-070_5.html#s.3 */
 void glk_stream_close(strid_t str, stream_result_t *result) {
   printf("DEBUG: glk_stream_close stream=%p\n", str);
@@ -198,13 +239,20 @@ void glk_stream_close(strid_t str, stream_result_t *result) {
   }
 
   /* remove stream from linked list */
-  if (first_stream == str) {
-    first_stream = NULL;
+  if (!first_stream) {
+    printf("WTF, closing stream when first_stream==NULL (not even on it ourselves?)\n");
+    exit(32);
+  } else if (first_stream == str) {
+    printf("We were the only stream, setting first_stream to it's next\n");
+    first_stream = first_stream->next;
   } else {
     strid_t candidate = first_stream;
+    printf("In the hard case, starting with %p", candidate);
     while (candidate->next != str) {
+      printf("in close_stream of %p, candidate=%p, next=%p", str, candidate, candidate->next);
       candidate = candidate->next;
     }
+    printf("Found ourselves after %p", candidate);
     candidate->next = str->next;
   }
 
