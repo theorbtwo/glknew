@@ -13,7 +13,20 @@ requires 'Catalyst::Runtime' => '5.80024';
 requires 'Catalyst::Plugin::ConfigLoader';
 requires 'Catalyst::Plugin::Static::Simple';
 requires 'Catalyst::Action::RenderView';
+requires 'Catalyst::View::TT';
 requires 'Moose';
+requires 'JSON';
+requires 'Data::Dump::Streamer';
+requires 'LWPx::ParanoidAgent';
+requires 'Cache::FileCache';
+requires 'Net::OpenID::Consumer';
+requires 'File::Spec::Functions';
+requires 'Encode';
+requires 'IPC::Open3';
+requires 'IPC::Run';
+requires 'Carp';
+requires 'Path::Class';
+requires 'Imager';
 requires 'namespace::autoclean';
 requires 'Config::General'; # This should reflect the config file format you've chosen
                  # See Catalyst::Plugin::ConfigLoader for supported formats
