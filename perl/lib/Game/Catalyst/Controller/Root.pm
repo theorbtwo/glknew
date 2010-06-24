@@ -10,6 +10,7 @@ use Data::Dump::Streamer 'Dumper';
 use LWPx::ParanoidAgent;
 use Cache::FileCache;
 use Net::OpenID::Consumer;
+use Encode 'encode';
 use mro;
 
 BEGIN { extends 'Catalyst::Controller' }
@@ -232,7 +233,17 @@ sub game_continue :Path('/game/continue') {
 
   # FIXME: Keying off of length means that the user cannot input an empty line.  In Blue Lacuna, that is documented (in a hint) as being equivelent to "look".
   if (length $text and not length $keycode) {
-    $game->send("evtype_LineInput $text\n");
+    if ($game->{game_obj}{current_select}{input_charset} eq 'latin1') {
+      $game->send("evtype_LineInput $text\n");
+    } elsif ($game->{game_obj}{current_select}{input_charset} eq 'uni') {
+      # FIXME: This should be utf32be on big-endian platforms.
+      # (However, we can't just use utf32 without suffix, which is BE
+      # always with a BOM at the beginning, which the C layer isn't
+      # prepapred to handle.
+      $game->{game_obj}->send_line_input_unicode($text);
+    } else {
+      die "Unknown input_charset $game->{game_obj}{current_select}{input_charset} -- le boggle";
+    }
   } elsif (exists($c->config->{js_keycodes}{$keycode}) and not length $text) {
     $game->send("evtype_CharInput keycode_" . $c->config->{js_keycodes}{$keycode} . "\n");
   } elsif (length $keycode and not length $text) {

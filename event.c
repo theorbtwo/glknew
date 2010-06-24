@@ -5,7 +5,8 @@
    Worry about that when it happens. */
 struct glk_window_struct *input_window = NULL;
 int text_input_type_wanted = TEXT_INPUT_NONE;
-struct line_event_request line_event_request_info;
+struct line_event_request_latin1 line_event_request_info_latin1;
+struct line_event_request_uni    line_event_request_info_uni;
 
 /* KEEP THIS UPDATED WITH THE #defines IN THE .h FILE! */
 const char* text_input_names[] = {
@@ -48,7 +49,11 @@ void glk_cancel_line_event(winid_t win, event_t *event) {
     event->val2 = 0;
   }
 
-  line_event_request_info.buf[0] = '\0';
+  if (line_event_request_info_latin1.buf)
+    line_event_request_info_latin1.buf[0] = '\0';
+
+  if (line_event_request_info_uni.buf)
+    line_event_request_info_uni.buf[0] = '\0';
 }
 
 void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initlen) {
@@ -62,7 +67,7 @@ void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initle
 
   prefill = malloc(initlen+1);
   if (!prefill) {
-    printf("glk_request_line_even malloc prefill failed, %d bytes\n", initlen+1);
+    printf("glk_request_line_event malloc prefill failed, %d bytes\n", initlen+1);
     exit(12);
   }
   strncpy(prefill, buf, initlen);
@@ -71,17 +76,31 @@ void glk_request_line_event(winid_t win, char *buf, glui32 maxlen, glui32 initle
   input_window = win;
   text_input_type_wanted = TEXT_INPUT_LINE_LATIN1;
 
-  line_event_request_info.win = win;
-  line_event_request_info.buf = buf;
-  line_event_request_info.prefill = prefill;
-  line_event_request_info.maxlen = maxlen;
-  line_event_request_info.want_unicode = 0;
+  line_event_request_info_latin1.win = win;
+  line_event_request_info_latin1.buf = buf;
+  line_event_request_info_latin1.prefill = prefill;
+  line_event_request_info_latin1.maxlen = maxlen;
 }
 
 void glk_request_line_event_uni(winid_t win, glui32 *buf,
                                 glui32 maxlen, glui32 initlen) {
-  printf("glk_request_line_event_uni\n");
-  exit(23);
+  glui32 *prefill;
+
+  prefill = malloc(4*(initlen+1));
+  if (!prefill) {
+    printf("glk_request_line_event_uni malloc prefill failed, %d bytes\n", 4*(initlen+1));
+    exit(33);
+  }
+  memcpy(prefill, buf, initlen*4);
+  prefill[initlen] = 0;
+  
+  input_window = win;
+  text_input_type_wanted = TEXT_INPUT_LINE_UNI;
+
+  line_event_request_info_uni.win = win;
+  line_event_request_info_uni.buf = buf;
+  line_event_request_info_uni.prefill = prefill;
+  line_event_request_info_uni.maxlen = maxlen;
 }
 
 
@@ -170,27 +189,61 @@ void glk_select(event_t *event) {
       exit(8);
     }
   } else if (strncmp(ret, "evtype_LineInput ", 17) == 0) {
+    if (!line_event_request_info_latin1.buf) {
+      printf("Got [latin1] LineInput while the buffer is unset\n");
+      exit(34);
+    }
     /* http://www.eblong.com/zarf/glk/glk-spec-070_4.html#s.2 second
        para from the end. */
-    strncpy(line_event_request_info.buf, ret+17, line_event_request_info.maxlen);
-    line_event_request_info.buf[line_event_request_info.maxlen] = '\0';
+    strncpy(line_event_request_info_latin1.buf, ret+17, line_event_request_info_latin1.maxlen);
+    line_event_request_info_latin1.buf[line_event_request_info_latin1.maxlen] = '\0';
     /* Strip off the last character, which will be the trailing
        newline */
-    line_event_request_info.buf[strlen(line_event_request_info.buf)-1] = '\0';
+    line_event_request_info_latin1.buf[strlen(line_event_request_info_latin1.buf)-1] = '\0';
     
-    if (line_event_request_info.want_unicode) {
-      printf("Line event response when unicode wanted.\n");
-      exit(13);
-    }
-
     event->type = evtype_LineInput;
-    event->win = line_event_request_info.win;
-    event->val1 = strlen(line_event_request_info.buf);
+    event->win = line_event_request_info_latin1.win;
+    event->val1 = strlen(line_event_request_info_latin1.buf);
     event->val2 = 0;
 
-    glk_put_string_stream(line_event_request_info.win->stream, ret+17);
+    glk_put_string_stream(line_event_request_info_latin1.win->stream, ret+17);
 
-    printf("DEBUG: event got '%s' of len %d\n", line_event_request_info.buf, event->val1);
+    printf("DEBUG: event got '%s' of len %d\n", line_event_request_info_latin1.buf, event->val1);
+  } else if (strncmp(ret, "evtype_LineInputUni ", 20) == 0) {
+    glui32 len;
+    size_t fread_ret;
+
+    printf("DEBUG: Got LineInputUni, top line '%s'\n", ret);
+
+    if (!sscanf(ret, "evtype_LineInputUni %d", &len)) {
+      printf("Got evtype_LineInputUni, but couldn't find (or parse) length: %s\n", ret);
+      exit(36);
+    }
+    printf("DEBUG: Got LineInputUni, len=%d\n", len);
+
+    if (!line_event_request_info_uni.buf) {
+      printf("Got [uni] LineInput while the buffer is unset\n");
+      exit(35);
+    }
+
+    printf("DEBUG: Got LineInputUni, reading content...\n");
+    fread_ret = fread(line_event_request_info_uni.buf, 4, len, stdin); 
+    if (fread_ret != len) {
+      printf("Fread of data in evtype_LineInputUni failed, got %d, errno=%d\n", fread_ret, errno);
+      exit(36);
+    }
+    printf("DEBUG: Got LineInputUni, read content\n");
+    line_event_request_info_uni.buf[len] = 0;
+    
+    /* http://www.eblong.com/zarf/glk/glk-spec-070_4.html#s.2 second
+       para from the end. */
+    event->type = evtype_LineInput;
+    event->win = line_event_request_info_uni.win;
+    event->val1 = len;
+    event->val2 = 0;
+
+    glk_put_buffer_stream_uni(line_event_request_info_uni.win->stream, line_event_request_info_uni.buf, len);
+
   } else {
     printf("Couldn't parse select response: '%s'\n", ret);
     exit(9);

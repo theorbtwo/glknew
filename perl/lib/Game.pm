@@ -5,6 +5,7 @@ use Symbol 'geniosym';
 use IO::Handle;
 use 5.010_00;
 use Data::Dump::Streamer;
+use Encode 'encode';
 
 use Game::Window::Graphics;
 use Game::Window::TextBuffer;
@@ -131,6 +132,35 @@ sub setup_ipc_run {
     select($was);
   }
 }
+
+=head2 send_line_input_unicode
+
+  $game->send_line_input_unicode("pick up interspace tøøthbrush");
+
+Sends the specified text to the game, as a unicode-encoded line input.
+(Should be used only when the game has asked for one.)
+
+=cut
+
+sub send_line_input_unicode {
+  my ($self, $line) = @_;
+
+  print STDERR "Sending $line as a unicode line input\n";
+  my $len = length($line);
+  $line = encode('utf32le', $line);
+  my $wrapped = "evtype_LineInputUni $len\n$line";
+  $self->{child_stdin}->print($wrapped) or die "Can't output $wrapped to child's stdin: $!";
+}
+
+=head2 send_to_game
+
+  $game->send_to_game("somejunk");
+
+Sends the specified junk to the game, adding a terminating newline if
+neccessary.  Please don't use this directly, use one of the
+more-specific methods instead.
+
+=cut
 
 sub send_to_game {
   my ($self, $line) = @_;
@@ -295,9 +325,6 @@ sub handle_stdout {
     }
 
     when (/^\?\?\?select, window=$winid_r, want (char|line)_(latin1|uni)$/) {
-      local $self->{harness} = 'SKIPPING HARNESS';
-#      print STDERR Dumper$self;
-
       $self->{_callbacks}{select}->($self, $1, $2, $3);
     }
 
@@ -404,7 +431,6 @@ sub default_select_callback {
   };
 
   $self->{collecting_input} = 0;
-
 }
 
 

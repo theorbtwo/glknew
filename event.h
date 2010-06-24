@@ -12,12 +12,18 @@
 #define TEXT_INPUT_LINE_LATIN1 3
 #define TEXT_INPUT_LINE_UNI    4
 
-struct line_event_request {
+struct line_event_request_latin1 {
   winid_t win;
   char *buf;
   char *prefill;
   glui32 maxlen;
-  int want_unicode;
+};
+
+struct line_event_request_uni {
+  winid_t win;
+  glui32 *buf;
+  glui32 *prefill;
+  glui32 maxlen;
 };
 
 #endif
