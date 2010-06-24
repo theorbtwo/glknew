@@ -1,59 +1,82 @@
 <html>
- <head>
-  <title>GlkNew, the new-school interactive fiction engine</title>
- </head>
- <body>
-  <h2>GlkNew, the new-school interactive fiction engine</h2>
-  <p>
-  <dl>
-   <dt>What?</dt>
-   <dd>A web-based frontend to <a href="http://www.eblong.com/zarf/glk/">GLK</a>, an Interactive Fiction interpreter.</dd>
-   <dt>Why?</dt>
-   <dd>To try and bring <a href="http://en.wikipedia.org/wiki/Interactive_fiction">Interactive Fiction</a> to a larger audience, and make it easier for newcomers to get started.</dd>
-   <dt>How?</dt>
-   <dd>Using C and Perl, the <a href="http://github.com/theorbtwo/glknew">source-code is on github</a>.</dd>
-   <dt>Did you write the games?</dt>
-   <dd>No, the games belong to their respective authors (see links to the author's sites). If you are one of these authors and would prefer that we didn't use your game in this way, please <a href="mailto:glknew@desert-island.me.uk">let us know</a> and we will remove your game.</dd>
-  </dl>
-  </p>
-  <h3>How to play</h3>
-  <p>
-Choose a game from the list below and click on the <em>play</em> link. The game will load and display the first page of text. After that just follow the instructions. To save your progress type <em>save</em> into the input box, the system will then prompt you for an <a href="http://en.wikipedia.org/wiki/Openid">OpenID</a>, login, then provide a filename. When you return and wish to continue playing, enter your OpenID below the game list, and choose from your saved game list.
-   </p>
-  <h3>Help, I'm stuck!</h3>
-  <p>
-If you have a technical problem playing the game (error messages, popups, graphics don't display etc). Please <a href="http://glknew.uservoice.com">get in touch with us</a>.
-  </p>
-  <p>
-If you are stuck playing the game itself, try looking at the games website, or searching for its name in google. Most games also have a hint system, so try typing <em>help</em>, or (in King of Shreds), <em>think</em>.
-  </p>
- <h2>The games</h2>
-  <ul>
-   [% FOR e = known_games %]
-    <li><a href="[% a.link %]">[% e.title | html %]</a> <a href="game/new/[%e.shortname%]">play</a></li>
-    [% IF e.save_games.size %]
-     <strong>Saved games:</strong>
-     <ul>
-      [% FOR f = e.save_games %]
-       <li>[% f | html %] <a href="/game/restore/[%e.shortname|uri%]/[%f|uri%]">restore</a></li>
+  <head>
+    <title>GlkNew, the new-school interactive fiction engine</title>
+  </head>
+  <body>
+    <h2>GlkNew, the new-school interactive fiction engine</h2>
+    <p>
+      <dl>
+        <dt>What?</dt>
+        <dd>A web-based frontend to <a href="http://www.eblong.com/zarf/glk/">GLK</a>, an Interactive Fiction interpreter.</dd>
+        <dt>Why?</dt>
+        <dd>To try and bring <a href="http://en.wikipedia.org/wiki/Interactive_fiction">Interactive Fiction</a> to a larger audience, and make it easier for newcomers to get started.</dd>
+        <dt>How?</dt>
+        <dd>Using C and Perl, the <a href="http://github.com/theorbtwo/glknew">source-code is on github</a>.</dd>
+        <dt>Did you write the games?</dt>
+        <dd>
+          No, the games belong to their respective authors (see the "about"
+          links to the author's sites). If you are one of these authors and
+          would prefer that we didn't use your game in this way,
+          please <a href="mailto:james@mastros.biz">let us know</a> and we
+          will remove your game.
+        </dd>
+      </dl>
+    </p>
+    <h3>How to play</h3>
+    <p>
+      Choose a game from the list below and click on the link with the
+      title of the game.  The game will load and display the first page of
+      text. After that just follow the instructions. To save your
+      progress type <em>save</em> into the input box, the system will
+      then prompt you for
+      an <a href="http://en.wikipedia.org/wiki/OpenID">OpenID</a>,
+      login, then provide a filename. When you return and wish to
+      continue playing, enter your OpenID below the game list, and
+      choose from your saved game list.
+    </p>
+    <h3>Help, I'm stuck!</h3>
+    <p>
+      If you have a technical problem playing the game (error
+      messages, popups, graphics don't display
+      etc). Please <a href="http://glknew.uservoice.com/">get in touch
+      with us</a>.  Also,
+      please <a href="http://glknew.uservoice.com/">get in touch</a>
+      if you have a suggestion for another (non-commercial!) game that
+      you'd like us to support, or have any other sort of helpful
+      suggestion, or, heck, just to say thanks.
+    </p>
+    <p>
+      If you are stuck playing the game itself, try looking at the games website, or searching for its name in google. Most games also have a hint system, so try typing <em>help</em>, or (in King of Shreds), <em>think</em>.
+    </p>
+    <h2>The games</h2>
+    <ul>
+      [% FOR e = known_games %]
+        [% IF !e.nsfw || show_nsfw %]
+          <li><a href="game/new/[%e.shortname%]">[% e.title | html %]</a> <a href="[% e.link | html %]">about</a></li>
+          [% IF e.save_games.size %]
+            <strong>Saved games:</strong>
+            <ul>
+              [% FOR f = e.save_games %]
+                <li>[% f | html %] <a href="/game/restore/[%e.shortname|uri%]/[%f|uri%]">restore</a></li>
+              [% END %]
+            </ul>
+          [% END %]
+        [% END %]
       [% END %]
-     </ul>
-    [% END %]
-   [% END %]
-  </ul>
+    </ul>
 
-  [% IF NOT session.user_identity %]
-  <p>
-Login to your OpenID account here, to see restore links for games you previously saved.
-  </p>
-   <form id='login' method='post' action='/game/login'>
-    <div>
-     <label for='username2'>OpenID URL<input type='text' id='username2' name='username2' /></label>
-    </div>
-    <input type='submit' value='Login' />
-   </form>   
-  [% ELSE %]
-  <p>You are logged in as: <strong>[% session.user_identity %]</strong></p>
-  [% END %]
- </body>
+    [% IF NOT session.user_identity %]
+      <p>
+        Login to your OpenID account here, to see restore links for games you previously saved.
+      </p>
+      <form id='login' method='post' action='/game/login'>
+        <div>
+          <label for='username2'>OpenID URL<input type='text' id='username2' name='username2' /></label>
+        </div>
+        <input type='submit' value='Login' />
+      </form>   
+    [% ELSE %]
+      <p>You are logged in as: <strong>[% session.user_identity %]</strong></p>
+    [% END %]
+  </body>
 </html>
