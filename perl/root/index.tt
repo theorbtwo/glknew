@@ -65,7 +65,9 @@
       [% END %]
     </ul>
 
-    [% IF NOT session.user_identity %]
+    [% IF session.exists('user_identity') %]
+      <p>You are logged in as: <strong>[% session.user_identity %]</strong></p>
+    [% ELSE %]
       <p>
         Login to your OpenID account here, to see restore links for games you previously saved.
       </p>
@@ -75,8 +77,6 @@
         </div>
         <input type='submit' value='Login' />
       </form>   
-    [% ELSE %]
-      <p>You are logged in as: <strong>[% session.user_identity %]</strong></p>
     [% END %]
   </body>
 </html>
