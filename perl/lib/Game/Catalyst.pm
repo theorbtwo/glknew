@@ -40,6 +40,8 @@ if (-e '/usr/src/extern/glknew/perl') {
   $root = '/usr/src/extern/glknew/perl/';
 } elsif (-e '/mnt/shared/projects/games/flash-if/glknew/perl/') {
   $root = '/mnt/shared/projects/games/flash-if/glknew/perl/';
+} elsif (-e '/home/jamesm/glknew/perl') {
+  $root = '/home/jamesm/glknew/perl/';
 } else {
   die "Cannot find root";
 }
