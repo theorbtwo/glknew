@@ -10,6 +10,8 @@ name 'Game-Catalyst';
 all_from 'lib/Game/Catalyst.pm';
 
 requires 'Catalyst::Runtime' => '5.80024';
+requires 'Catalyst::Plugin::Session::State::Cookie';
+requires 'Catalyst::Plugin::Session::Store::File';
 requires 'Catalyst::Plugin::ConfigLoader';
 requires 'Catalyst::Plugin::Static::Simple';
 requires 'Catalyst::Action::RenderView';
