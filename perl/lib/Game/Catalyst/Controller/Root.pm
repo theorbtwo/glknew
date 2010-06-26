@@ -56,6 +56,9 @@ sub index :Path :Args(0) {
   }
   print STDERR Dumper $c->stash->{known_games};
   
+  # Don't expose this until we carefully consider what we are exposing.
+  $c->stash->{show_nsfw} = 0;
+
   $c->stash->{session} = $c->session;
 }
 
