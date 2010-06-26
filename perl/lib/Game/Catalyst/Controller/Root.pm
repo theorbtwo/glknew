@@ -47,9 +47,11 @@ sub index :Path :Args(0) {
 #  print STDERR Dumper $g;
   # FIXME: Sort correctly -- case insensitive, ignoring leading articles.
   for my $k (sort {$g->{$a}{title} cmp $g->{$b}{title}} keys %$g) {
-    push @{$c->stash->{known_games}}, $g->{$k};
+    push @{$c->stash->{known_games}}, {%{ $g->{$k} }};
     if($c->session->{user_identity}) {
       $c->stash->{known_games}[-1]{save_games} = [Game::Utils::get_save_games($k, $c->config->{save_file_dir}, $c->session->{user_identity})];
+    } else {
+      $c->stash->{known_games}[-1]{save_games} = [];
     }
   }
   print STDERR Dumper $c->stash->{known_games};
