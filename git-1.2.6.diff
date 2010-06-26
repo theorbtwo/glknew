@@ -1,0 +1,81 @@
+Only in git-1.2.6: accel.o
+Only in git-1.2.6: alabconc
+Only in git-1.2.6: alabstersettings
+Only in git-1.2.6: a.out
+Only in git-1.2.6: cifs33ec
+Only in git-1.2.6: cifs38bc
+Only in git-1.2.6: cifs3cb7
+Only in git-1.2.6: cifs4671
+Only in git-1.2.6: cifs5fe7
+Only in git-1.2.6: cifs6260
+Only in git-1.2.6: cifs8adb
+Only in git-1.2.6: cifs99e3
+Only in git-1.2.6: cifsc553
+Only in git-1.2.6: cifsd39e
+Only in git-1.2.6: cifse76c
+Only in git-1.2.6: cifsedce
+Only in git-1.2.6: cifsfa41
+Only in git-1.2.6: compiler.o
+Only in git-1.2.6: foo.sav
+Only in git-1.2.6: gestalt.o
+Only in git-1.2.6: git
+Only in git-1.2.6: git-cheap
+Only in git-1.2.6: git.ltrace
+Only in git-1.2.6: git.o
+Only in git-1.2.6: git-termw
+Only in git-1.2.6: git_unix.o
+Only in git-1.2.6: glkjmm-debuglog.txt
+Only in git-1.2.6: glkop.o
+Only in git-1.2.6: heap.o
+diff -ur git-1.2.6-orig/Makefile git-1.2.6/Makefile
+--- git-1.2.6-orig/Makefile	2009-04-02 23:54:50.000000000 +0100
++++ git-1.2.6/Makefile	2010-05-08 14:59:17.000000000 +0100
+@@ -5,9 +5,11 @@
+ 
+ # Note: when using xglk, do NOT define USE_MMAP in step 2, below.
+ 
+-GLK = cheapglk
++#GLK = cheapglk
+ #GLK = glkterm
+ #GLK = xglk
++#GLK = glkjmm
++GLK = glknew
+ 
+ GLKINCLUDEDIR = ../$(GLK)
+ GLKLIBDIR = ../$(GLK)
+@@ -16,9 +18,14 @@
+ # -----------------------------------------------------------------
+ # Step 2: pick a C compiler.
+ 
+-# Generic C compiler
+-CC = cc -O2
+-OPTIONS = 
++# JMM
++CC = gcc -O3 -g3 -Wall
++# Should I -DUSE_DIRECT_THREADING?  Donno.  Bench it both ways later?
++OPTIONS = -DUSE_MMAP -DUSE_INLINE
++
++## Generic C compiler
++#CC = cc -O2
++#OPTIONS = 
+ 
+ # Best settings for GCC 2.95. This generates faster code than
+ # GCC 3, so you should use this setup if possible.
+Only in git-1.2.6: Makefile~
+Only in git-1.2.6: memory.o
+Only in git-1.2.6: opcodes.o
+Only in git-1.2.6: operands.o
+Only in git-1.2.6: peephole.o
+Only in git-1.2.6: savefile.o
+Only in git-1.2.6: saveundo.o
+Only in git-1.2.6: search.o
+Only in git-1.2.6: terp.o
+diff -ur git-1.2.6-orig/version.h git-1.2.6/version.h
+--- git-1.2.6-orig/version.h	2010-02-08 05:48:40.000000000 +0000
++++ git-1.2.6/version.h	2010-05-08 14:59:20.000000000 +0100
+@@ -1,4 +1,4 @@
+ // Automatically generated file -- do not edit!
+ #define GIT_MAJOR 1
+ #define GIT_MINOR 2
+-#define GIT_PATCH 6
++#define GIT_PATCH 4

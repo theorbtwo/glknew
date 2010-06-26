@@ -14,7 +14,9 @@ To build the glknew library, you will need
 1) GCC, or equivalent C compiler. - tested with GCC 4.1.2 and 4.4.4 on linux
 2) make - tested with version 3.81 on linux.
 3) One or more game interpreters, fetch these and unpack in a directory at the same level as the glknew checkout:
- GIT 1.2.6: http://www.ifarchive.org/indexes/if-archiveXprogrammingXglulxXinterpretersXgit.html
+ a) GIT 1.2.6:
+  - Get from http://www.ifarchive.org/indexes/if-archiveXprogrammingXglulxXinterpretersXgit.html
+  - Apply patch in glknew/git-1.2.6.diff (modifies Makefile to use glknew).
  NITFOL
  AGILITY
  TADS2
