@@ -35,18 +35,18 @@ $VERSION = eval $VERSION;
 # with an external configuration file acting as an override for
 # local deployment.
 
-my $root;
+my $if_root;
 if (-e '/usr/src/extern/glknew/perl') {
-  $root = '/usr/src/extern/glknew/perl/';
+  $if_root = '/usr/src/extern/';
 } elsif (-e '/mnt/shared/projects/games/flash-if/glknew/perl/') {
-  $root = '/mnt/shared/projects/games/flash-if/glknew/perl/';
+  $if_root = '/mnt/shared/projects/games/flash-if/';
 } elsif (-e '/home/jamesm/glknew/perl') {
-  $root = '/home/jamesm/glknew/perl/';
+  $if_root = '/home/jamesm/';
 } else {
-  die "Cannot find root";
+  die "Cannot find if_root";
 }
 __PACKAGE__->config(
-                    name => 'Game::Catalyst',
+                    name => 'glknew',
                     # Disable deprecated behavior needed by old applications
                     disable_component_resolution_regex_fallback => 1,
 
@@ -56,8 +56,8 @@ __PACKAGE__->config(
                                                 __PACKAGE__->config->{root},
                                                ]
                               },
-                    save_file_dir => "$root/saves",
-                    git_binary => "$root/../../git-1.2.6/git",
+                    save_file_dir => "$if_root/glknew/perl/saves",
+                    if_root => $if_root,
                     js_keycodes => {
                                     37 => 'Left',
                                     39 => 'Right',

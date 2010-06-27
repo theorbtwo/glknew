@@ -202,8 +202,6 @@ sub game_logged_in :Path('/game/logged_in') {
          
          $game->prep_prompt_file($game);
          
-         # This duplicates code in /game/new/*
-         # FIXME: What is the undef?
          $c->res->body($game->make_page);
        } else {
          # The user was not inside a game, so redirect them on to the landing page.
@@ -312,7 +310,7 @@ sub game_new :Path('/game/new') :Args(1) {
   # FIXME: rename game_name, it's actually a shortname.  Title is the "real" name...
   my ($self, $c, $game_name) = @_;
   
-  my $game = setup_game('Game::HTML',$game_name, $c);
+  my $game = setup_game('Game::HTML', $game_name, $c);
 
   my $game_id = scalar @games;
   $game->user_info($game_id);
@@ -352,8 +350,8 @@ sub setup_game {
 
   my ($vm, $game_loc, $title) = @{$game_info}{qw/vm location title/};
 
-  my $interp_path = $c->config->{interpreters}{$vm};
-  my $game_path = $c->config->{game_path} . $game_loc;
+  my $interp_path = catfile($c->config->{if_root}, $c->config->{interpreters}{$vm});
+  my $game_path = catfile($c->config->{if_root}, $c->config->{game_path}, $game_loc);
 
   my $game = $class->new($game_path, $interp_path, $c->config->{save_file_dir}, $game_info);
   $game->{user_identity} = $c->session->{user_identity}
@@ -381,7 +379,7 @@ sub openid_consumer {
                                     # FIXME: At least don't have this in a public git repo, you noncewit.
                                     consumer_secret => 'oasiejgoag',
                                     # FIXME: The URL for the root of this plackup thingy.  Should be far more dynamic then this.
-                                    required_root => $c->req->base, 
+                                    required_root => $c->req->base,
                                     # All the query paramaters to the current URL (that aren't handled "by hand").
                                     args => $c->req->params,
                                    );

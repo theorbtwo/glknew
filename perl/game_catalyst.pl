@@ -95,15 +95,15 @@ my $c = {
     },
 
     interpreters => {
-        glulx => '/mnt/shared/projects/games/flash-if/git-1.2.6/git',
-        tads2 => '/mnt/shared/projects/games/flash-if/tads2/glk/newtads',
-        agt => '/mnt/shared/projects/games/flash-if/garglk-read-only/terps/agility/glkagil',
+        glulx => 'git-1.2.6/git',
+        tads2 => 'tads2/glk/newtads',
+        agt => 'garglk-read-only/terps/agility/glkagil',
         # 'z-code' => '/mnt/shared/projects/games/flash-if/nitfol-0.5/newnitfol',
-        'z-code' => '/mnt/shared/projects/games/flash-if/garglk-read-only/terps/frotz/frotz',
-        taf =>      '/mnt/shared/projects/games/flash-if/garglk-read-only/terps/scare/glkscare'
+        'z-code' => 'terps/frotz/frotz',
+        taf =>      'terps/scare/glkscare'
     },
 
-    game_path => '/mnt/shared/projects/games/flash-if/',
+    game_path => '',
 };
 
 for (keys %{$c->{games}}) {
