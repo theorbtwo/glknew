@@ -150,6 +150,9 @@ sub game_login :Path('/game/login') {
   my $csr = $self->openid_consumer($c);
   # FIXME: Why does username2 have such a naff name?
   my $claimed_identity = $csr->claimed_identity($c->req->param('username2'));
+  if (!$claimed_identity) {
+    die $csr->err;
+  }
   my $check_url = $claimed_identity->check_url(
                                                return_to  => $c->req->base."game/logged_in$extra_param",
                                                trust_root => $c->req->base,

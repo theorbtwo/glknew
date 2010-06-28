@@ -92,6 +92,7 @@ jQuery.extend(
               if(typeof data.show_forms[key] !== 'function') {
                   if(data.show_forms[key] == 1) {
                       jQuery('#' + key).show();
+                      jQuery('#'+key+" :input:visible").first().focus();
                   } else {
                       jQuery('#' + key).hide();
                   }
@@ -108,6 +109,9 @@ jQuery.extend(
 jQuery(document).ready(
   function(){
     Game.sendWindowSize();
+
+    // Not really redundant, we want the first <input> tag within the form named input.
+    jQuery('#input :input:visible').first().focus();
 
     jQuery(window).resize(function() {
                             // This may get sent many times when dragging.
