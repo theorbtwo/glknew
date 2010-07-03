@@ -5,6 +5,13 @@ my $c = {
   # The title, OTOH, can be any arbitrary string.
 
     games => {
+        'tight-spot' => {
+           vm     => 'z-code',
+           location => 'ats.z8',
+           title => 'A Tight Spot',
+           link => 'http://ifdb.tads.org/viewgame?id=rsjzz9w60k6o6od4',
+           nsfw => 0,
+        },
         advent => {
             vm    => 'glulx',
             location => 'Advent.ulx',
@@ -54,6 +61,8 @@ my $c = {
             title => 'Curses',
             link => 'http://www.sparkynet.com/spag/c.html#curses',
             nsfw => 0,
+            restore => [['char', ' '],
+                        ['line', 'restore']]
         },
         zork1         => {
             vm => 'z-code',
@@ -99,8 +108,8 @@ my $c = {
         tads2 => 'tads2/glk/newtads',
         agt => 'garglk-read-only/terps/agility/glkagil',
         # 'z-code' => '/mnt/shared/projects/games/flash-if/nitfol-0.5/newnitfol',
-        'z-code' => 'terps/frotz/frotz',
-        taf =>      'terps/scare/glkscare'
+        'z-code' => 'garglk-read-only/terps/frotz/frotz',
+        taf =>      'garglk-read-only/terps/scare/glkscare'
     },
 
     game_path => '',

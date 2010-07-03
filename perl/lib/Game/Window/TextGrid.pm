@@ -8,6 +8,10 @@ has 'cursor_y', (is => 'rw', isa => 'Int', default => 0);
 # $self->grid[$y][$x] = {char 'x', style => {...} };
 has 'grid',     (is => 'rw', isa => 'ArrayRef', default => sub {[]} );
 
+sub size_units {
+  'chars';
+}
+
 sub move_cursor {
   my ($self, $x, $y) = @_;
 
@@ -20,6 +24,13 @@ sub clear {
 
   # Poof, all gone.
   $self->grid([]);
+
+  # Fill in something on the last line, so we generate the right
+  # number of <br /> tags, so we get the right height the first time
+  # around.
+  if ($self->method->{fixed} and ($self->method->{above} or $self->method->{below})) {
+    $self->grid->[$self->size]->[0] = {char => " ", style => $self->current_style};
+  }
 }
 
 sub put_char {
@@ -46,6 +57,7 @@ sub get_own_formatted_text {
     
     my $text = "<tt>";
     my %styles_needed;
+    my $prev_style = -1;
     for my $line (@$state) {
         for my $new_e (@$line) {
             if (!$new_e) {
@@ -53,19 +65,24 @@ sub get_own_formatted_text {
                 next;
             }
             
-            if ($new_e->{char} eq '<') {
-                $text .= '&lt;';
-            } elsif ($new_e->{char} eq '&') {
-                $text .= '&amp;';
-            } elsif ($new_e->{char} eq ' ') {
-                $text .= '&nbsp;';
+            my $trans_char = {'<' => '&lt;',
+                              '&' => '&amp;',
+                              ' ' => '&nbsp;'
+                             }->{$new_e->{char}} || $new_e->{char};
+
+            my $style = $new_e->{style};
+            if ($prev_style != $style) {
+              my $style_name = "$self->{wintype}-$style->{name}";
+              $styles_needed{$style_name}++;
+              $text .= "<span class='$style_name'>$trans_char";
+              $prev_style = $style;
             } else {
-                $text .= $new_e->{char};
+              $text .= "$trans_char";
             }
         }
         $text .= "<br />\n";
     }
-    $text .= "</tt>\n";
+    $text .= "</span></tt>\n";
     $text = "<span class='move-top'></span>$text";
     
     if (wantarray) {

@@ -14,7 +14,6 @@ use Data::Dump::Streamer 'Dump', 'Dumper';
 use Net::OpenID::Consumer;
 ## This is the HTML layer over Game, which is the perl skin over glknew, which is.. C all the way down.
 
-
 sub new {
     my ($class, $game_path, $interp_path, $save_file_dir, $game_info) = @_;
     my $self = bless({
@@ -534,10 +533,11 @@ sub set_window_size {
   my $win = $self->{game_obj}{windows}{$winid};
   
   my $old_size = $win->window_size;
+  # FIXME: If old_size is the default, fake, 42 x 42, we leak the fake size into a "real" size.
   $size[0] ||= $old_size->[0];
   $size[1] ||= $old_size->[1];
-  $win->window_size(\@size);
   $win->window_size_is_fake(0);
+  $win->window_size(\@size);
 
   if ($self->{game_obj}{current_select}{input_type} eq 'size' and
       $self->{game_obj}{current_select}{window}->id eq $winid) {

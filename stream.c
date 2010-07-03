@@ -219,18 +219,18 @@ strid_t glk_stream_open_base(glui32 rock, glui32 fmode, glui32 type, struct glk_
   }
   
   if (!first_stream) {
-    printf("New stream %p is first_stream\n", stream);
+    printf("DEBUG: New stream %p is first_stream\n", stream);
     first_stream = stream;
     stream->next = NULL;
   } else {
-    printf("New stream %p isn't first_stream\n", stream);
+    printf("DEBUG: New stream %p isn't first_stream\n", stream);
     strid_t prev_stream = first_stream;
-    printf("Starting at prev_stream = %p\n", prev_stream);
+    printf("DEBUG: Starting at prev_stream = %p\n", prev_stream);
     while (prev_stream->next != NULL) {
       prev_stream = prev_stream->next;
-      printf("prev_stream=%p\n", prev_stream);
+      printf("DEBUG: prev_stream=%p\n", prev_stream);
     }
-    printf("prev_stream=%p\n", prev_stream);
+    printf("DEBUG: prev_stream=%p\n", prev_stream);
     stream->next = prev_stream->next;
     prev_stream->next = stream;
   }
@@ -257,12 +257,12 @@ void glk_stream_close(strid_t str, stream_result_t *result) {
     first_stream = first_stream->next;
   } else {
     strid_t candidate = first_stream;
-    printf("In the hard case, starting with %p", candidate);
+    printf("DEBUG: In the hard case, starting with %p\n", candidate);
     while (candidate->next != str) {
-      printf("in close_stream of %p, candidate=%p, next=%p", str, candidate, candidate->next);
+      printf("DEBUG: in close_stream of %p, candidate=%p, next=%p\n", str, candidate, candidate->next);
       candidate = candidate->next;
     }
-    printf("Found ourselves after %p", candidate);
+    printf("DEBUG: Found ourselves after %p\n", candidate);
     candidate->next = str->next;
   }
 
@@ -274,7 +274,7 @@ void glk_stream_close(strid_t str, stream_result_t *result) {
     } else if (str->u.mem.width == 1) {
       dispatch_disown(str->u.mem.buf, str->u.mem.buflen, "&+#!Cn", str->u.mem.buffer_adoption_rock);
     } else {
-      printf("(close_stream) Width %d, not 1 or 4", str->u.mem.width);
+      printf("(close_stream) Width %d, not 1 or 4\n", str->u.mem.width);
       exit(22);
     }
   }
@@ -286,5 +286,5 @@ void glk_stream_close(strid_t str, stream_result_t *result) {
   }
 
   /* Curses likes to write to a closed window stream. */
-  /*  free(str); */
+  free(str);
 }

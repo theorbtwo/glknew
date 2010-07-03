@@ -1,3 +1,18 @@
+A Tight Spot:
+ - Colors not supported
+ - Make TextGrid output use ' ' instead of '&nbsp;'?
+ - Char input ends up capitalized, because it's not letting the browser apply normal character semantics?
+
+- Up-arrow in text box should allow command history?
+- widen text box?
+
+curses
+ - DONE: Gets the windows confused somehow?
+ - DONE: Spews error messages
+ - No newline after echoed user input.
+ - Save echos strange garbage to screen -- tries to output save file
+   to current stream, rather then to save file stream!
+
 DONE: How to restore, from new.
  - advent: line input "restore\n"
  - blue-lacnua: char input "r"
@@ -56,14 +71,11 @@ advent
  - DONE: help menu: window_set_arrangement and window_get_parent don't work via dispatch.
  - DONE: help menu: gets cleared "for us" after 'n'.
 
-curses
- - Gets the windows confused somehow?
- - Spews error messages
-
 zork1
- - Gets the windows / streams confused somehow?
- - No visible output
- - After typing a line into the apparently empty screen, you can see output, but with no newlines in the game's output, and extra red error messages: "[ERROR: save]: incorrect stack size assessment (0) 22800 (1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10)"
+ - DONE: Gets the windows / streams confused somehow?
+ - DONE: No visible output
+ - DONE: After typing a line into the apparently empty screen, you can see output, but with no newlines in the game's output, and extra red error messages: "[ERROR: save]: incorrect stack size assessment (0) 22800 (1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10)"
+ - Missing newline after echo.
 
 emy
  - Done: initial working!
@@ -126,14 +138,14 @@ universal
  - s/Game/GlkNew/ in all module names?
 
  - front page:
-  - Initial: List of game links to click on for new game - TT/View including looking up list of games?
-   - Also links to github checkout / github issues list
-  - Need to extract the "list of games" data somewhere both Game::Catalyst and Game::Everything else will see it? maybe into the conf file for the app? (and load with config::any elsewhere or pass in)
- - Allow user to login and display customised front page, including users games player with resume links?
- - Need to extract "games for this user" code so cat can see it.. or make available outside a Game::HTML object?
- - How to "restore" a game from a link to the save file?
+  - DONE: Initial: List of game links to click on for new game - TT/View including looking up list of games?
+   - DONE: Also links to github checkout / github issues list
+  - DONE: Need to extract the "list of games" data somewhere both Game::Catalyst and Game::Everything else will see it? maybe into the conf file for the app? (and load with config::any elsewhere or pass in)
+ - DONE: Allow user to login and display customised front page, including users games player with resume links?
+ - DONE: Need to extract "games for this user" code so cat can see it.. or make available outside a Game::HTML object?
+ - DONE: How to "restore" a game from a link to the save file?
  - is this the same save/re-open code that allows us to stop relying on the @games array globally?
 
  - get rid of @games array.
-  - need to test how each game starts/can be restored.. generally, send "r" or "restore" as first command on select?
-  - what about games that ask for window size first?
+ - DONE: need to test how each game starts/can be restored.. generally, send "r" or "restore" as first command on select?
+ - what about games that ask for window size first?

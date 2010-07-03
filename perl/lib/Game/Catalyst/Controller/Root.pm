@@ -15,6 +15,11 @@ use mro;
 
 BEGIN { extends 'Catalyst::Controller' }
 
+BEGIN {
+  # Make our debugging output slightly more sane.
+  $| = 1;
+}
+
 # FIXME: Wrap these in... well, somewhere less ugly then a global.
 my @games = ();
 
@@ -322,6 +327,18 @@ sub game_new :Path('/game/new') :Args(1) {
   $game->continue();
   
   $c->res->body($game->make_page);
+}
+
+=head2 debugme
+
+Does some random debuggy data dumping.
+
+=cut
+
+sub debugme :Path('/debugme/thisisslightlysecret') {
+  my ($self, $c) = @_;
+  
+  $c->res->body($|);
 }
 
 =head2 end

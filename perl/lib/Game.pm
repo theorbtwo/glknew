@@ -215,7 +215,7 @@ sub handle_stdout {
   # Very funny.  For some reason, I'm getting CRLF line-ends, dispite running this under linux, and having a printf("\n") generating it.
   # I also rather wonder why I am getting multiple lines at once.
 
-  my $winid_r = qr/(0x[0-9A-Fa-f]+)/;
+  my $winid_r = qr/(\(nil\)|0x[0-9a-f]+)/i;
 
   for (split m/\cM?\cJ/, $from_game) {
     if ($ENV{GLKNEW_TRACE}) {
@@ -283,6 +283,7 @@ sub handle_stdout {
       $self->{root_win} = $win if($win->{is_root});
     }
 
+    #      >>>window_set_arrangement win=0x82da038, method=above, fixed, size=1, keywin=(nil)
     when (/>>>window_set_arrangement win=$winid_r, method=([a-z, ]+), size=(\d+), keywin=$winid_r/) {
       if(!exists $self->{windows}{$1}) {
         die "Attempt to arrange non-existant winid $1";
@@ -292,6 +293,7 @@ sub handle_stdout {
       $win->method({map {($_=>1)} split(/, /, $2)});
       $win->size($3);
       $win->drawn(0);
+      $win->window_size_is_fake(1);
 
       print STDERR "window_set_arrangement, ignoring keywin argument\n";
     }

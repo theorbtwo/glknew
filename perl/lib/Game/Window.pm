@@ -17,7 +17,7 @@ has parent => (is => 'ro', isa => 'Maybe[Object]', required => 0, default => sub
 # method, pixels, chars, or percent depends on method and wintype.
 has size => (is => 'rw', isa => 'Int');
 
-sub BUILD { 
+sub BUILD {
   my ($self, $attrs) = @_; 
   my @not_got = grep !exists $self->{$_}, keys %$attrs; 
   
@@ -31,13 +31,25 @@ sub BUILD {
     my $width = 42;
     my $height = 42;
     
-    if ($self->size and $meth->{fixed}) {
+    if ($self->is_root) {
+      $width = 640;
+      $height = 480;
+    } elsif ($self->size and $meth->{fixed}) {
       if ($meth->{above} or $meth->{below}) {
-        $height = $self->size;
+        if ($self->size_units eq 'chars') {
+          $height = $self->size * 19.2;
+        } else {
+          $height = $self->size;
+        }
       } else {
-        $width = $self->size;
+        if ($self->size_units eq 'chars') {
+          $width = $self->size * 8;
+        } else {
+          $width = $self->size;
+        }
       }
     }
+
     $self->window_size([$width, $height]);
   }
 }
