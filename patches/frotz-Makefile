@@ -1,0 +1,19 @@
+# Which glk library are we using
+GLK = glknew
+GLK_DIR = ../../../$(GLK)
+include $(GLK_DIR)/Make.$(GLK)
+
+CFLAGS  += -std=c99 -Wall -Wconversion -g3 -O1 -I$(GLK_DIR) -I. -c
+LDFLAGS += -L$(GLK_DIR)
+
+OBJS = buffer.o   err.o       fastmem.o  files.o     \
+       input.o    main.o      math.o     object.o    \
+       process.o  quetzal.o   random.o   redirect.o  \
+       sound.o    stream.o    table.o    text.o      \
+       variable.o glkscreen.o glkmisc.o
+
+frotz: $(OBJS)
+	$(CC) $(LDFLAGS) -o frotz $(OBJS) $(GLKLIB)
+
+clean:
+	rm $(OBJS) frotz

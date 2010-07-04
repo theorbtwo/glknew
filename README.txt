@@ -18,10 +18,12 @@ To build the glknew library, you will need
   - Get from http://www.ifarchive.org/indexes/if-archiveXprogrammingXglulxXinterpretersXgit.html
   - Apply patch in glknew/git-1.2.6.diff (modifies Makefile to use glknew).
  NITFOL
- AGILITY
  TADS2
- SCARE
- FROTZ
+ d) AGILITY, SCARE, FROTZ
+  - Provided by the garglk/gargoyle collection of interpreters:
+  - Get from: http://code.google.com/p/garglk/source/checkout
+  - Copy the Frotz Makefile from patches/frotz-Makefile to garglk-read-only/terps/frotz/Makefile
+
 
 cd into the "glknew" directory and run:
 ./make_them.sh
