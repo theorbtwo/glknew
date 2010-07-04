@@ -371,7 +371,9 @@ sub setup_game {
   my ($vm, $game_loc, $title) = @{$game_info}{qw/vm location title/};
 
   my $interp_path = catfile($c->config->{if_root}, $c->config->{interpreters}{$vm});
-  my $game_path = catfile($c->config->{if_root}, $c->config->{game_path}, $game_loc);
+
+  ## game_path is used if set, allowing us to store games elsewhere.
+  my $game_path = catfile($c->config->{game_path} || $c->config->{if_root},  $game_loc);
 
   my $game = $class->new($game_path, $interp_path, $c->config->{save_file_dir}, $game_info);
   $game->{user_identity} = $c->session->{user_identity}

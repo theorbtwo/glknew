@@ -112,6 +112,7 @@ my $c = {
         taf =>      'garglk-read-only/terps/scare/glkscare'
     },
 
+    ## Set this in your game_catalyst_local.pl to have the system look for games in a path other than the one above "glknew/".
     game_path => '',
 };
 
