@@ -4,10 +4,6 @@ use Moose;
 use Game::HTML; # Needs get_style
 extends 'Game::Window';
 
-sub size_units {
-  'chars';
-}
-
 sub put_char {
   my ($self, $char) = @_;
 

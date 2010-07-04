@@ -9,6 +9,7 @@ has window_size => (is => 'rw', isa => 'ArrayRef', required => 0);
 has window_size_is_fake => (is => 'rw', isa => 'Bool', default => 1);
 has pages => (is => 'rw', isa => 'ArrayRef', required => 0, default => sub { [] } );
 has content => (is => 'rw', isa => 'ArrayRef', required => 0, default => sub { [] } );
+# TextBuffer, TextGrid, Graphics
 has wintype => (is => 'ro', isa => 'Str');
 has current_style => (is => 'rw');
 has is_root => (is => 'ro', isa => 'Bool', default => sub { 0 } );
@@ -52,6 +53,10 @@ sub BUILD {
 
     $self->window_size([$width, $height]);
   }
+}
+
+sub size_units {
+  'chars';
 }
 
 sub new_turn {

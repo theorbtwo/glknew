@@ -8,10 +8,6 @@ has 'cursor_y', (is => 'rw', isa => 'Int', default => 0);
 # $self->grid[$y][$x] = {char 'x', style => {...} };
 has 'grid',     (is => 'rw', isa => 'ArrayRef', default => sub {[]} );
 
-sub size_units {
-  'chars';
-}
-
 sub move_cursor {
   my ($self, $x, $y) = @_;
 
