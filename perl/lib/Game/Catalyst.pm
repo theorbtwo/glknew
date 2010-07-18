@@ -35,16 +35,6 @@ $VERSION = eval $VERSION;
 # with an external configuration file acting as an override for
 # local deployment.
 
-my $if_root;
-if (-e '/usr/src/extern/glknew/perl') {
-  $if_root = '/usr/src/extern/';
-} elsif (-e '/mnt/shared/projects/games/flash-if/glknew/perl/') {
-  $if_root = '/mnt/shared/projects/games/flash-if/';
-} elsif (-e '/home/jamesm/glknew/perl') {
-  $if_root = '/home/jamesm/';
-} else {
-  die "Cannot find if_root";
-}
 __PACKAGE__->config(
                     name => 'glknew',
                     # Disable deprecated behavior needed by old applications
@@ -56,8 +46,8 @@ __PACKAGE__->config(
                                                 __PACKAGE__->config->{root},
                                                ]
                               },
-                    save_file_dir => "$if_root/glknew/perl/saves",
-                    if_root => $if_root,
+                    save_file_dir => __PACKAGE__->path_to('../..') . "/glknew/perl/saves",
+                    if_root => __PACKAGE__->path_to('../..')->stringify,
                     js_keycodes => {
                                     37 => 'Left',
                                     39 => 'Right',
