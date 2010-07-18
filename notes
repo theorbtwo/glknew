@@ -1,5 +1,6 @@
 nitfol
  - Is compiled without graphics support.
+ - not being used right now.
 
 Banana Republic:
  - Does glk_stylehint_set(wintype=33, styl=3 (Header), hint=3 (Size), val=0), trying to set on type 33, which naturally segfaults.
@@ -131,6 +132,7 @@ universal
  - DONE - make get_own_formatted_text part of Game::Window::*?  Likewise ->move_cursor, etc?
  - DONE - Chrome: hitting up or down in a charinput box makes the autocomplete thingy show up. - DONE
  - Graphics windows force the browser to re-get the image every turn, even if it has not changed.
+ - robots.txt fetching = 500 Error.
 
  - saving
   - DONE - type "save", Game responds by running "save_file_name" callback, exits loop, and user is shown save form instead of normal input form (contains "username" and "save game" fields)
