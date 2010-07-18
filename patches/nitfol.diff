@@ -1,0 +1,55 @@
+Only in nitfol-0.5: automap.o
+Only in nitfol-0.5: blorb.o
+Only in nitfol-0.5: cifs1551
+Only in nitfol-0.5: cifs1fbe
+Only in nitfol-0.5: cifs2c1f
+Only in nitfol-0.5: cifs4168
+Only in nitfol-0.5: cifs4731
+Only in nitfol-0.5: cifs67a3
+Only in nitfol-0.5: copying.o
+Only in nitfol-0.5: debug.o
+Only in nitfol-0.5: decode.o
+Only in nitfol-0.5: errmesg.o
+Only in nitfol-0.5: game.sav
+Only in nitfol-0.5: globals.o
+Only in nitfol-0.5: hash.o
+Only in nitfol-0.5: iff.o
+Only in nitfol-0.5: infix.o
+Only in nitfol-0.5: inform.o
+Only in nitfol-0.5: init.o
+Only in nitfol-0.5: io.o
+Only in nitfol-0.5: main.o
+diff -ur nitfol.orig//Makefile nitfol-0.5/Makefile
+--- nitfol.orig//Makefile	1999-10-25 01:54:05.000000000 +0100
++++ nitfol-0.5/Makefile	2010-05-04 17:39:26.000000000 +0100
+@@ -165,6 +165,9 @@
+ mpcmudnitfol: $(OBJS) startunix.o no_graph.o no_blorb.o no_snd.o
+ 	$(MAKE) nitfol GLKINCLUDEDIR=$(PATHTOGLK)/mudglk GLKLIBDIR=$(PATHTOGLK)/mudglk GLKMAKEFILE=Make.mpcmudglk "GLKSPECIFIC=startunix.c no_graph.c no_blorb.c no_snd.c" PRODUCT=$@
+ 
++# FIXME: We should, over time, grow to support graphics and sound.
++newnitfol: $(OBJS) startunix.o no_graph.o blorb.o no_snd.o
++	$(MAKE) nitfol GLKINCLUDEDIR=$(PATHTOGLK)/glknew GLKLIBDIR=$(PATHTOGLK)/glknew GLKMAKEFILE=Make.glknew    "GLKSPECIFIC=startunix.c no_graph.c blorb.c no_snd.c" PRODUCT=$@
+ 
+ .SUFFIXES:
+ .SUFFIXES: .c .o .h .y
+Only in nitfol-0.5: newnitfol
+Only in nitfol-0.5: no_graph.o
+Only in nitfol-0.5: no_snd.o
+Only in nitfol-0.5: objects.o
+Only in nitfol-0.5: op_call.o
+Only in nitfol-0.5: op_jmp.o
+Only in nitfol-0.5: oplist.o
+Only in nitfol-0.5: op_math.o
+Only in nitfol-0.5: op_save.o
+Only in nitfol-0.5: op_table.o
+Only in nitfol-0.5: op_v6.o
+Only in nitfol-0.5: portfunc.o
+Only in nitfol-0.5: quetzal.o
+Only in nitfol-0.5: solve.o
+Only in nitfol-0.5: stack.o
+Only in nitfol-0.5: startunix.o
+Only in nitfol-0.5: struct.o
+Only in nitfol-0.5: tokenise.o
+Only in nitfol-0.5: undo.o
+Only in nitfol-0.5: z_io.o
+Only in nitfol-0.5: zscii.o

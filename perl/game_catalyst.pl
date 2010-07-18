@@ -101,6 +101,27 @@ my $c = {
             link => 'http://www.ifwiki.org/index.php/British_Fox_and_the_Celebrity_Abductions',
             nsfw => 1,
         },
+        bearg => {
+            vm => 'z-code',
+            location => 'bearg.z5',
+            title => 'Ein Bär geht aus',
+            link => 'http://www.if-album.menear.de/pages/fantasy.html#baer',
+            nsfw => 0,
+        },
+        banana => {
+            vm => 'glulx',
+            location => 'bnareplk.ulx',
+            title => 'Banana Republic [de]',
+            link => 'http://www.if-album.menear.de/pages/humor.html#bananenrepublik',
+            nsfw => 0,
+        },
+        Absturzmomente => {
+            vm => 'z-code',
+            location => 'abstmom.zblorb',
+            title => 'Absturzmomente',
+            link => 'http://ifdb.tads.org/viewgame?id=r1ayxo348ij7uk8p',
+            nsfw => 0,
+        },
     },
 
     interpreters => {

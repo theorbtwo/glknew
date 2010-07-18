@@ -1,0 +1,115 @@
+Index: terps/scare/Makefile
+===================================================================
+--- terps/scare/Makefile	(revision 377)
++++ terps/scare/Makefile	(working copy)
+@@ -49,11 +49,12 @@
+ #LDFLAGS=
+ 
+ # Glk library selection and library location.
+-GLK	= xglk
++#GLK	= glknew
+ #GLK	= glkterm
+ #GLK	= cheapglk
+ #GLK	= winglk
+-GLKDIR	= ../..
++GLK=glknew
++GLKDIR	= ../../..
+ 
+ # Glk platform selection; normally, the platform's compiler will define
+ # one of these automatically, but if not, pick one to suit your system.
+@@ -95,40 +96,25 @@
+ 	  sxstubs.o
+ XHEADERS= sxprotos.h
+ 
+-# Zlib components used by SCARE.
+-ZLIBVER	= 123
+-ZLIBSRC	= zlib$(ZLIBVER).zip
+-ZOBJECTS= crc32.o inffast.o inflate.o inftrees.o zutil.o compress.o	\
+-	  adler32.o deflate.o trees.o
+-ZSOURCES= crc32.c inffast.c inflate.c inftrees.c zutil.c compress.c	\
+-	  adler32.c deflate.c trees.c
+-ZHEADERS= crc32.h inffast.h inflate.h inftrees.h inffixed.h zutil.h	\
+-	  zconf.h deflate.h trees.h zlib.h
+-
+ # Default make target is the basic ANSI interpreter.
+ all:	scare
+ 
+-$(ZOBJECTS): $(ZHEADERS) $(ZSOURCES)
+-
+-$(ZHEADERS) $(ZSOURCES): $(ZLIBSRC)
+-	@$(UNZIP) -uqqa $(ZLIBSRC) $@
+-
+ $(OBJECTS): $(HEADERS)
+ 
+-scare: $(ZOBJECTS) $(OBJECTS) os_ansi.o
+-	$(CC) $(LDFLAGS) -o scare $(OBJECTS) $(ZOBJECTS) os_ansi.o $(LDLIBS)
++scare: $(OBJECTS) os_ansi.o
++	$(CC) $(LDFLAGS) -o scare $(OBJECTS) -lz os_ansi.o $(LDLIBS)
+ 
+ # Option to build the SCARE verifier.
+ $(XOBJECTS): $(XHEADERS)
+ 
+-sx: $(ZOBJECTS) $(OBJECTS) $(XOBJECTS)
+-	$(CC) $(LDFLAGS) -o sx $(OBJECTS) $(ZOBJECTS) $(XOBJECTS) $(LDLIBS)
++sx: $(OBJECTS) $(XOBJECTS)
++	$(CC) $(LDFLAGS) -o sx $(OBJECTS) -lz $(XOBJECTS) $(LDLIBS)
+ 
+ # Option to build the Glk port of SCARE.
+-glkscare: $(ZOBJECTS) $(OBJECTS) os_glk.o
++glkscare: $(OBJECTS) os_glk.o
+ 	@$(TEST) -n "$(GLKLIB)" \
+ 		|| ( echo "Could not include $(GLKPATH)/Make.$(GLK)"; exit 1 )
+-	$(CC) $(LDFLAGS) -o glkscare $(OBJECTS) $(ZOBJECTS) os_glk.o	\
++	$(CC) $(LDFLAGS) -o glkscare $(OBJECTS) -lz os_glk.o	\
+ 		$(LDLIBS) $(GLKLIBS)
+ 
+ os_glk.o: os_glk.c $(HEADERS)
+@@ -146,9 +132,9 @@
+ 
+ PLUGIN_LIBS = -lifppi
+ PLUGIN_OBJS = scare_plugin.o
+-scare-$(VERSION).so: $(ZOBJECTS) $(OBJECTS) os_glk.o $(PLUGIN_OBJS)
++scare-$(VERSION).so: $(OBJECTS) os_glk.o $(PLUGIN_OBJS)
+ 	$(CC) -shared -Wl,-u,ifpi_force_link -Wl,-Bsymbolic		\
+-		-o $@ $(ZOBJECTS) $(OBJECTS) os_glk.o $(PLUGIN_OBJS)	\
++		-o $@ -lz $(OBJECTS) os_glk.o $(PLUGIN_OBJS)	\
+ 		$(PLUGIN_LIBS) -lc
+ 
+ # Cleanup.
+Index: terps/agility/Makefile.glk
+===================================================================
+--- terps/agility/Makefile.glk	(revision 377)
++++ terps/agility/Makefile.glk	(working copy)
+@@ -1,9 +1,9 @@
+ # Set locations of Glk library and include directories, and Glk make include.
+ # For building the IFP plugin, you should probably use Xglk headers.
+ # For X Glk library:
+-GLKLIBDIR	= ../xglk
+-GLKINCDIR	= ../xglk
+-GLKMAKEINC	= ../xglk/Make.xglk
++#GLKLIBDIR	= ../xglk
++#GLKINCDIR	= ../xglk
++#GLKMAKEINC	= ../xglk/Make.xglk
+ # ..., or for curses Glk library:
+ #GLKLIBDIR	= ../glkterm
+ #GLKINCDIR	= ../glkterm
+@@ -12,6 +12,10 @@
+ #GLKLIBDIR	= ../cheapglk
+ #GLKINCDIR	= ../cheapglk
+ #GLKMAKEINC	= ../cheapglk/Make.cheapglk
++# ... of for glknew
++GLKLIBDIR       = ../../../glknew/
++GLKINCDIR       = ../../../glknew/
++GLKMAKEINC      = ../../../glknew/Make.glknew
+ 
+ # Set locations of IFP library and include directories, and header tool.
+ # For installed IFP, these would be something like:
+@@ -38,7 +42,7 @@
+ # Get the definitions for Glk LINKLIBS and GLKLIB.
+ include $(GLKMAKEINC)
+ 
+-CFLAGS	= -fPIC -ansi -DGLK -I$(GLKINCDIR) $(WARNINGS) $(DEBUG) $(OPTIMIZE)
++CFLAGS	= -fPIC -ansi -DGLK -DGARGLK -I$(GLKINCDIR) $(WARNINGS) $(DEBUG) $(OPTIMIZE)
+ # CFLAGS= -I$(GLKINCDIR) $(WARNINGS) $(DEBUG) $(OPTIMIZE)
+ LDFLAGS	= $(DEBUG)
+ 
