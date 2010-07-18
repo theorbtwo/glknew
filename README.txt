@@ -30,7 +30,7 @@ To build the glknew library, you will need
   - Provided by the garglk/gargoyle collection of interpreters:
   - Get from: http://code.google.com/p/garglk/source/checkout
   - Copy the Frotz Makefile from patches/frotz-Makefile to garglk-read-only/terps/frotz/Makefile
-
+  - The scare and agility makefiles are provided as patches: glknew/patches/garglk.patch
 
 cd into the "glknew" directory and run:
 ./make_them.sh
