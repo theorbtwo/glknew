@@ -1,3 +1,6 @@
+nitfol
+ - Is compiled without graphics support.
+
 Banana Republic:
  - Does glk_stylehint_set(wintype=33, styl=3 (Header), hint=3 (Size), val=0), trying to set on type 33, which naturally segfaults.
 

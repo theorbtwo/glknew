@@ -15,9 +15,16 @@ To build the glknew library, you will need
 2) make - tested with version 3.81 on linux.
 3) One or more game interpreters, fetch these and unpack in a directory at the same level as the glknew checkout:
  a) GIT 1.2.6:
-  - Get from http://www.ifarchive.org/indexes/if-archiveXprogrammingXglulxXinterpretersXgit.html
+  - Get from
+    http://www.ifarchive.org/indexes/if-archiveXprogrammingXglulxXinterpretersXgit.html
+  - Tested version is 1.2.6.
   - Apply patch in glknew/git-1.2.6.diff (modifies Makefile to use glknew).
- NITFOL
+ b) NITFOL
+  - Get from
+    http://www.ifarchive.org/indexes/if-archiveXinfocomXinterpretersXnitfol.html
+  - Tested version is 0.5.
+  - Apply patch in glknew/patches/nitfol.diff (modifies Makefile to
+    use glknew.)
  TADS2
  d) AGILITY, SCARE, FROTZ
   - Provided by the garglk/gargoyle collection of interpreters:
