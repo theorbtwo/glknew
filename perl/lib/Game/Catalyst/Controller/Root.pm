@@ -52,7 +52,7 @@ sub index :Path :Args(0) {
 #  print STDERR Dumper $g;
   # FIXME: Sort correctly -- case insensitive, ignoring leading articles.
   for my $k (sort {$g->{$a}{title} cmp $g->{$b}{title}} keys %$g) {
-    next if(! -e catfile($c->config->{game_path} || $c->config->{if_root},  $g->{location}));
+    next if(! -e catfile($c->config->{game_path} || $c->config->{if_root},  $g->{$k}{location}));
 
     push @{$c->stash->{known_games}}, {%{ $g->{$k} }};
     if($c->session->{user_identity}) {
