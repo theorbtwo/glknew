@@ -78,5 +78,9 @@
         <input type='submit' value='Login' />
       </form>   
     [% END %]
-  </body>
+  <hr/>
+  <p>
+   Hosting provided by: <a href="http://www.shadowcat.co.uk">Shadowcat Systems</a>.
+  </p>
+ </body>
 </html>
