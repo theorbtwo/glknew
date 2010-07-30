@@ -377,8 +377,11 @@ sub setup_game {
   ## game_path is used if set, allowing us to store games elsewhere.
   my $game_path = catfile($c->config->{game_path} || $c->config->{if_root},  $game_loc);
 
-  my $game = $class->new($game_path, $interp_path, $c->config->{save_file_dir}, $game_info);
-  $game->{user_identity} = $c->session->{user_identity}
+  my $game = $class->new(game_path => $game_path, 
+			 interp_path => $interp_path, 
+			 save_dir => $c->config->{save_file_dir}, 
+			 game_info => $game_info);
+  $game->user_identity($c->session->{user_identity})
     if(exists $c->session->{user_identity});
 
   return $game;
@@ -432,7 +435,7 @@ sub continue_game {
   
   my $json = {
               input_type => $game->get_input_type(),
-              show_forms => $game->get_form_states(),
+              show_forms => $game->form_states(),
               extra_form_data => $game->extra_form_data(),
              };
   if ($game->has_new_windows) {

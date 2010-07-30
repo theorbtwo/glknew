@@ -4,39 +4,35 @@ package Game::HTML;
 use strict;
 use warnings;
 
+use Moose;
+
 use Game;
 use Game::Utils;
 use Carp 'cluck';
 use File::Spec::Functions;
 use File::Path 'mkpath';
 use Path::Class;
+use DateTime;
 use Data::Dump::Streamer 'Dump', 'Dumper';
 use Net::OpenID::Consumer;
 ## This is the HTML layer over Game, which is the perl skin over glknew, which is.. C all the way down.
 
-sub new {
-    my ($class, $game_path, $interp_path, $save_file_dir, $game_info) = @_;
-    my $self = bless({
-                      title => $game_info->{title},
-                      save_file_dir => $save_file_dir, 
-                      game_info => $game_info,
-                      ## keys here correspond to HTML ids of forms in get_forms
-                      form_states => { input => 1, save => 0, login => 0, restore => 0 },
+has game_info => (isa => 'HashRef', is => 'rw', required => 0);
+has save_dir (isa => 'Path::Class::File', is => 'rw', required => 1);
+has game_path => (isa => 'Path::Class::Dir', is => 'rw', required => 1);
+has interp_path => (isa => 'Path::Class::File', is => 'rw', required => 1);
+has user_info => (isa => 'Str', is => 'rw', required => 0);
+has user_identity => (isa => 'Object', is => 'rw', required => 0);
+has game_obj => (isa => 'Game', is => 'rw', required => 0);
+has form_states => (isa => 'HashRef', is => 'rw', required => 0);
+has last_access_time => (isa => 'DateTime', is => 'rw', required => 0);
 
-                      game_path => $game_path,
-                      interp_path => $interp_path,
-                     }, $class);
-
-#     my $game = Game->new($game_path, 
-#                          $interp_path,
-#                          {
-#                           window_size => sub { $self->send_window_size(@_) },
-#                           style_distinguish => \&style_distinguish,
-#                           prompt_file => sub { $self->prep_prompt_file(@_) },
-#                          });
-#     $self->{game_obj} = $game;
-
-    return $self;
+sub BUILD {
+  my ($self, $attrs) = @_; 
+  my @not_got = grep !exists $self->{$_}, keys %$attrs; 
+  
+  warn "Unsupported attributes @not_got specified to the creator of $self"
+    if @not_got;
 }
 
 =head2 callbacks
@@ -61,19 +57,12 @@ sub callbacks {
 sub start_process {
     my ($self) = @_;
 
-    $self->{game_obj} = Game->new(delete $self->{game_path}, 
+    $self->form_states({ input => 1, save => 0, login => 0, restore => 0 });
+    $self->game_obj(Game->new(delete $self->{game_path}, 
                                   delete $self->{interp_path},
-                                  $self->callbacks);
+                                  $self->callbacks));
 
-}
-
-sub user_info {
-  my ($self) = @_;
-  if (@_ > 1) {
-    $self->{user_info} = $_[1];
-  }
-  
-  return $self->{user_info};
+    $self->last_access_time(DateTime->now);
 }
 
 sub continue {
@@ -83,25 +72,26 @@ sub continue {
     $self->set_form_visible('input');
     $self->{game_obj}{current_select} = {};
 
+    $self->last_access_time(DateTime->now);
     $self->{game_obj}->wait_for_select;
 }
 
 sub send {
   my ($self, $input) = @_;
 
-  $self->{game_obj}->send_to_game($input);
+  $self->game_obj->send_to_game($input);
 }
 
 sub save_file_dir {
   my ($self) = @_;
 
-  if (!$self->{user_identity}) {
+  if (!$self->user_identity) {
     die "Called save_dir before user_identity set";
   }
 
-  return Game::Utils::save_file_dir($self->{game_info}{shortname},
-                                    $self->{save_file_dir},
-                                    $self->{user_identity});
+  return Game::Utils::save_file_dir($self->game_info->{shortname},
+                                    $self->save_dir,
+                                    $self->user_identity);
 }
 
 sub send_prompt_file {
@@ -118,22 +108,22 @@ sub prep_prompt_file {
     my ($self, $game, $usage, $mode) = @_;
 
     # HR, one of the group and optionally the second {ata, SavedGame, Transcript, InputRecord}, Text?
-    $usage ||= $self->{game_obj}{current_select}{usage};
+    $usage ||= $self->game_obj->{current_select}{usage};
 
     # String, one of Write, Read, ReadWrite, WriteAppend
-    $mode  ||= $self->{game_obj}{current_select}{mode};
+    $mode  ||= $self->game_obj->{current_select}{mode};
 
     print STDERR Dumper[$usage, $mode];
 
     # No matter what, we're going to want to stop the event loop here.
-    $self->{game_obj}{collecting_input} = 0;
+    $self->game_obj->{collecting_input} = 0;
 
     # If we don't yet know who the user is, find out.
-    if (!$self->{user_identity}) {
+    if (!$self->user_identity) {
       $self->set_form_visible('login');
-      $self->{game_obj}{current_select}{input_type} = 'login';
-      $self->{game_obj}{current_select}{usage} = $usage;
-      $self->{game_obj}{current_select}{mode} = $mode;
+      $self->game_obj->{current_select}{input_type} = 'login';
+      $self->game_obj->{current_select}{usage} = $usage;
+      $self->game_obj->{current_select}{mode} = $mode;
       return;
     }
 
@@ -142,23 +132,23 @@ sub prep_prompt_file {
       # Restore
 
       $self->set_form_visible('restore');
-      $self->{game_obj}{current_select}{input_type} = 'restore';
+      $self->game_obj->{current_select}{input_type} = 'restore';
 
-      my @files = Game::Utils::get_save_games($self->{game_info}{shortname},
-                                              $self->{save_file_dir},
-                                              $self->{user_identity});
+      my @files = Game::Utils::get_save_games($self->game_info->{shortname},
+                                              $self->save_dir,
+                                              $self->user_identity);
 
-      $self->{game_obj}{current_select}{extra_form_data}{files} = \@files;
+      $self->game_obj->{current_select}{extra_form_data}{files} = \@files;
 
     } else {
       ## get_form sends several forms, some are hidden, we set a value that json will use to unhide the save file form.
       $self->set_form_visible('save');
       ## this doesn't actually get used, but we want to set it to something to avoid uninit warning.
-      $self->{game_obj}->{current_select}{input_type} = 'file';
+      $self->game_obj->{current_select}{input_type} = 'file';
       
       # FIXME: Audit if this actually gets used, and remove if we don't need it.
-      $self->{game_obj}->{current_select}{file_usage} = $usage;
-      $self->{game_obj}->{current_select}{file_mode} = $mode;
+      $self->game_obj->{current_select}{file_usage} = $usage;
+      $self->game_obj->{current_select}{file_mode} = $mode;
     }
 }
 
@@ -166,30 +156,24 @@ sub set_form_visible {
     my ($self, $formid) = @_;
 
     foreach my $form (keys %{ $self->{form_states} }) {
-        $self->{form_states}{$form} = 0;
-        $self->{form_states}{$form} = 1 if($form eq $formid);
+        $self->form_states->{$form} = 0;
+        $self->form_states->{$form} = 1 if($form eq $formid);
     }
-}
-
-sub get_form_states {
-    my ($self) = @_;
-
-    return $self->{form_states};
 }
 
 sub get_input_type {
     my ($self) = @_;
 
-    return $self->{game_obj}->{current_select}{input_type};
+    return $self->game_obj->{current_select}{input_type};
 }
 
 sub extra_form_data {
-  $_[0]->{game_obj}{current_select}{extra_form_data};
+  $_[0]->game_obj->{current_select}{extra_form_data};
 }
 
 sub get_forms {
     my ($self) = @_;
-    my ($game) = $self->{game_obj};
+    my ($game) = $self->game_obj;
 
     my $gameid = $self->user_info;
     my $forms;
@@ -238,7 +222,7 @@ END
 sub make_page {
   my ($self) = @_;
 
-  my $title = $self->{title};
+  my $title = $self->game_info->{title};
   my $content = ("<div id='all-windows'>"
                 . $self->get_initial_windows() . '</div>'
                 . $self->get_forms);
@@ -280,7 +264,7 @@ html {
 sub has_new_windows {
   my ($self) = @_;
 
-  for my $win (values %{$self->{game_obj}{windows}}) {
+  for my $win (values %{$self->game_obj->{windows}}) {
     if (!$win->drawn) {
       warn "has_new_windows because of window ".$win->id;
       return 1;
@@ -293,7 +277,7 @@ sub has_new_windows {
 sub get_initial_windows {
   my ($self) = @_;
   
-  return get_formatted_text($self->{game_obj}->root_window, 1);
+  return get_formatted_text($self->game_obj->root_window, 1);
 }
 
 sub get_continue_windows {
@@ -307,7 +291,7 @@ sub get_continue_windows {
         content => $text,
         status => $status,
        }
-    } (values %{ $self->{game_obj}->{windows} });
+    } (values %{ $self->game_obj->{windows} });
     
     return \@windows;
 }
@@ -503,7 +487,7 @@ sub get_style {
 sub send_window_size {
   my ($self, $game, $winid) = @_;
 
-  my $win = $self->{game_obj}{windows}{$winid};
+  my $win = $self->game_obj->{windows}{$winid};
   if ($win->window_size_is_fake) {
     $game->{collecting_input} = 0;
     $game->{current_select} = {
@@ -530,7 +514,7 @@ sub send_window_size {
 
 sub set_window_size {
   my ($self, $winid, @size) = @_;
-  my $win = $self->{game_obj}{windows}{$winid};
+  my $win = $self->game_obj->{windows}{$winid};
   
   my $old_size = $win->window_size;
   # FIXME: If old_size is the default, fake, 42 x 42, we leak the fake size into a "real" size.
@@ -539,10 +523,10 @@ sub set_window_size {
   $win->window_size_is_fake(0);
   $win->window_size(\@size);
 
-  if ($self->{game_obj}{current_select}{input_type} eq 'size' and
-      $self->{game_obj}{current_select}{window}->id eq $winid) {
+  if ($self->game_obj->{current_select}{input_type} eq 'size' and
+      $self->game_obj->{current_select}{window}->id eq $winid) {
 
-    $self->send_window_size($self->{game_obj}, $winid);
+    $self->send_window_size($self->game_obj, $winid);
 
     $self->continue;
   }
