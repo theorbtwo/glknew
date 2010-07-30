@@ -157,3 +157,19 @@ universal
  - get rid of @games array.
  - DONE: need to test how each game starts/can be restored.. generally, send "r" or "restore" as first command on select?
  - what about games that ask for window size first?
+
+=====
+
+1) Add time last accessed to $game obj
+2) Admin view; list of games, last access, game name, userid, state?
+ - view visible to certain openid admins
+ - kill button
+3) non-javascript mode? for google?
+4) Auto-save mechanism
+- Auto-save is like reload but in reverse
+5) Auto-save+kill idles?
+- Cron job that hits a url to do this?
+- since time unit X, first auto-save, then auto-kill time unit later
+6) Play any game - recognise type, etc.
+- upload new game with desc etc.
+- publish anygame url?
