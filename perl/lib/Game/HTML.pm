@@ -18,9 +18,9 @@ use Net::OpenID::Consumer;
 ## This is the HTML layer over Game, which is the perl skin over glknew, which is.. C all the way down.
 
 has game_info => (isa => 'HashRef', is => 'rw', required => 0);
-has save_dir (isa => 'Path::Class::File', is => 'rw', required => 1);
-has game_path => (isa => 'Path::Class::Dir', is => 'rw', required => 1);
-has interp_path => (isa => 'Path::Class::File', is => 'rw', required => 1);
+has save_dir => (isa => 'Str', is => 'rw', required => 1);
+has game_path => (isa => 'Str', is => 'rw', required => 1);
+has interp_path => (isa => 'Str', is => 'rw', required => 1);
 has user_info => (isa => 'Str', is => 'rw', required => 0);
 has user_identity => (isa => 'Object', is => 'rw', required => 0);
 has game_obj => (isa => 'Game', is => 'rw', required => 0);
