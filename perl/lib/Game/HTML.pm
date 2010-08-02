@@ -16,6 +16,9 @@ use DateTime;
 use Data::Dump::Streamer 'Dump', 'Dumper';
 use Net::OpenID::Consumer;
 ## This is the HTML layer over Game, which is the perl skin over glknew, which is.. C all the way down.
+use overload
+  '%{}' => \&hash_deref,
+  fallback => 1;
 
 has game_info => (isa => 'HashRef', is => 'rw', required => 0);
 has save_dir => (isa => 'Str', is => 'rw', required => 1);
@@ -29,10 +32,35 @@ has last_access_time => (isa => 'DateTime', is => 'rw', required => 0);
 
 sub BUILD {
   my ($self, $attrs) = @_; 
-  my @not_got = grep !exists $self->{$_}, keys %$attrs; 
+  my @not_got = grep !exists $self->{$_}, keys %$attrs;
   
   warn "Unsupported attributes @not_got specified to the creator of $self"
     if @not_got;
+}
+
+sub hash_deref {
+  my ($self) = @_;
+
+  my @callers = map {
+    my @c = caller $_;
+    my %c;
+    @c{qw<pack file line sub>} = @c;
+    \%c;
+  } 0..1;
+
+  if ($callers[0]{pack} =~ m/^Class::MOP/) {
+    return $self;
+  } elsif ($callers[1]{sub} eq 'Game::HTML::BUILD') {
+    # Game::HTML::BUILD does a hash deref to check that all args to new made it into attributes.
+    return $self;
+  }
+
+  my $extra = join("\n\t", map {
+    sprintf("pack %s file %s line %d sub %s",
+            $_->{pack}, $_->{file}, $_->{line}, $_->{sub});
+  } @callers);
+  
+  die "Attempt to do hash deref of $self\n\t$extra\n\t";
 }
 
 =head2 callbacks
@@ -58,9 +86,9 @@ sub start_process {
     my ($self) = @_;
 
     $self->form_states({ input => 1, save => 0, login => 0, restore => 0 });
-    $self->game_obj(Game->new(delete $self->{game_path}, 
-                                  delete $self->{interp_path},
-                                  $self->callbacks));
+    $self->game_obj(Game->new($self->game_path,
+                              $self->interp_path,
+                              $self->callbacks));
 
     $self->last_access_time(DateTime->now);
 }
@@ -70,10 +98,10 @@ sub continue {
 
 #    cluck "Continuing";
     $self->set_form_visible('input');
-    $self->{game_obj}{current_select} = {};
+    $self->game_obj->{current_select} = {};
 
     $self->last_access_time(DateTime->now);
-    $self->{game_obj}->wait_for_select;
+    $self->game_obj->wait_for_select;
 }
 
 sub send {
@@ -153,12 +181,11 @@ sub prep_prompt_file {
 }
 
 sub set_form_visible {
-    my ($self, $formid) = @_;
-
-    foreach my $form (keys %{ $self->{form_states} }) {
-        $self->form_states->{$form} = 0;
-        $self->form_states->{$form} = 1 if($form eq $formid);
-    }
+  my ($self, $formid) = @_;
+  
+  foreach my $form (keys %{ $self->form_states }) {
+    $self->form_states->{$form} = ($form eq $formid);
+  }
 }
 
 sub get_input_type {
