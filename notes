@@ -1,9 +1,18 @@
+Web interface
+11:43 <theorbtwo> I want an admin page that I can use to kill off instances forcably, last-used times, and possibly a URL that, when hit, kills off all processes not used in more then 3
+                  hours.
+11:43 Proc bad: PRC / Prov / PRO / Pro / Prow / ...
+11:43 ProcessTree bad: Process Tree / Process-Tree / Processed / Procedure / Precessed
+11:43 <theorbtwo> Also, possibly, use Proc::ProcessTree to monitor total res of the process tree.
+
+
 nitfol
  - Is compiled without graphics support.
  - not being used right now.
 
 Banana Republic:
  - Does glk_stylehint_set(wintype=33, styl=3 (Header), hint=3 (Size), val=0), trying to set on type 33, which naturally segfaults.
+  - Seems to not segfault on agaton.  Why not?
 
 A Tight Spot:
  - Colors not supported
