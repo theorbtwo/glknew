@@ -208,7 +208,7 @@ sub game_logged_in :Path('/game/logged_in') {
          # The user logged in from inside the game, as part of saving or restoring.
 
          # A net::OpenID::VerifiedIdentity
-         $game->{user_identity} = $validated_id->url;
+         $game->user_identity($validated_id->url);
          
          $game->prep_prompt_file($game);
          
@@ -222,7 +222,7 @@ sub game_logged_in :Path('/game/logged_in') {
      },
      error => sub {
        my ($error) = @_;
-       die $error;
+       die "Some other problem verifying openid: $error";
      }
     );
 }
@@ -246,16 +246,16 @@ sub game_continue :Path('/game/continue') {
 
   # FIXME: Keying off of length means that the user cannot input an empty line.  In Blue Lacuna, that is documented (in a hint) as being equivelent to "look".
   if (length $text and not length $keycode) {
-    if ($game->{game_obj}{current_select}{input_charset} eq 'latin1') {
+    if ($game->game_obj->{current_select}{input_charset} eq 'latin1') {
       $game->send("evtype_LineInput $text\n");
-    } elsif ($game->{game_obj}{current_select}{input_charset} eq 'uni') {
+    } elsif ($game->game_obj->{current_select}{input_charset} eq 'uni') {
       # FIXME: This should be utf32be on big-endian platforms.
       # (However, we can't just use utf32 without suffix, which is BE
       # always with a BOM at the beginning, which the C layer isn't
       # prepapred to handle.
-      $game->{game_obj}->send_line_input_unicode($text);
+      $game->game_obj->send_line_input_unicode($text);
     } else {
-      die "Unknown input_charset $game->{game_obj}{current_select}{input_charset} -- le boggle";
+      die "Unknown input_charset $game->game_obj->{current_select}{input_charset} -- le boggle";
     }
   } elsif (exists($c->config->{js_keycodes}{$keycode}) and not length $text) {
     $game->send("evtype_CharInput keycode_" . $c->config->{js_keycodes}{$keycode} . "\n");
@@ -295,8 +295,8 @@ sub game_restore :Path('/game/restore') :Args(2) {
   ## Make a new Game::HTML, scoop out it's brains, and replace them
   ## with the Game::Restore's brains.
   my $game = setup_game('Game::HTML', $game_name, $c);
-  $game->{game_obj} = $restoring_game->{game_obj};
-  $game->{game_obj}->set_callbacks(%{ $game->callbacks });
+  $game->game_obj($restoring_game->{game_obj});
+  $game->game_obj->set_callbacks(%{ $game->callbacks });
 
   my $game_id = scalar @games;
   $game->user_info($game_id);
