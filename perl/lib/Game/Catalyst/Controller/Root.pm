@@ -293,21 +293,20 @@ Prerequisites: User is logged in.
 sub game_restore :Path('/game/restore') :Args(2) {
   my ($self, $c, $game_name, $save_name) = @_;
 
-  ## Make a new Game::Restore, to harvest the brains out of later.
-  my $game = setup_game('Game::HTML', $game_name, $c);
-  $game->game_obj->set_callbacks(Game::Restore::callbacks($game, $save_name));
-  $game->start_process;
-  $game->continue;
+  my $game_html = setup_game('Game::HTML', $game_name, $c);
+  $game_html->start_process;
+  $game_html->game_obj->set_callbacks(Game::Restore::callbacks($game_html, $save_name));
+  $game_html->continue;
 
   ## Re-set normal callbacks
-  $game->game_obj->set_callbacks(%{ $game->callbacks });
+  $game_html->game_obj->set_callbacks(%{ $game_html->callbacks });
 
   my $game_id = scalar @games;
-  $game->user_info($game_id);
-  $games[$game_id] = $game;
+  $game_html->user_info($game_id);
+  $games[$game_id] = $game_html;
 
-  $game->continue;
-  $c->res->body($game->make_page);
+  $game_html->continue;
+  $c->res->body($game_html->make_page);
 }
 
 =head2 game_new
@@ -389,8 +388,7 @@ sub setup_game {
   my $game_info = $c->game_data($game_name);
 
   if (!$game_info) {
-    # FIXME: Make this more user-friendly.  For one thing, die kills the *entire server*, not just this user's session.
-    # FIXME: Does this break the encapsulation?
+    # FIXME: Make this more user-friendly.
     die "Do not know game path for game $game_name -- supported: ".join(", ", keys %{$c->config->{games}});
   }
 

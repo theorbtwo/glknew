@@ -6,51 +6,15 @@ use Data::Dump::Streamer;
 
 =head1 Game::Restore
 
-Bare-bones Game using class that just initiates enough to send the commands to restore a saved game
+Not a class so much as a set of callbacks that one passes to Game,
+which run a few pre-whatsited commands ending with the restoring of a
+file.
 
 =cut
 
-sub new {
-    my ($class, $game_path, $interp_path, $save_file_dir, $game_info) = @_;
-    my $self = bless({
-                      save_file_dir => $save_file_dir,
-                      game_info => $game_info,
-                      game_path => $game_path,
-                      interp_path => $interp_path,
-                     }, $class);
-
-
-    return $self;
-}
-
-sub start_process {
-    my ($self) = @_;
-    my $game = Game->new(delete $self->{game_path}, 
-                         delete $self->{interp_path},
-                         {
-                          select => sub { $self->restore_select_callback(@_) },
-                          prompt_file => sub { $self->restore_prompt_file_callback(@_) },
-                         });
-    $self->{game_obj} = $game;
-}
-
-sub continue {
-    my ($self) = @_;
-    $self->{game_obj}{current_select} = {};
-
-    $self->{game_obj}->wait_for_select;
-}
-
-sub restore_game {
-    my ($self, $save_file) = @_;
-
-    $self->{save_file} = $save_file;
-    $self->continue;
-}
-
 ## Return hash of self contained callbacks:
 sub callbacks {
-    my ($game_html, $save_file) = @_;
+    my ($game_html, $save_name) = @_;
     my @restore_cmds = @{$game_html->game_info->{restore}};
 
     return (
@@ -60,7 +24,7 @@ sub callbacks {
                 restore_select_callback($game_html, \@restore_cmds, @_);
             },
             prompt_file => sub {
-                restore_prompt_file_callback($game_html, $save_file, @_);
+                restore_prompt_file_callback($game_html, $save_name, @_);
             },
            );
 }
@@ -73,11 +37,9 @@ Called by Game.pm when the game is asking us to prompt the user for a filename.
 
 sub restore_prompt_file_callback {
     # We don't actually need most of this bollocks at all.
-    my ($game_html, $save_file, $game, $usage, $mode) = @_;
+    my ($game_html, $save_name, $game, $usage, $mode) = @_;
     
-    my $fullpath = Game::Utils::save_file_dir($game_html->game_info->{shortname},
-                                              $game_html->save_file_dir,
-                                              $game_html->user_identity) . '/' . $save_file;
+    my $fullpath = $game_html->save_file_dir . '/' . $save_name;
 
     $game->send_to_game($fullpath, "\n");
     $game->{collecting_input} = 0;

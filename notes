@@ -1,3 +1,6 @@
+Game::Restore is missing functionality for games that ask for the
+window size before we get a chance to restore?
+
 Web interface
 11:43 <theorbtwo> I want an admin page that I can use to kill off instances forcably, last-used times, and possibly a URL that, when hit, kills off all processes not used in more then 3
                   hours.

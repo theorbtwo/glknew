@@ -92,6 +92,7 @@ my $c = {
             location => 'earlgrey.ulx',
             title => 'Earl Grey',
             link => 'http://www.ifwiki.org/index.php/Earl_Grey',
+            restore => [[line => "restore\n"]],
             nsfw => 0,
         },
         british_fox => {
