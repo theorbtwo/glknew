@@ -191,6 +191,11 @@ sub game_logged_in :Path('/game/logged_in') {
      not_openid => sub {
        die "Not an OpenID message";
      },
+     ## FIXME: Fix this comment.
+     ## FIXME: Which of these is actually needed.  Er, required.  Er,
+     ## whatever.  When only _required was present, there was a
+     ## problem with lj returning setup_needed and ending up in
+     ## bad_mode.
      setup_required => sub {
        my ($setup_url) = @_;
        
@@ -289,14 +294,12 @@ sub game_restore :Path('/game/restore') :Args(2) {
   my ($self, $c, $game_name, $save_name) = @_;
 
   ## Make a new Game::Restore, to harvest the brains out of later.
-  my $restoring_game = setup_game('Game::Restore', $game_name, $c);
-  $restoring_game->start_process;
-  $restoring_game->restore_game($save_name);
-
-  ## Make a new Game::HTML, scoop out it's brains, and replace them
-  ## with the Game::Restore's brains.
   my $game = setup_game('Game::HTML', $game_name, $c);
-  $game->game_obj($restoring_game->{game_obj});
+  $game->game_obj->set_callbacks(Game::Restore::callbacks($game, $save_name));
+  $game->start_process;
+  $game->continue;
+
+  ## Re-set normal callbacks
   $game->game_obj->set_callbacks(%{ $game->callbacks });
 
   my $game_id = scalar @games;

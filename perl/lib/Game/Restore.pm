@@ -48,6 +48,23 @@ sub restore_game {
     $self->continue;
 }
 
+## Return hash of self contained callbacks:
+sub callbacks {
+    my ($game_html, $save_file) = @_;
+    my @restore_cmds = @{$game_html->game_info->{restore}};
+
+    return (
+            select => sub {
+                #my $restore_cmd_idx = 0;
+                #my @restore_cmds = @{ $game_html->game_info->{restore} };
+                restore_select_callback($game_html, \@restore_cmds, @_);
+            },
+            prompt_file => sub {
+                restore_prompt_file_callback($game_html, $save_file, @_);
+            },
+           );
+}
+
 =head2 restore_prompt_file_callback
 
 Called by Game.pm when the game is asking us to prompt the user for a filename.
@@ -56,11 +73,11 @@ Called by Game.pm when the game is asking us to prompt the user for a filename.
 
 sub restore_prompt_file_callback {
     # We don't actually need most of this bollocks at all.
-    my ($self, $game, $usage, $mode) = @_;
+    my ($game_html, $save_file, $game, $usage, $mode) = @_;
     
-    my $fullpath = Game::Utils::save_file_dir($self->{game_info}{shortname},
-                                              $self->{save_file_dir},
-                                              $self->{user_identity}) . '/' . $self->{save_file};
+    my $fullpath = Game::Utils::save_file_dir($game_html->game_info->{shortname},
+                                              $game_html->save_file_dir,
+                                              $game_html->user_identity) . '/' . $save_file;
 
     $game->send_to_game($fullpath, "\n");
     $game->{collecting_input} = 0;
@@ -72,12 +89,9 @@ sub restore_prompt_file_callback {
 ## Keep answering the callback with the next restore command in the 
 ## config. Then send the save file name.
 sub restore_select_callback {
-    my ($self, $game, $winid, $input_type, $input_charset) = @_;
+    my ($game_html, $cmds, $game, $winid, $input_type, $input_charset) = @_;
 
-    $self->{restore_cmd_idx} ||= 0; 
-
-    my @restore_cmds = @{ $self->{game_info}{restore} };
-    my $next_cmd = $restore_cmds[$self->{restore_cmd_idx}++];
+    my $next_cmd = shift @$cmds;
 
     if(!$next_cmd) {
         die "Reached the end of the programmed restore commands without seeing a file prompt";
@@ -92,7 +106,7 @@ sub restore_select_callback {
         } else {
             die "Unhandled next_cmd".Dumper($next_cmd);
         }
-        $self->{game_obj}->send_to_game($to_game);
+        $game_html->game_obj->send_to_game($to_game);
     }
 }
 
