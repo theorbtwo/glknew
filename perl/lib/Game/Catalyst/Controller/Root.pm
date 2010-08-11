@@ -49,6 +49,7 @@ sub index :Path :Args(0) {
   my ($self, $c) = @_;
   
   my $g = $c->config->{games};
+  $c->stash->{known_games} = [];
 #  print STDERR Dumper $g;
   # FIXME: Sort correctly -- case insensitive, ignoring leading articles.
   for my $k (sort {$g->{$a}{title} cmp $g->{$b}{title}} keys %$g) {
