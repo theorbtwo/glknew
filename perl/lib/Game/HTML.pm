@@ -20,12 +20,14 @@ use overload
   '%{}' => \&hash_deref,
   fallback => 1;
 
+# ->{shortname}, ->{title}
 has game_info => (isa => 'HashRef', is => 'rw', required => 0);
 has save_dir => (isa => 'Str', is => 'rw', required => 1);
 has game_path => (isa => 'Str', is => 'rw', required => 1);
 has interp_path => (isa => 'Str', is => 'rw', required => 1);
 has user_info => (isa => 'Str', is => 'rw', required => 0);
-has user_identity => (isa => 'Object', is => 'rw', required => 0);
+# An OpenID URL that the user is signed on as.
+has user_identity => (isa => 'Str', is => 'rw', required => 0);
 has game_obj => (isa => 'Game', is => 'rw', required => 0);
 has form_states => (isa => 'HashRef', is => 'rw', required => 0);
 has last_access_time => (isa => 'DateTime', is => 'rw', required => 0);

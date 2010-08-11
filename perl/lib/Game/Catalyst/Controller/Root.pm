@@ -331,6 +331,26 @@ sub game_new :Path('/game/new') :Args(1) {
   $c->res->body($game->make_page);
 }
 
+=head2 admin
+
+An administrative interface, for killing things we don't like & etc.
+
+=cut
+
+sub admin :Path('/admin') {
+  my ($self, $c) = @_;
+
+  if (!$c->session->{user_identity}) {
+    die "Please log in on the front page before trying to use the admin page."
+  }
+  if (!($c->session->{user_identity} ~~ ['http://theorb.livejournal.com/', 'http://getopenid.com/castaway'])) {
+    die "You, ".$c->session->{user_identity}.", are not a recognized administrator.  Go away.";
+  }
+
+  $c->stash->{games} = \@games;
+}
+
+
 =head2 debugme
 
 Does some random debuggy data dumping.
