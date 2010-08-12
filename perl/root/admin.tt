@@ -1,0 +1,31 @@
+<html>
+  <head>
+    glknew.org admin
+  </head>
+  <body>
+    <table>
+      <tr>
+        <th>game shortname</th>
+        <th>continue ID</th>
+        <th>last access time</th>
+        <th>user's openid URL</th>
+      </tr>
+      [% FOREACH g IN games %]
+        <tr>
+          <td>
+            [% g.game_info.shortname %]
+          </td>
+          <td>
+            [% g.user_info %]
+          </td>
+          <td>
+            [% g.last_access_time %]
+          </td>
+          <td>
+            [% g.user_identity %]
+          </td>
+        </tr>
+      [% END %]
+    </table>
+  </body>
+</html>
