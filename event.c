@@ -242,7 +242,9 @@ void glk_select(event_t *event) {
     event->val1 = len;
     event->val2 = 0;
 
+    /*    glk_put_string_stream(line_event_request_info_latin1.win->stream, ret+17); */
     glk_put_buffer_stream_uni(line_event_request_info_uni.win->stream, line_event_request_info_uni.buf, len);
+    glk_put_string_stream(line_event_request_info_uni.win->stream, "\n");
 
   } else {
     printf("Couldn't parse select response: '%s'\n", ret);

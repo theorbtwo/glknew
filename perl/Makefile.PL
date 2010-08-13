@@ -18,6 +18,7 @@ requires 'Catalyst::Action::RenderView';
 requires 'Catalyst::View::TT';
 requires 'Moose';
 requires 'JSON';
+requires 'DateTime';
 requires 'Data::Dump::Streamer';
 requires 'LWPx::ParanoidAgent';
 requires 'Cache::FileCache';
