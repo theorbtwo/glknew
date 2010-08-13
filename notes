@@ -28,7 +28,7 @@ A Tight Spot:
 curses
  - DONE: Gets the windows confused somehow?
  - DONE: Spews error messages
- - No newline after echoed user input.
+ - DONE: No newline after echoed user input.
  - Save echos strange garbage to screen -- tries to output save file
    to current stream, rather then to save file stream!
 
@@ -94,7 +94,7 @@ zork1
  - DONE: Gets the windows / streams confused somehow?
  - DONE: No visible output
  - DONE: After typing a line into the apparently empty screen, you can see output, but with no newlines in the game's output, and extra red error messages: "[ERROR: save]: incorrect stack size assessment (0) 22800 (1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10)"
- - Missing newline after echo.
+ - DONE: Missing newline after echo.
 
 emy
  - Done: initial working!
