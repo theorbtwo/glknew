@@ -14,6 +14,9 @@
      })();
 
     </script>
+    <style>
+      #gamelist dd { margin-bottom: .25em }
+    </style>
   </head>
   <body>
     <h2>GlkNew, the new-school interactive fiction engine</h2>
@@ -35,7 +38,7 @@
         </dd>
       </dl>
     </p>
-    <h3>How to play</h3>
+<!--    <h3>How to play</h3>
     <p>
       Choose a game from the list below and click on the link with the
       title of the game.  The game will load and display the first page of
@@ -47,6 +50,7 @@
       continue playing, enter your OpenID below the game list, and
       choose from your saved game list.
     </p>
+-->
     <h3>Help, I'm stuck!</h3>
     <p>
       If you have a technical problem playing the game (error
@@ -59,21 +63,26 @@
       suggestion, or, heck, just to say thanks.
     </p>
     <p>
-      If you are stuck playing the game itself, try looking at the games website, or searching for its name in google. Most games also have a hint system, so try typing <em>help</em>, or (in King of Shreds), <em>think</em>.
+      If you are stuck playing the game itself, try looking at the game's website, or searching for its name in google. Most games also have a hint system, so try typing <em>help</em>, or (in King of Shreds), <em>think</em>.
     </p>
     <h2>The games</h2>
-    <ul>
+    <dl id="gamelist">
       [% FOR e = known_games %]
         [% IF !e.nsfw || show_nsfw %]
-          <li><a href="game/new/[%e.shortname%]">[% e.title | html %]</a> <a href="[% e.link | html %]">about</a></li>
-          [% IF e.save_games.size %]
-            <strong>Saved games:</strong>
-            <ul>
-              [% FOR f = e.save_games %]
-                <li>[% f | html %] <a href="/game/restore/[%e.shortname|uri%]/[%f|uri%]">restore</a></li>
-              [% END %]
-            </ul>
-          [% END %]
+          <dt>[% e.title | html %]
+          &mdash; <a href="game/new/[%e.shortname%]">Play Now</a>
+          &mdash; <a href="[% e.link | html %]">More Info</a></dt>
+          <dd>
+            <div>[% e.desc %]</div>
+            [% IF e.save_games.size %]
+              <strong>Saved games:</strong>
+              <ul>
+                [% FOR f = e.save_games %]
+                  <li>[% f | html %] <a href="/game/restore/[%e.shortname|uri%]/[%f|uri%]">restore</a></li>
+                [% END %]
+              </ul>
+            [% END %]
+          </dd>
         [% END %]
       [% END %]
     </ul>
